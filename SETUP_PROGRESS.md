@@ -4,7 +4,14 @@ Last updated: 2026-07-19
 
 ## Current objective
 
-Prepare a minimal, reproducible Python project using Git, GitHub, Python 3.11, uv, Pytest and Ruff.
+Complete the repository bootstrap with a verified GitHub Actions quality gate.
+
+## Active task
+
+- Issue: `#1` — `[CI] Add minimal Python quality workflow`
+- Branch: `ci/1-minimal-quality-workflow`
+- Pull request: `#2` — `CI: add Python quality workflow`
+- Workflow: `.github/workflows/quality.yml`
 
 ## Decisions
 
@@ -35,16 +42,17 @@ Prepare a minimal, reproducible Python project using Git, GitHub, Python 3.11, u
 - [x] Initial commit created and pushed to `origin/main`
 - [x] GitHub repository created and connected as `origin`
 - [x] Clean-clone reproducibility verified
+- [x] Minimal GitHub Actions quality workflow verified
 
 ## Current step
 
-Initial environment and repository setup completed.
+Bootstrap phase completed; merge the verified CI pull request into `main`.
 
 ## Next steps
 
-1. Select the first implementation task from the project roadmap.
-2. Create a focused GitHub issue for the task.
-3. Create a short-lived branch from `main`.
+1. Merge pull request `#2` and confirm issue `#1` closes.
+2. Confirm that `main` remains green.
+3. Define the output contract for the first PTB-XL metadata task.
 
 ## Latest verification
 
@@ -55,6 +63,9 @@ Initial environment and repository setup completed.
 - Ruff lint: passed
 - Ruff format check: passed
 - Clean clone: `uv sync --locked`, Pytest and Ruff passed
+- Workflow YAML: syntax and style validation passed
+- GitHub Actions `Python quality`: passed on pull request `#2`
+- GitGuardian security checks: passed on pull request `#2`
 
 ## Working rules
 
