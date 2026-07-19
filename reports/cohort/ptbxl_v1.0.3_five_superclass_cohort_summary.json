@@ -1,0 +1,215 @@
+{
+  "dataset": {
+    "name": "PTB-XL",
+    "version": "1.0.3"
+  },
+  "exclusion_reasons": {
+    "no_target_superclass": 411
+  },
+  "label_cardinality": {
+    "test": 1.293790546802595,
+    "train": 1.29870053851557,
+    "validation": 1.2982292637465052
+  },
+  "label_combinations": {
+    "test": {
+      "CD": 184,
+      "CD+HYP": 27,
+      "HYP": 56,
+      "MI": 256,
+      "MI+CD": 133,
+      "MI+CD+HYP": 5,
+      "MI+HYP": 17,
+      "MI+STTC": 61,
+      "MI+STTC+CD": 21,
+      "MI+STTC+CD+HYP": 16,
+      "MI+STTC+HYP": 41,
+      "NORM": 912,
+      "NORM+CD": 45,
+      "NORM+CD+HYP": 2,
+      "NORM+STTC": 4,
+      "STTC": 242,
+      "STTC+CD": 38,
+      "STTC+CD+HYP": 25,
+      "STTC+HYP": 73
+    },
+    "train": {
+      "CD": 1353,
+      "CD+HYP": 235,
+      "HYP": 415,
+      "MI": 2043,
+      "MI+CD": 1035,
+      "MI+CD+HYP": 99,
+      "MI+HYP": 146,
+      "MI+STTC": 474,
+      "MI+STTC+CD": 177,
+      "MI+STTC+CD+HYP": 122,
+      "MI+STTC+HYP": 282,
+      "NORM": 7243,
+      "NORM+CD": 327,
+      "NORM+HYP": 1,
+      "NORM+MI+CD+HYP": 1,
+      "NORM+STTC": 20,
+      "NORM+STTC+CD": 4,
+      "STTC": 1903,
+      "STTC+CD": 386,
+      "STTC+CD+HYP": 168,
+      "STTC+HYP": 650
+    },
+    "validation": {
+      "CD": 171,
+      "CD+HYP": 38,
+      "HYP": 64,
+      "MI": 233,
+      "MI+CD": 129,
+      "MI+CD+HYP": 13,
+      "MI+HYP": 20,
+      "MI+STTC": 64,
+      "MI+STTC+CD": 25,
+      "MI+STTC+CD+HYP": 18,
+      "MI+STTC+HYP": 38,
+      "NORM": 914,
+      "NORM+CD": 35,
+      "NORM+HYP": 1,
+      "NORM+STTC": 4,
+      "NORM+STTC+CD": 1,
+      "STTC": 255,
+      "STTC+CD": 47,
+      "STTC+CD+HYP": 18,
+      "STTC+HYP": 58
+    }
+  },
+  "label_count_distribution": {
+    "test": {
+      "1": 1650,
+      "2": 398,
+      "3": 94,
+      "4": 16,
+      "5": 0
+    },
+    "train": {
+      "1": 12957,
+      "2": 3274,
+      "3": 730,
+      "4": 123,
+      "5": 0
+    },
+    "validation": {
+      "1": 1637,
+      "2": 396,
+      "3": 95,
+      "4": 18,
+      "5": 0
+    }
+  },
+  "label_prevalence": {
+    "test": {
+      "CD": {
+        "count": 496,
+        "fraction": 0.22984244670991658
+      },
+      "HYP": {
+        "count": 262,
+        "fraction": 0.12140871177015755
+      },
+      "MI": {
+        "count": 550,
+        "fraction": 0.2548656163113994
+      },
+      "NORM": {
+        "count": 963,
+        "fraction": 0.4462465245597776
+      },
+      "STTC": {
+        "count": 521,
+        "fraction": 0.24142724745134383
+      }
+    },
+    "train": {
+      "CD": {
+        "count": 3907,
+        "fraction": 0.22869351439943808
+      },
+      "HYP": {
+        "count": 2119,
+        "fraction": 0.12403418403184266
+      },
+      "MI": {
+        "count": 4379,
+        "fraction": 0.25632170451884806
+      },
+      "NORM": {
+        "count": 7596,
+        "fraction": 0.44462655115897914
+      },
+      "STTC": {
+        "count": 4186,
+        "fraction": 0.2450245844064622
+      }
+    },
+    "validation": {
+      "CD": {
+        "count": 495,
+        "fraction": 0.23066169617893756
+      },
+      "HYP": {
+        "count": 268,
+        "fraction": 0.12488350419384903
+      },
+      "MI": {
+        "count": 540,
+        "fraction": 0.2516309412861137
+      },
+      "NORM": {
+        "count": 955,
+        "fraction": 0.4450139794967381
+      },
+      "STTC": {
+        "count": 528,
+        "fraction": 0.24603914259086673
+      }
+    }
+  },
+  "patient_overlap": {
+    "train_test": [],
+    "train_validation": [],
+    "validation_test": []
+  },
+  "patients": {
+    "excluded": 329,
+    "excluded_only": 252,
+    "included": 18617,
+    "input": 18869
+  },
+  "records": {
+    "excluded": 411,
+    "included": 21388,
+    "input": 21799
+  },
+  "source_labels_sha256": "347f6657dc53e8792e7b1bc05c8dcc8f9dd66ce88eb49b61d61f374302a09515",
+  "splits": {
+    "test": {
+      "patients": 1877,
+      "records": 2158
+    },
+    "train": {
+      "patients": 14823,
+      "records": 17084
+    },
+    "validation": {
+      "patients": 1917,
+      "records": 2146
+    }
+  },
+  "task": {
+    "inclusion_rule": "at_least_one_target_superclass",
+    "targets": [
+      "NORM",
+      "MI",
+      "STTC",
+      "CD",
+      "HYP"
+    ],
+    "type": "multilabel_classification"
+  }
+}
