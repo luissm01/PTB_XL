@@ -96,7 +96,7 @@ uv run --locked python scripts/build_modeling_cohort.py \
 - [x] No signal file is loaded.
 - [x] Repeated generation produces identical bytes.
 - [x] Full Pytest and Ruff suite passes.
-- [ ] Pull request and post-merge main CI pass.
+- [x] Pull request and post-merge main CI pass.
 
 ## Leakage constraints
 
