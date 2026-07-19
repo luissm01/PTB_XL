@@ -4,12 +4,13 @@ Last updated: 2026-07-19
 
 ## Current objective
 
-Add a minimal GitHub Actions quality workflow for the existing Python checks.
+Complete the repository bootstrap with a verified GitHub Actions quality gate.
 
 ## Active task
 
 - Issue: `#1` — `[CI] Add minimal Python quality workflow`
 - Branch: `ci/1-minimal-quality-workflow`
+- Pull request: `#2` — `CI: add Python quality workflow`
 - Workflow: `.github/workflows/quality.yml`
 
 ## Decisions
@@ -41,17 +42,17 @@ Add a minimal GitHub Actions quality workflow for the existing Python checks.
 - [x] Initial commit created and pushed to `origin/main`
 - [x] GitHub repository created and connected as `origin`
 - [x] Clean-clone reproducibility verified
+- [x] Minimal GitHub Actions quality workflow verified
 
 ## Current step
 
-Finish local validation, publish the CI branch and confirm the workflow on GitHub.
+Bootstrap phase completed; merge the verified CI pull request into `main`.
 
 ## Next steps
 
-1. Review the complete issue `#1` diff and run all quality commands.
-2. Commit and push the workflow branch.
-3. Open a pull request with `Closes #1`.
-4. Confirm that the first GitHub Actions run passes before merging.
+1. Merge pull request `#2` and confirm issue `#1` closes.
+2. Confirm that `main` remains green.
+3. Define the output contract for the first PTB-XL metadata task.
 
 ## Latest verification
 
@@ -63,6 +64,8 @@ Finish local validation, publish the CI branch and confirm the workflow on GitHu
 - Ruff format check: passed
 - Clean clone: `uv sync --locked`, Pytest and Ruff passed
 - Workflow YAML: syntax and style validation passed
+- GitHub Actions `Python quality`: passed on pull request `#2`
+- GitGuardian security checks: passed on pull request `#2`
 
 ## Working rules
 
