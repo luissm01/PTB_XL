@@ -1,0 +1,8 @@
+{
+  "dataset": "PTB-XL",
+  "file": "scp_statements.csv",
+  "license": "CC BY 4.0",
+  "sha256": "ad05b0b1fcae83bb1230755ad9cfc7c96f303feddc08a4a9ad5bdc9ca63bac8f",
+  "source": "https://physionet.org/files/ptb-xl/1.0.3/scp_statements.csv",
+  "version": "1.0.3"
+}
