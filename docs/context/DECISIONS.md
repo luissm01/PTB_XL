@@ -95,3 +95,34 @@ future leakage when individual folds are reused for cross-validation.
 
 Why: CI stays fast and independent of external data availability while the
 reviewable report preserves evidence of the real validation.
+
+## D011 — Official diagnostic superclass taxonomy
+
+- Target labels are `NORM`, `MI`, `STTC`, `CD` and `HYP` in that order.
+- Derive code-to-superclass assignments from the versioned official
+  `scp_statements.csv`, never from a manually maintained code list.
+- Only rows marked diagnostic and assigned to a target superclass participate.
+
+Why: target semantics must be attributable to the dataset taxonomy rather than
+to observations made from validation or test frequencies.
+
+## D012 — SCP likelihood and unknown-code policy
+
+- Code presence activates its mapped target regardless of likelihood.
+- Validate likelihoods as finite numeric values from 0 to 100 but introduce no
+  threshold because zero may mean unknown certainty in PTB-XL.
+- Reject codes absent from the official statement catalogue.
+- Count known codes outside the target mapping in the evidence report.
+
+Why: this avoids an unjustified label threshold and prevents unresolved codes
+from disappearing silently.
+
+## D013 — Labels do not define the modeling cohort
+
+- Preserve every validated metadata row, including records with no target.
+- Inherit the existing split column without recalculating it.
+- Keep the derived label table ignored and version only its deterministic
+  construction code, source identity and summary evidence.
+
+Why: label construction should expose the source population before a separate,
+train-governed cohort decision and should not duplicate split logic.
