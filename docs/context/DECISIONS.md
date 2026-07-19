@@ -57,3 +57,41 @@ custom abstractions prematurely.
 
 Why: a new developer or Codex session should be able to resume from repository
 files without reconstructing decisions from chat history.
+
+## D007 — Fixed PTB-XL metadata source
+
+- Use PTB-XL v1.0.3 from the versioned PhysioNet distribution.
+- Record the exact source URL and official SHA-256 for `ptbxl_database.csv`.
+- Do not use a moving `latest` URL as dataset identity.
+
+Why: results must remain attributable to the same dataset release even when a
+newer version becomes available.
+
+## D008 — Dataset evidence without DVC
+
+- Keep the real CSV under ignored `data/raw/`.
+- Version `data/ptbxl_metadata_manifest.json` with identity and checksum.
+- Version `reports/metadata/ptbxl_v1.0.3_summary.json` with deterministic facts.
+- Exclude timestamps, absolute paths and machine-specific details.
+
+Why: one small source file can be identified and verified without introducing a
+data-versioning system or committing the source metadata.
+
+## D009 — Fold consistency is distinct from split leakage
+
+- Cross-split patient overlap protects the current train/validation/test
+  evaluation.
+- A patient assigned to more than one `strat_fold` is a separate error, even
+  when both folds map to `train`.
+
+Why: the second guarantee preserves the official fold semantics and prevents
+future leakage when individual folds are reused for cross-validation.
+
+## D010 — Real-data validation remains local
+
+- The default CI suite uses only synthetic data.
+- GitHub Actions does not download PTB-XL in this mission.
+- A deterministic JSON report records the locally verified real-data result.
+
+Why: CI stays fast and independent of external data availability while the
+reviewable report preserves evidence of the real validation.

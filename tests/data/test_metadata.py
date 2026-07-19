@@ -5,6 +5,7 @@ import pytest
 
 from ptbxl.data.metadata import (
     build_metadata_summary,
+    find_patient_fold_conflicts,
     find_patient_overlaps,
     load_metadata,
     prepare_metadata,
@@ -105,6 +106,31 @@ def test_prepare_metadata_fails_on_patient_leakage() -> None:
     )
 
     with pytest.raises(ValueError, match="train/validation"):
+        prepare_metadata(metadata)
+
+
+def test_finds_patient_assigned_to_multiple_folds() -> None:
+    metadata = pd.DataFrame(
+        {
+            "ecg_id": [1, 2, 3],
+            "patient_id": [42, 42, 99],
+            "strat_fold": [1, 2, 8],
+        }
+    )
+
+    assert find_patient_fold_conflicts(metadata) == {42: [1, 2]}
+
+
+def test_prepare_metadata_fails_when_patient_has_multiple_folds() -> None:
+    metadata = pd.DataFrame(
+        {
+            "ecg_id": [1, 2],
+            "patient_id": [42, 42],
+            "strat_fold": [1, 2],
+        }
+    )
+
+    with pytest.raises(ValueError, match="multiple strat_fold"):
         prepare_metadata(metadata)
 
 

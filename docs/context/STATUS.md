@@ -4,54 +4,64 @@ Last updated: 2026-07-19
 
 ## Current mission
 
-Validate PTB-XL metadata and official splits without loading ECG signals.
+Verify the identity, integrity and official folds of the real PTB-XL v1.0.3
+metadata without downloading ECG signals.
 
-- Issue: `#3` — `[DATA] Validate PTB-XL metadata and official splits`
-- Branch: `data/3-metadata-official-splits`
-- Pull request: `#4` — `Data: validate PTB-XL metadata and official splits`
-- Mission contract: `docs/context/missions/001_metadata_official_splits.md`
+- Issue: `#5` — `[DATA] Verify official PTB-XL v1.0.3 metadata`
+- Branch: `data/5-verify-ptbxl-v1.0.3-metadata`
+- Mission contract: `docs/context/missions/002_verify_real_metadata.md`
 
 ## Why this is next
 
-Patient-level leakage would invalidate every later experiment. The split boundary
-must therefore be validated before signal loading, label construction or model
-training.
+Mission 001 proved the metadata rules with synthetic examples. This mission
+must demonstrate that the official file itself satisfies those rules and leave
+versioned, reproducible evidence of the result.
 
 ## Current step
 
-Review the green pull request before merging it into `main`.
+Mission 002 implementation and real-data validation are complete locally.
+Pull request `#6` is ready for review, mergeable and all checks are green.
+The next human step is technical review and approval before squash-merging.
 
-## Agreed contract
+## Important source fact
 
-- Required columns: `ecg_id`, `patient_id`, `strat_fold`.
-- `ecg_id` must be unique.
-- Critical values cannot be null.
-- Valid folds are integers from 1 through 10.
-- Folds 1–8 map to `train`, fold 9 to `validation`, fold 10 to `test`.
-- Patient overlap across splits is detected and causes an immediate error.
-- A separate overlap function preserves inspectability.
-- The summary is a serializable nested dictionary.
-- Missing columns use `KeyError`; invalid values and leakage use `ValueError`.
+The official PhysioNet v1.0.3 page describes 21,799 records and 18,869 patients.
+Earlier planning material mentioned 21,837 and 18,885. The real CSV and its
+official checksum are the source of truth; no count will be hard-coded before
+inspection.
 
 ## Next actions
 
-1. Review pull request `#4` and its checks.
-2. Mark it ready and merge only after approval.
-3. Confirm issue `#3` closes and `main` remains green.
+1. Obtain technical review and approval for pull request `#6`.
+2. Squash-merge only while all required checks remain green.
+3. Confirm issue `#5` closes and synchronize local `main`.
+4. Ask the mentor and technical director to define the next scoped data mission.
 
-## Completed foundation
+## Last completed mission
 
-- Reproducible Python 3.11 environment managed by uv.
-- Installable `src/` package with a locked environment.
-- Pytest and Ruff configured.
-- Clean-clone reconstruction verified.
-- GitHub Actions quality workflow green on `main`.
-- Issue/branch/PR workflow established.
+Mission 001 — PTB-XL metadata and official splits:
+
+- Issue `#3` closed.
+- Pull request `#4` squash-merged as `f9577e5`.
+- 17 synthetic tests passed.
+- GitHub Actions and GitGuardian passed on the PR and `main`.
+- Local and remote mission branches were removed after merge.
 
 ## Current repository health
 
-- `main` was clean and synchronized before branch creation.
-- Test suite: 17 passed.
-- Ruff lint and format checks: passed.
-- GitHub Actions and GitGuardian: passed on pull request `#4`.
-- No PTB-XL data or signal files are present in the repository.
+- `main` was synchronized and clean before branch creation.
+- Final locked quality checks passed: 23 tests, Ruff lint and Ruff format.
+- The official CSV checksum is
+  `7600de9c1b27d181d850b3c6038a35d7c3ddb6bb33b702e3a20252a6859d216b`.
+- Real v1.0.3 validation passed with 21,799 records and 18,869 patients.
+- Folds 1–8 contain 17,418 training records, fold 9 contains 2,183 validation
+  records and fold 10 contains 2,198 test records.
+- Cross-split patient overlap and cross-fold patient conflicts are empty.
+- Two consecutive report generations produced the same report SHA-256:
+  `bd275e273505c735fc4abb3e9720b9abfc76bc6626e30115f5e4f121daa5c696`.
+- The validation script exposes the agreed `argparse` interface.
+- The local PTB-XL CSV and checksum list remain ignored under `data/raw/`.
+- Default CI remains synthetic and does not download the dataset.
+- Commit `eac35f7` was published in pull request `#6`.
+- Pull request `#6` is ready for review and has merge state `CLEAN`.
+- Python quality and GitGuardian checks pass on the current branch tip.
