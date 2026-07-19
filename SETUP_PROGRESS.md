@@ -4,9 +4,9 @@ Last updated: 2026-07-19
 
 ## Current objective
 
-Complete the repository bootstrap with a verified GitHub Actions quality gate.
+Define the first PTB-XL metadata task after completing the repository bootstrap.
 
-## Active task
+## Last completed task
 
 - Issue: `#1` — `[CI] Add minimal Python quality workflow`
 - Branch: `ci/1-minimal-quality-workflow`
@@ -46,13 +46,13 @@ Complete the repository bootstrap with a verified GitHub Actions quality gate.
 
 ## Current step
 
-Bootstrap phase completed; merge the verified CI pull request into `main`.
+Bootstrap phase completed with a green quality workflow on `main`.
 
 ## Next steps
 
-1. Merge pull request `#2` and confirm issue `#1` closes.
-2. Confirm that `main` remains green.
-3. Define the output contract for the first PTB-XL metadata task.
+1. Define the concrete output of the first PTB-XL metadata module.
+2. Define how patient-level leakage prevention will be verified.
+3. Create a focused issue and short-lived branch only after agreeing on that contract.
 
 ## Latest verification
 
@@ -66,6 +66,9 @@ Bootstrap phase completed; merge the verified CI pull request into `main`.
 - Workflow YAML: syntax and style validation passed
 - GitHub Actions `Python quality`: passed on pull request `#2`
 - GitGuardian security checks: passed on pull request `#2`
+- Pull request `#2`: merged into `main`
+- Issue `#1`: closed automatically
+- GitHub Actions `Quality`: passed on `main`
 
 ## Working rules
 
