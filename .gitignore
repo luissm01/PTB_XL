@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.vscode/
+.env
+dist/
+
+# Local data and generated artifacts
+data/raw/
+data/interim/
+data/processed/
+artifacts/
+outputs/
+mlruns/
+mlflow.db
+*.pt
+*.pth
+*.onnx
