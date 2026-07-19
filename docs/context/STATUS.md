@@ -8,6 +8,7 @@ Validate PTB-XL metadata and official splits without loading ECG signals.
 
 - Issue: `#3` — `[DATA] Validate PTB-XL metadata and official splits`
 - Branch: `data/3-metadata-official-splits`
+- Pull request: `#4` — `Data: validate PTB-XL metadata and official splits`
 - Mission contract: `docs/context/missions/001_metadata_official_splits.md`
 
 ## Why this is next
@@ -18,7 +19,7 @@ training.
 
 ## Current step
 
-Publish the approved mission branch and validate its pull request.
+Review the green pull request before merging it into `main`.
 
 ## Agreed contract
 
@@ -34,9 +35,9 @@ Publish the approved mission branch and validate its pull request.
 
 ## Next actions
 
-1. Commit and publish the mission branch.
-2. Open a pull request with `Closes #3`.
-3. Verify GitHub Actions before deciding whether to merge.
+1. Review pull request `#4` and its checks.
+2. Mark it ready and merge only after approval.
+3. Confirm issue `#3` closes and `main` remains green.
 
 ## Completed foundation
 
@@ -52,4 +53,5 @@ Publish the approved mission branch and validate its pull request.
 - `main` was clean and synchronized before branch creation.
 - Test suite: 17 passed.
 - Ruff lint and format checks: passed.
+- GitHub Actions and GitGuardian: passed on pull request `#4`.
 - No PTB-XL data or signal files are present in the repository.

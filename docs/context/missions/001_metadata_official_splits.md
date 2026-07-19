@@ -66,7 +66,7 @@ tests/data/test_metadata.py
 - [x] Minimum implementation completed.
 - [x] Local quality checks passed.
 - [x] Complete diff reviewed and approved.
-- [ ] Pull request validated.
+- [x] Pull request validated.
 
 ## Out of scope
 
