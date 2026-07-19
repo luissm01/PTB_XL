@@ -104,7 +104,7 @@ uv run --locked python scripts/build_superclass_labels.py \
 - [x] Synthetic label tests pass.
 - [x] Repeated real generation produces identical table and report bytes.
 - [x] Full Pytest and Ruff checks pass.
-- [ ] Pull request and main CI pass.
+- [x] Pull request and main CI pass.
 
 ## Leakage constraints
 
