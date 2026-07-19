@@ -4,7 +4,13 @@ Last updated: 2026-07-19
 
 ## Current objective
 
-Prepare a minimal, reproducible Python project using Git, GitHub, Python 3.11, uv, Pytest and Ruff.
+Add a minimal GitHub Actions quality workflow for the existing Python checks.
+
+## Active task
+
+- Issue: `#1` — `[CI] Add minimal Python quality workflow`
+- Branch: `ci/1-minimal-quality-workflow`
+- Workflow: `.github/workflows/quality.yml`
 
 ## Decisions
 
@@ -38,13 +44,14 @@ Prepare a minimal, reproducible Python project using Git, GitHub, Python 3.11, u
 
 ## Current step
 
-Initial environment and repository setup completed.
+Finish local validation, publish the CI branch and confirm the workflow on GitHub.
 
 ## Next steps
 
-1. Select the first implementation task from the project roadmap.
-2. Create a focused GitHub issue for the task.
-3. Create a short-lived branch from `main`.
+1. Review the complete issue `#1` diff and run all quality commands.
+2. Commit and push the workflow branch.
+3. Open a pull request with `Closes #1`.
+4. Confirm that the first GitHub Actions run passes before merging.
 
 ## Latest verification
 
@@ -55,6 +62,7 @@ Initial environment and repository setup completed.
 - Ruff lint: passed
 - Ruff format check: passed
 - Clean clone: `uv sync --locked`, Pytest and Ruff passed
+- Workflow YAML: syntax and style validation passed
 
 ## Working rules
 
