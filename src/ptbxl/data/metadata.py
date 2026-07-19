@@ -30,6 +30,12 @@ def prepare_metadata(metadata: pd.DataFrame) -> pd.DataFrame:
         details = ", ".join(f"{pair}={patients}" for pair, patients in detected.items())
         raise ValueError(f"Patient leakage detected across splits: {details}")
 
+    fold_conflicts = _find_fold_conflicts_in_prepared_metadata(prepared)
+    if fold_conflicts:
+        raise ValueError(
+            f"Patients assigned to multiple strat_fold values: {fold_conflicts}"
+        )
+
     return prepared
 
 
@@ -37,6 +43,12 @@ def find_patient_overlaps(metadata: pd.DataFrame) -> dict[str, list[Any]]:
     """Return patient identifiers shared by each pair of official splits."""
     prepared = _validate_and_assign_splits(metadata)
     return _find_overlaps_in_prepared_metadata(prepared)
+
+
+def find_patient_fold_conflicts(metadata: pd.DataFrame) -> dict[Any, list[int]]:
+    """Return patients assigned to more than one official fold."""
+    prepared = _validate_and_assign_splits(metadata)
+    return _find_fold_conflicts_in_prepared_metadata(prepared)
 
 
 def build_metadata_summary(metadata: pd.DataFrame) -> dict[str, Any]:
@@ -121,6 +133,17 @@ def _find_overlaps_in_prepared_metadata(
         )
         overlaps[pair] = [_to_python_scalar(value) for value in shared_patients]
     return overlaps
+
+
+def _find_fold_conflicts_in_prepared_metadata(
+    metadata: pd.DataFrame,
+) -> dict[Any, list[int]]:
+    folds_by_patient = metadata.groupby("patient_id")["strat_fold"].unique()
+    return {
+        _to_python_scalar(patient_id): sorted(int(fold) for fold in folds)
+        for patient_id, folds in folds_by_patient.items()
+        if len(folds) > 1
+    }
 
 
 def _to_python_scalar(value: Any) -> Any:

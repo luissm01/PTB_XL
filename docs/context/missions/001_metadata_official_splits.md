@@ -80,3 +80,10 @@ tests/data/test_metadata.py
 
 The API and synthetic tests cover every required behavior, Pytest and Ruff pass,
 and the code does not load signals or use fold 10 for any decision.
+
+## Closure
+
+- Issue `#3`: closed.
+- Pull request `#4`: squash-merged.
+- Merge commit: `f9577e5`.
+- GitHub Actions on `main`: passed.

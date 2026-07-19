@@ -2,6 +2,7 @@
 
 from ptbxl.data.metadata import (
     build_metadata_summary,
+    find_patient_fold_conflicts,
     find_patient_overlaps,
     load_metadata,
     prepare_metadata,
@@ -9,6 +10,7 @@ from ptbxl.data.metadata import (
 
 __all__ = [
     "build_metadata_summary",
+    "find_patient_fold_conflicts",
     "find_patient_overlaps",
     "load_metadata",
     "prepare_metadata",
