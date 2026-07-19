@@ -34,17 +34,17 @@ Prepare a minimal, reproducible Python project using Git, GitHub, Python 3.11, u
 - [x] `AGENTS.md` created
 - [x] Initial commit created and pushed to `origin/main`
 - [x] GitHub repository created and connected as `origin`
-- [ ] Clean-clone reproducibility verified
+- [x] Clean-clone reproducibility verified
 
 ## Current step
 
-Verify that the published repository can be reconstructed from a clean clone.
+Initial environment and repository setup completed.
 
 ## Next steps
 
-1. Clone the GitHub repository into a temporary directory.
-2. Run `uv sync`, Pytest and Ruff from the clean clone.
-3. Mark the initial environment setup as complete.
+1. Select the first implementation task from the project roadmap.
+2. Create a focused GitHub issue for the task.
+3. Create a short-lived branch from `main`.
 
 ## Latest verification
 
@@ -54,6 +54,7 @@ Verify that the published repository can be reconstructed from a clean clone.
 - Pytest: 1 passed
 - Ruff lint: passed
 - Ruff format check: passed
+- Clean clone: `uv sync --locked`, Pytest and Ruff passed
 
 ## Working rules
 
