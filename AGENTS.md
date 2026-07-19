@@ -17,6 +17,12 @@ Production-oriented ECG classification system using PTB-XL.
 
 # Workflow
 
+At the start of a task:
+
+1. Read `docs/context/STATUS.md`.
+2. Read the active mission referenced there.
+3. Consult `docs/context/DECISIONS.md` for stable constraints.
+
 Before changing code:
 
 1. Inspect relevant files.
@@ -25,6 +31,9 @@ Before changing code:
 4. Implement the smallest useful change.
 5. Run the relevant checks.
 6. Show and explain the diff.
+
+After a material decision or completed stage, update the relevant context file
+without duplicating the same information across documents.
 
 # Commands
 
