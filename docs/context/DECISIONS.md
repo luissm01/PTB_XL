@@ -126,3 +126,16 @@ from disappearing silently.
 
 Why: label construction should expose the source population before a separate,
 train-governed cohort decision and should not duplicate split logic.
+
+## D014 — Initial five-superclass modeling cohort
+
+- Include an ECG exactly when at least one of the five target labels equals one.
+- Keep all-zero target records unchanged in the master labels table and exclude
+  them from the initial classification cohort as `no_target_superclass`.
+- Do not reinterpret all-zero records as normal or as an implicit sixth class.
+- Preserve labels and official splits without frequency-based filtering or
+  rebalancing.
+
+Why: cohort membership follows the defined prediction task, not statistics from
+validation/test or later model behavior, while exclusions remain reversible and
+auditable.

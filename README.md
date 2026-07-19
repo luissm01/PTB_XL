@@ -64,4 +64,19 @@ This derives the five official diagnostic superclasses without loading ECG
 signals. The processed table remains local; its deterministic summary is
 versioned for review.
 
+## Build the initial modeling cohort
+
+After regenerating the local superclass-label table, run:
+
+```bash
+uv run --locked python scripts/build_modeling_cohort.py \
+  --labels-path data/processed/ptbxl_v1.0.3_superclass_labels.csv \
+  --cohort-output-path data/processed/ptbxl_v1.0.3_five_superclass_cohort.csv \
+  --exclusions-output-path data/processed/ptbxl_v1.0.3_cohort_exclusions.csv \
+  --report-output-path reports/cohort/ptbxl_v1.0.3_five_superclass_cohort_summary.json
+```
+
+This keeps only records with at least one target for the initial task while
+preserving and auditing every excluded record in regenerable local outputs.
+
 This project is experimental and is not intended for clinical use.
