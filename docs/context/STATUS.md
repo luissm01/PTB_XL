@@ -20,8 +20,8 @@ versioned, reproducible evidence of the result.
 ## Current step
 
 Mission 002 implementation and real-data validation are complete locally.
-Pull request `#6` is published as a draft and all initial checks are green.
-The next human step is to review it and mark it ready before merging.
+Pull request `#6` is ready for review, mergeable and all checks are green.
+The next human step is technical review and approval before squash-merging.
 
 ## Important source fact
 
@@ -32,10 +32,10 @@ inspection.
 
 ## Next actions
 
-1. Review pull request `#6` and its versioned metadata evidence.
-2. Mark the pull request ready when the implementation is approved.
-3. Squash-merge only while all required checks remain green.
-4. Confirm issue `#5` closes and synchronize local `main`.
+1. Obtain technical review and approval for pull request `#6`.
+2. Squash-merge only while all required checks remain green.
+3. Confirm issue `#5` closes and synchronize local `main`.
+4. Ask the mentor and technical director to define the next scoped data mission.
 
 ## Last completed mission
 
@@ -63,4 +63,5 @@ Mission 001 — PTB-XL metadata and official splits:
 - The local PTB-XL CSV and checksum list remain ignored under `data/raw/`.
 - Default CI remains synthetic and does not download the dataset.
 - Commit `eac35f7` was published in pull request `#6`.
-- Python quality and GitGuardian checks passed on the draft pull request.
+- Pull request `#6` is ready for review and has merge state `CLEAN`.
+- Python quality and GitGuardian checks pass on the current branch tip.
