@@ -139,3 +139,20 @@ train-governed cohort decision and should not duplicate split logic.
 Why: cohort membership follows the defined prediction task, not statistics from
 validation/test or later model behavior, while exclusions remain reversible and
 auditable.
+
+## D015 — First signal boundary uses official 100 Hz records
+
+- Start with PTB-XL `filename_lr` records at 100 Hz; comparison with 500 Hz is a
+  later explicit experiment.
+- Keep the canonical loader shape as `(samples, leads)`, matching WFDB output;
+  channel-first conversion belongs in a later framework adapter.
+- Resolve signal paths from official metadata by exact `ecg_id` association and
+  never copy a signal path into the established cohort table.
+- Validate 1,000 samples, 12 leads, 100 Hz, finite numeric values and consistent
+  header lead order without normalization, filtering or resampling.
+- Audit every cohort record sequentially and version only deterministic
+  aggregate integrity evidence.
+
+Why: this proves the signal-label identity boundary and the complete low-cost
+data path before introducing learned transformations or framework-specific
+representations, while keeping raw signals outside Git.

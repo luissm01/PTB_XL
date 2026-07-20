@@ -1,0 +1,29 @@
+{
+  "dataset": {
+    "expected_sampling_frequency_hz": 100,
+    "name": "PTB-XL",
+    "signal_source": "filename_lr",
+    "version": "1.0.3"
+  },
+  "lead_orders": {
+    "I,II,III,AVR,AVL,AVF,V1,V2,V3,V4,V5,V6": 21388
+  },
+  "non_finite_values": 0,
+  "records": {
+    "expected": 21388,
+    "invalid": 0,
+    "loaded": 21388,
+    "missing": 0
+  },
+  "sampling_frequencies": {
+    "100": 21388
+  },
+  "shapes": {
+    "1000x12": 21388
+  },
+  "sources": {
+    "cohort_sha256": "f1ac3c713d43222eebba16124f54b1354e7634f6704032286e861196f6967058",
+    "metadata_sha256": "7600de9c1b27d181d850b3c6038a35d7c3ddb6bb33b702e3a20252a6859d216b",
+    "signal_manifest_sha256": "b7224b92b341511ec3ceb13dc6652079b2c36a06504bcb49506f157f51dc695d"
+  }
+}

@@ -21,9 +21,17 @@ from ptbxl.data.metadata import (
     load_metadata,
     prepare_metadata,
 )
+from ptbxl.data.signals import (
+    ECGSignal,
+    audit_lr_signals,
+    load_signal_for_row,
+    validate_signal,
+)
 
 __all__ = [
     "TARGET_SUPERCLASSES",
+    "ECGSignal",
+    "audit_lr_signals",
     "build_cohort_summary",
     "build_diagnostic_superclass_mapping",
     "build_label_summary",
@@ -35,7 +43,9 @@ __all__ = [
     "find_patient_fold_conflicts",
     "find_patient_overlaps",
     "load_metadata",
+    "load_signal_for_row",
     "load_scp_statements",
     "parse_scp_codes",
     "prepare_metadata",
+    "validate_signal",
 ]

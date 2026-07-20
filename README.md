@@ -5,8 +5,8 @@ Production-oriented machine learning project for multilabel classification of
 
 ## Status
 
-Repository bootstrap and official PTB-XL v1.0.3 metadata validation are
-implemented. ECG signal loading and models have not been implemented yet.
+Official PTB-XL v1.0.3 metadata, labels, cohort definition and 100 Hz signal
+integrity loading are implemented. Preprocessing and models are not implemented.
 
 ## Requirements
 
@@ -78,5 +78,31 @@ uv run --locked python scripts/build_modeling_cohort.py \
 
 This keeps only records with at least one target for the initial task while
 preserving and auditing every excluded record in regenerable local outputs.
+
+## Audit low-resolution ECG signals
+
+Obtain only the official PTB-XL v1.0.3 `records100/` directory and place it
+under `data/raw/ptb-xl/1.0.3/`. Verify those files from that directory against
+the official manifest already stored at `data/raw/SHA256SUMS.txt`:
+
+```bash
+(cd data/raw/ptb-xl/1.0.3 && \
+  sha256sum --check ../../SHA256SUMS.txt --ignore-missing --quiet)
+```
+
+The waveform files remain ignored by Git. Then run:
+
+```bash
+uv run --locked python scripts/audit_lr_signals.py \
+  --cohort-path data/processed/ptbxl_v1.0.3_five_superclass_cohort.csv \
+  --metadata-path data/raw/ptbxl_database.csv \
+  --dataset-root data/raw/ptb-xl/1.0.3 \
+  --output-path reports/signals/ptbxl_v1.0.3_lr_signal_audit.json
+```
+
+The command resolves each cohort `ecg_id` through the official `filename_lr`,
+loads one WFDB record at a time and audits shape, sampling frequency, lead order
+and finite numeric values. It performs no normalization, filtering or
+resampling.
 
 This project is experimental and is not intended for clinical use.
