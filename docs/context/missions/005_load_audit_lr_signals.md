@@ -67,7 +67,7 @@ signal-path column.
 - [x] The deterministic real-data audit report is versioned.
 - [x] Labels, folds and splits remain unchanged.
 - [x] Raw signals remain ignored by Git.
-- [ ] Full Pytest, Ruff, GitHub Actions and GitGuardian checks pass.
+- [x] Full Pytest, Ruff, GitHub Actions and GitGuardian checks pass.
 - [x] No normalization, filtering, resampling, PyTorch or model logic is added.
 
 ## Real-data evidence
