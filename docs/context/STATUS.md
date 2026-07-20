@@ -4,21 +4,35 @@ Last updated: 2026-07-19
 
 ## Current mission
 
-No active implementation mission. Mission 004, defining and auditing the initial
-five-superclass modeling cohort, is complete.
+Mission 005 — load and audit PTB-XL 100 Hz signals.
+
+- Issue: `#13` — `[DATA] Load and audit PTB-XL 100 Hz signals`.
+- Branch: `data/13-load-audit-lr-signals`.
+- Contract: `docs/context/missions/005_load_audit_lr_signals.md`.
 
 ## Current step
 
-The repository is clean and synchronized. Present the cohort boundary and its
-evidence to the mentor before opening the first signal-related mission.
+Implementation, synthetic validation and the complete real-data audit pass.
+The final local quality suite passes. Review and publish the versioned diff for
+independent CI.
 
 ## Next actions
 
-1. Ask the mentor for the next objective, output and acceptance criteria.
-2. Decide whether the next boundary is signal-file identity/availability or a
-   minimal signal loader; do not assume sampling frequency or preprocessing.
-3. Identify leakage and train-only fitting constraints before implementation.
-4. Create a new issue, mission contract and branch only after approval.
+1. Review the versioned scope and confirm raw WFDB files remain ignored.
+2. Commit, push and open a pull request closing issue `#13`.
+3. Merge only after Python quality and GitGuardian pass, then close context.
+
+## Mission 005 evidence
+
+- Official `records100/`: 43,598 files; every SHA-256 verified.
+- Real cohort audit: 21,388 loaded, zero missing and zero invalid.
+- All signals: `(1000, 12)`, 100 Hz and finite numeric values.
+- One consistent header order: `I, II, III, AVR, AVL, AVF, V1, V2, V3, V4,
+  V5, V6`.
+- Repeated audit report SHA-256:
+  `8c5c5deed8d77eba5381ccb6e93e295b8d2c96a73d75014678f8c1218fc5040f`.
+- Metadata, label and cohort hashes remain unchanged.
+- No normalization, filtering, resampling, PyTorch or model decision was added.
 
 ## Last completed mission
 
