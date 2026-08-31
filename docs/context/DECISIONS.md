@@ -156,3 +156,21 @@ auditable.
 Why: this proves the signal-label identity boundary and the complete low-cost
 data path before introducing learned transformations or framework-specific
 representations, while keeping raw signals outside Git.
+
+## D016 — Compose samples before introducing an ML framework
+
+- Build a transient sample index by joining the validated cohort to official
+  `filename_lr` values one-to-one on `ecg_id`; do not add paths to the persisted
+  cohort table.
+- Revalidate the complete cohort's binary targets, task membership, patient
+  isolation and official fold-to-split mapping before association.
+- Load signals lazily and keep their canonical NumPy shape `(1000, 12)` at this
+  boundary.
+- Expose targets as a `float32` NumPy vector in the fixed order `NORM`, `MI`,
+  `STTC`, `CD`, `HYP`; channel-first conversion remains a later framework
+  responsibility.
+- Apply no filtering, normalization, augmentation or learned transformation.
+
+Why: one framework-independent composition boundary prevents PyTorch adapters
+from duplicating identity, label, split and path logic, while keeping the raw
+data contract directly testable.

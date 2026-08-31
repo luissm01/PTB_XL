@@ -1,24 +1,25 @@
 # Project status
 
-Last updated: 2026-07-19
+Last updated: 2026-08-31
 
 ## Current mission
 
-No active implementation mission. Mission 005, loading and auditing the official
-PTB-XL 100 Hz signals, is complete.
+Mission 006 — build the framework-independent sample contract. The contract is
+defined in
+`docs/context/missions/006_build_framework_independent_sample_contract.md`.
 
 ## Current step
 
-The repository is clean and synchronized. Present the proven signal boundary to
-the mentor before opening a preprocessing or framework-integration mission.
+The implementation, real-data structural smoke check, documentation and local
+quality review are complete on `data/16-build-sample-contract`. Issue `#16` is
+open; commit, pull request and CI remain pending.
 
 ## Next actions
 
-1. Ask the mentor for the next objective, output and acceptance criteria.
-2. Decide whether the next boundary is train-only preprocessing or a minimal
-   framework-independent dataset adapter; do not assume either.
-3. Identify any learned statistics and ensure they are fitted on train only.
-4. Create a new issue, mission contract and branch only after approval.
+1. Commit the reviewed change and push the issue-linked branch.
+2. Open the pull request and verify CI and GitGuardian.
+3. Squash-merge, close the mission context and remove temporary branches.
+4. Open the next small mission for train-governed minimal preprocessing.
 
 ## Last completed mission
 
