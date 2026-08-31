@@ -8,6 +8,7 @@ planned modeling path without presenting unimplemented work as complete.
 
 - Issue: `#22` — `[DOCS] Build the living PTB-XL project guide`.
 - Branch: `docs/22-build-project-guide`.
+- Pull request: `#23` — `Docs: add living PTB-XL project guide`.
 - Dataset: PTB-XL v1.0.3, five-superclass cohort, 100 Hz signals.
 
 ## Required structure
@@ -56,8 +57,7 @@ The guide must contain ten navigable parts:
 - [x] Implemented and planned stages are visually unambiguous.
 - [x] README links the guide and accurately describes preprocessing status.
 - [x] Durable context and the autonomous development log are updated.
-- [ ] Pytest, Ruff, format, package build and GitHub checks pass. Local checks
-  pass with 86 tests; GitHub checks are pending the pull request.
+- [x] Pytest, Ruff, format, package build and GitHub checks pass.
 
 ## Out of scope
 
@@ -74,3 +74,12 @@ threshold fitting, final-test evaluation and new experimental results.
 - Pytest: 86 passed.
 - Ruff lint and format check: passed.
 - Source distribution and wheel build: passed.
+
+## Closure
+
+- Issue `#22`: closed by the merged implementation.
+- Pull request `#23`: squash-merged.
+- Merge commit: `395c74b`.
+- Python quality and GitGuardian on the PR: passed.
+- Post-merge Quality workflow on `main`: passed.
+- Local and remote implementation branches: removed.

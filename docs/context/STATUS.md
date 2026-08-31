@@ -4,45 +4,45 @@ Last updated: 2026-08-31
 
 ## Current mission
 
-Mission 008 — build `docs/PROJECT_GUIDE.md` as the living, accessible technical
-guide for the implemented foundations and planned modeling path.
+No active implementation mission. Mission 008, building the living project
+guide, is complete.
 
 ## Current step
 
-Issue `#22` and branch `docs/22-build-project-guide` are open. The ten-part guide
-and repository context updates are drafted and locally verified; pull-request
-review and GitHub checks are next.
+Development is intentionally paused after the agreed documentation milestone.
+The repository is clean and synchronized after the implementation merge; PR
+checks and the post-merge Quality workflow passed.
 
 ## Next actions
 
-1. Open the documentation pull request and complete GitHub checks and review.
-2. Squash-merge, verify post-merge Quality and record Mission 008 closure.
-3. After owner review, introduce a thin PyTorch Dataset/DataLoader adapter that reuses
-   `load_sample` and the frozen global standardizer without duplicating logic.
+1. When development resumes, read this status, Mission 008 and D018.
+2. Introduce a thin PyTorch Dataset/DataLoader adapter that reuses `load_sample`
+   and the frozen global standardizer without duplicating logic.
+3. Then implement a small, tested 1D-CNN baseline without using final test for
+   model or threshold selection.
 
 ## Last completed mission
 
-Mission 007 — fit train-only global signal standardization:
+Mission 008 — build the living project guide:
 
-- Issue `#19` closed.
-- Pull request `#20` squash-merged as `12b945a`.
+- Issue `#22` closed.
+- Pull request `#23` squash-merged as `395c74b`.
 - Python quality and GitGuardian passed on the PR.
 - Post-merge Quality workflow passed on `main`.
 - Local and remote implementation branches were removed.
 - Full local suite passed: 86 tests, Ruff lint, Ruff format and package build.
 
-## Mission 007 evidence
+## Mission 008 evidence
 
-- Two complete fits read exactly 17,084 train ECGs / 205,008,000 values each.
-- Validation and test waveforms were not opened by the fit iterator.
-- Global mean: `-0.0008252533901116082`.
-- Population standard deviation: `0.23222258117564917`.
-- Repeated artifact SHA-256:
-  `f791aeb9795c669a54a391d979f69806ccdca19f05128a9fde8f408ec36090bc`.
-- Artifact identity, configuration, lead order, counts and source hashes are
-  versioned as deterministic JSON.
-- Full local suite passes: 86 tests, Ruff lint, Ruff format and package build.
-- No dependency, filter, resampling, augmentation, PyTorch or model behavior was
+- `docs/PROJECT_GUIDE.md` contains all ten agreed parts and 16 explained
+  interview questions.
+- Implemented behavior, planned work and pending model results are explicitly
+  separated.
+- Project figures trace to the five versioned evidence reports and important
+  general claims link primary or official sources.
+- Every local Markdown target exists and all nine external destinations
+  responded during validation.
+- No dependency, runtime behavior, model result or final-test selection was
   added.
 
 ## Stable repository foundation
@@ -57,6 +57,8 @@ Mission 007 — fit train-only global signal standardization:
   split without duplicating source logic.
 - A deterministic global standardizer is fitted only on train, versioned with
   source provenance and reusable unchanged by later splits and inference.
+- A living project guide makes the verified system, future design and interview
+  reasoning accessible without overstating unfinished work.
 - GitHub Actions and GitGuardian green on `main`.
 - Durable decisions live in `docs/context/DECISIONS.md`; completed contracts
   remain under `docs/context/missions/`.

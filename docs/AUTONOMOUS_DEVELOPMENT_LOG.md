@@ -59,6 +59,13 @@ resultados de integridad, limitaciones y 16 preguntas de entrevista explicadas.
 - El sdist y el wheel se construyeron correctamente.
 - No se añadieron dependencias ni comportamiento de ejecución.
 
+### Resultados obtenidos
+
+La implementación se asoció al issue `#22` y a la pull request `#23`. Python
+quality y GitGuardian pasaron en la PR, fusionada mediante squash como
+`395c74b`; el workflow Quality posterior también pasó en `main`. El issue quedó
+cerrado y las ramas de implementación se eliminaron.
+
 ### Qué debería entender el propietario
 
 `PROJECT_GUIDE.md` es un documento vivo: debe crecer con el sistema, pero solo
