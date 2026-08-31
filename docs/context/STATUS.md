@@ -13,13 +13,12 @@ Mission 007 — fit train-only global signal standardization.
 ## Current step
 
 Implementation, synthetic tests, two real train-only fits and local quality
-review pass. Review and publish the scoped diff for independent CI.
+review pass. Pull request `#20` is awaiting independent CI and security checks.
 
 ## Next actions
 
-1. Confirm only aggregate train statistics and intended source files are tracked.
-2. Commit, push and open the pull request closing issue `#19`.
-3. Merge only after Python quality and GitGuardian pass, then close context.
+1. Verify Python quality and GitGuardian on pull request `#20`.
+2. Merge only after every check passes, then close the durable context.
 
 ## Mission 007 evidence
 

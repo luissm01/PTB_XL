@@ -9,6 +9,7 @@ folds 1–8, frozen for every later split and reproducible inference.
 - Issue: `#19` — `[PREPROCESSING] Fit reproducible train-only global
   standardization`.
 - Branch: `preprocessing/19-train-only-global-standardization`.
+- Pull request: `#20` — `Preprocessing: fit train-only global standardizer`.
 - Dataset: PTB-XL v1.0.3, five-superclass cohort, 100 Hz signals.
 
 ## Evidence behind the decision
@@ -85,7 +86,7 @@ later training and inference. It contains no patient-level or waveform values.
 - [x] Two complete real-data fits produce identical artifact bytes.
 - [x] Versioned artifact records source hashes, counts and learned parameters.
 - [x] Full Pytest, Ruff and package-build checks pass: 86 tests.
-- [ ] Pull request, GitGuardian and post-merge CI pass.
+- [ ] Pull request `#20`, GitGuardian and post-merge CI pass.
 
 ## Real-data evidence
 
