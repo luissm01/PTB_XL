@@ -66,8 +66,9 @@ check de un ECG de train, validation y test devolvió en los tres casos señal
 `(1000, 12)`, targets `(5,)`, 100 Hz y las 12 derivaciones oficiales. Estos son
 hechos estructurales, no resultados de un modelo.
 
-La validación local está completa y el trabajo quedó asociado al issue `#16`.
-La PR y su CI aún estaban pendientes al redactar esta entrada.
+La validación local está completa y el trabajo quedó asociado al issue `#16` y
+a la pull request `#17`. Sus checks remotos aún estaban pendientes al redactar
+esta entrada.
 
 El sdist y el wheel también se construyeron correctamente, y la inspección del
 wheel confirmó que `ptbxl/data/samples.py` forma parte del paquete distribuible.

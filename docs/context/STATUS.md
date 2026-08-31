@@ -12,14 +12,13 @@ defined in
 
 The implementation, real-data structural smoke check, documentation and local
 quality review are complete on `data/16-build-sample-contract`. Issue `#16` is
-open; commit, pull request and CI remain pending.
+open and pull request `#17` is awaiting remote checks.
 
 ## Next actions
 
-1. Commit the reviewed change and push the issue-linked branch.
-2. Open the pull request and verify CI and GitGuardian.
-3. Squash-merge, close the mission context and remove temporary branches.
-4. Open the next small mission for train-governed minimal preprocessing.
+1. Verify CI and GitGuardian on pull request `#17`.
+2. Squash-merge, close the mission context and remove temporary branches.
+3. Open the next small mission for train-governed minimal preprocessing.
 
 ## Last completed mission
 

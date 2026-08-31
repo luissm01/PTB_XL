@@ -9,7 +9,7 @@ PyTorch or preprocessing.
 - Issue: `#16` — `[DATA] Build the framework-independent PTB-XL sample
   contract`.
 - Branch: `data/16-build-sample-contract`.
-- Pull request: pending implementation commit.
+- Pull request: `#17` — `Data: compose framework-independent ECG samples`.
 - Dataset: PTB-XL v1.0.3 low-resolution signals at 100 Hz.
 
 ## Why this boundary exists
@@ -62,7 +62,7 @@ transpose, batch or transform samples.
       included in the wheel.
 - [x] Complete diff reviewed; no dependency, raw-data or artifact changes.
 - [x] GitHub issue created with the scoped contract.
-- [ ] Pull request and CI pass.
+- [ ] Pull request `#17` and CI pass.
 
 ## Real-data structural evidence
 
