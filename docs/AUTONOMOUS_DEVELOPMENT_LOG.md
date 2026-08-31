@@ -89,3 +89,84 @@ PyTorch deben reutilizar.
 - ¿Por qué se conserva `(samples, leads)` hasta la frontera del framework?
 - ¿Cómo evita este diseño que cada Dataset vuelva a implementar labels y
   splits?
+
+## Mission 007 — Train-only global signal standardization
+
+### Qué se hizo
+
+Se implementó un preprocessor agnóstico de framework que estima una única media
+y desviación estándar globales recorriendo secuencialmente solo las señales de
+train. Los parámetros se congelan, se guardan en JSON determinista y se pueden
+cargar para transformar cualquier señal compatible sin refit.
+
+### Por qué se hizo
+
+Una CNN suele entrenar de forma más estable con entradas de escala controlada,
+pero una normalización mal diseñada puede introducir leakage o borrar amplitud
+relevante. La regla elegida usa un único cambio afín global, de modo que conserva
+la relación de amplitudes entre ECG y derivaciones y permite demostrar de forma
+explícita el límite `fit(train) → transform(all)`.
+
+### Decisiones técnicas
+
+- Una media y una desviación poblacional (`ddof=0`) para todos los valores.
+- Fit exclusivo sobre folds 1–8 de la cohorte ya validada.
+- Acumulación streaming en `float64` mediante combinación de momentos.
+- Transformación final a `float32`, conservando forma `(1000, 12)`.
+- JSON con versión, método, configuración, leads, conteos y hashes de fuentes.
+- Ninguna dependencia nueva; no se usa scikit-learn ni pickle.
+
+### Alternativas consideradas
+
+No normalizar era la opción más pequeña, pero dejaba implícito el contrato
+numérico. Normalizar cada registro habría eliminado diferencias de amplitud
+entre pacientes. Normalizar por derivación habría cambiado la relación entre
+leads. Materializar todos los ECG para usar `StandardScaler` habría necesitado
+memoria innecesaria. El acumulador streaming reproduce la regla estadística del
+benchmark público de PTB-XL con una implementación más auditable.
+
+### Riesgos de leakage revisados
+
+- El índice completo se valida antes de seleccionar train.
+- La función de fit rechaza explícitamente muestras validation o test.
+- El iterador real abrió únicamente las 17.084 filas con split `train`.
+- El mismo artefacto congelado deberá reutilizarse en todos los splits e
+  inferencia.
+- No se calcularon estadísticas de validation ni test.
+
+### Archivos principales
+
+- `src/ptbxl/preprocessing/standardization.py`
+- `scripts/fit_global_standardizer.py`
+- `tests/preprocessing/test_standardization.py`
+- `reports/preprocessing/ptbxl_v1.0.3_train_global_standardizer.json`
+- `docs/context/missions/007_fit_train_only_global_standardizer.md`
+
+### Tests añadidos
+
+Los tests verifican la equivalencia con NumPy, combinación streaming, rechazo
+de splits no train, input vacío, varianza cero, no finitos, orden de leads,
+forma y dtype de salida, no mutación, procedencia, esquema, conteos y bytes JSON
+deterministas.
+
+### Resultados obtenidos
+
+Los dos fits completos procesaron exactamente 17.084 ECG y 205.008.000 valores.
+Ambos produjeron media `-0.0008252533901116082`, desviación poblacional
+`0.23222258117564917` y el mismo SHA-256 de artefacto:
+`f791aeb9795c669a54a391d979f69806ccdca19f05128a9fde8f408ec36090bc`.
+La suite local pasó con 86 tests, Ruff y build de paquete.
+
+### Qué debería entender el propietario
+
+El objeto ajustado no aprende targets ni observa validation/test. Su estado son
+solo dos escalares, conteos y orden de derivaciones. La separación entre fit y
+transform es una barrera metodológica, no solo una elección de API.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Por qué cualquier estadística de normalización debe ajustarse solo con train?
+- ¿Qué información perdería una normalización por registro?
+- ¿Por qué usar `ddof=0` y cómo se relaciona con `StandardScaler`?
+- ¿Cómo se combinan media y segundo momento sin cargar todo el dataset?
+- ¿Por qué guardar JSON en lugar de pickle?

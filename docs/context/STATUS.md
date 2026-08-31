@@ -4,22 +4,35 @@ Last updated: 2026-08-31
 
 ## Current mission
 
-No active implementation mission. Mission 006, composing the
-framework-independent ECG sample contract, is complete.
+Mission 007 — fit train-only global signal standardization.
+
+- Issue: `#19`.
+- Branch: `preprocessing/19-train-only-global-standardization`.
+- Contract: `docs/context/missions/007_fit_train_only_global_standardizer.md`.
 
 ## Current step
 
-The implementation is squash-merged and synchronized on `main`; its PR checks
-and post-merge Quality workflow passed. Close the durable mission context before
-opening train-governed preprocessing.
+Implementation, synthetic tests, two real train-only fits and local quality
+review pass. Pull request `#20` is awaiting independent CI and security checks.
 
 ## Next actions
 
-1. Define a minimal preprocessing policy with an explicit train-only fit
-   boundary for every learned statistic.
-2. Prefer the smallest reversible baseline; do not introduce filters,
-   augmentation or framework behavior without experimental justification.
-3. Create the next issue, mission contract and implementation branch.
+1. Verify Python quality and GitGuardian on pull request `#20`.
+2. Merge only after every check passes, then close the durable context.
+
+## Mission 007 evidence
+
+- Two complete fits read exactly 17,084 train ECGs / 205,008,000 values each.
+- Validation and test waveforms were not opened by the fit iterator.
+- Global mean: `-0.0008252533901116082`.
+- Population standard deviation: `0.23222258117564917`.
+- Repeated artifact SHA-256:
+  `f791aeb9795c669a54a391d979f69806ccdca19f05128a9fde8f408ec36090bc`.
+- Artifact identity, configuration, lead order, counts and source hashes are
+  versioned as deterministic JSON.
+- Full local suite passes: 86 tests, Ruff lint, Ruff format and package build.
+- No dependency, filter, resampling, augmentation, PyTorch or model behavior was
+  added.
 
 ## Last completed mission
 

@@ -174,3 +174,23 @@ representations, while keeping raw signals outside Git.
 Why: one framework-independent composition boundary prevents PyTorch adapters
 from duplicating identity, label, split and path logic, while keeping the raw
 data contract directly testable.
+
+## D017 — First preprocessing is train-only global standardization
+
+- Fit one shared mean and population standard deviation (`ddof=0`) across every
+  signal value from folds 1–8 of the five-superclass cohort.
+- Validate the complete sample index before selecting train, and make the fit
+  API reject any validation or test sample.
+- Accumulate moments sequentially in `float64`; do not materialize the complete
+  signal tensor or add scikit-learn.
+- Apply the frozen affine transform unchanged to train, validation, test and
+  inference, preserving `(1000, 12)` and returning `float32`.
+- Persist the small learned transformer as deterministic, versioned JSON with
+  dataset identity, configuration, lead order, counts and source hashes.
+- Add no filtering, per-record/per-lead scaling, resampling, denoising or
+  augmentation to the first baseline.
+
+Why: the public PTB-XL benchmarking implementation uses a single scaler fitted
+on flattened training signals. A shared scalar transform retains relative
+amplitudes across records and leads, while a streaming implementation preserves
+that simple rule without its high-memory intermediate or pickle dependency.

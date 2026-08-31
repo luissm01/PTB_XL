@@ -133,4 +133,27 @@ sample = load_sample(sample_index.iloc[0].to_dict(), "data/raw/ptb-xl/1.0.3")
 `MI`, `STTC`, `CD`, `HYP`. The transient index is not a new persisted data
 product, and this boundary performs no preprocessing or PyTorch conversion.
 
+## Fit train-only global standardization
+
+The first preprocessing step fits one global mean and population standard
+deviation on official train folds 1–8 only. It follows the statistical rule in
+the [PTB-XL benchmarking repository](https://github.com/helme/ecg_ptbxl_benchmarking)
+but accumulates moments sequentially and stores deterministic JSON instead of
+using a full in-memory tensor, scikit-learn or pickle:
+
+```bash
+uv run --locked python scripts/fit_global_standardizer.py \
+  --cohort-path data/processed/ptbxl_v1.0.3_five_superclass_cohort.csv \
+  --metadata-path data/raw/ptbxl_database.csv \
+  --dataset-root data/raw/ptb-xl/1.0.3 \
+  --signal-manifest-path data/raw/SHA256SUMS.txt \
+  --output-path \
+    reports/preprocessing/ptbxl_v1.0.3_train_global_standardizer.json
+```
+
+The versioned artifact records 17,084 train ECGs and 205,008,000 values. It is
+loaded unchanged for every later split and inference; validation and test never
+participate in fitting. This baseline adds no filtering, per-record scaling,
+denoising, resampling or augmentation.
+
 This project is experimental and is not intended for clinical use.
