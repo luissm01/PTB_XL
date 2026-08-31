@@ -4,22 +4,20 @@ Last updated: 2026-08-31
 
 ## Current mission
 
-No active implementation mission. Mission 007, fitting reproducible train-only
-global signal standardization, is complete.
+Mission 008 — build `docs/PROJECT_GUIDE.md` as the living, accessible technical
+guide for the implemented foundations and planned modeling path.
 
 ## Current step
 
-Development is intentionally paused at the owner's request. The repository is
-clean and synchronized after the implementation merge; PR checks and the
-post-merge Quality workflow passed.
+Issue `#22` and branch `docs/22-build-project-guide` are open. The ten-part guide
+and repository context updates are drafted and locally verified; pull-request
+review and GitHub checks are next.
 
 ## Next actions
 
-1. When development resumes, read this status, Mission 007 and D017 before
-   opening a new issue.
-2. Create `docs/PROJECT_GUIDE.md` as the next focused portfolio/documentation
-   mission so the completed data and preprocessing foundations are teachable.
-3. Then introduce a thin PyTorch Dataset/DataLoader adapter that reuses
+1. Open the documentation pull request and complete GitHub checks and review.
+2. Squash-merge, verify post-merge Quality and record Mission 008 closure.
+3. After owner review, introduce a thin PyTorch Dataset/DataLoader adapter that reuses
    `load_sample` and the frozen global standardizer without duplicating logic.
 
 ## Last completed mission
