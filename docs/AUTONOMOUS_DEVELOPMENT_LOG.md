@@ -5,6 +5,75 @@ is away. Stable constraints remain in `docs/context/DECISIONS.md`, current work
 remains in `docs/context/STATUS.md` and detailed acceptance contracts remain in
 `docs/context/missions/`.
 
+## Mission 008 — Living project guide
+
+### Qué se hizo
+
+Se creó `docs/PROJECT_GUIDE.md`, una guía en español de diez partes que conecta
+los fundamentos de ECG y PTB-XL con las siete misiones implementadas y con el
+camino de modelado aún pendiente. También se enlazó desde el README y se corrigió
+el estado del preprocessing.
+
+### Por qué se hizo
+
+El repositorio ya contenía contratos, decisiones e informes precisos, pero la
+explicación estaba distribuida entre archivos orientados al desarrollo. Faltaba
+una narrativa accesible para estudiar el sistema, comprender por qué se tomaron
+las decisiones y defenderlas en una entrevista sin confundir planes con hechos.
+
+### Decisiones documentales
+
+- La guía distingue `implementado y verificado`, `planificado` y `pendiente de
+  resultados`.
+- Las cifras del proyecto proceden de los informes JSON versionados.
+- Las afirmaciones generales importantes enlazan fuentes primarias u oficiales.
+- PyTorch, CNN, entrenamiento, métricas y thresholds se explican como diseño
+  futuro y no como funcionalidad existente.
+- La guía se actualizará por secciones después de misiones materiales, sin
+  sustituir a `STATUS.md`, `DECISIONS.md` ni los contratos de misión.
+
+### Riesgos revisados
+
+- No se inventaron métricas ni resultados de modelo.
+- No se utilizó test para añadir o justificar decisiones de modelado.
+- Las auditorías estructurales de test se diferenciaron expresamente de la
+  selección con test.
+- Se revisaron counts, shapes, leads y parámetros del standardizer contra la
+  evidencia versionada, no contra memoria o cifras de otra versión de PTB-XL.
+- Las categorías diagnósticas se presentan como etiquetas del dataset y el
+  documento advierte que el proyecto no es de uso clínico.
+
+### Contenido principal
+
+La guía cubre problema multilabel, dataset y cohortes, cuatro tipos de leakage,
+forma y amplitud de las señales, estandarización train-only, teoría de Conv1D y
+`BCEWithLogitsLoss`, métricas multilabel, arquitectura de módulos, MLOps,
+resultados de integridad, limitaciones y 16 preguntas de entrevista explicadas.
+
+### Validación local
+
+- Todos los enlaces locales existen y las nueve fuentes externas responden.
+- `git diff --check` pasó.
+- Los 86 tests pasaron.
+- Ruff lint y format check pasaron.
+- El sdist y el wheel se construyeron correctamente.
+- No se añadieron dependencias ni comportamiento de ejecución.
+
+### Qué debería entender el propietario
+
+`PROJECT_GUIDE.md` es un documento vivo: debe crecer con el sistema, pero solo
+una vez que cada etapa esté realmente implementada y verificada. Las secciones
+de modelo y evaluación sirven ahora para estudiar y fijar el próximo contrato;
+los resultados seguirán vacíos hasta que exista un protocolo válido para
+producirlos.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Cómo distingues documentación de diseño de documentación de comportamiento?
+- ¿Qué evidencia permite afirmar que un pipeline es reproducible?
+- ¿Por qué una auditoría estructural de test no equivale a seleccionar con test?
+- ¿Cómo mantienes una guía viva sin duplicar el status operativo del proyecto?
+
 ## Mission 006 — Framework-independent sample contract
 
 ### Qué se hizo

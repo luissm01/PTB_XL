@@ -7,8 +7,18 @@ Production-oriented machine learning project for multilabel classification of
 
 Official PTB-XL v1.0.3 metadata, labels, cohort definition and 100 Hz signal
 integrity loading are implemented. A framework-independent sample boundary now
-composes identities, targets, official splits and signals. Preprocessing and
-models are not implemented.
+composes identities, targets, official splits and signals. Train-only global
+standardization is implemented and frozen in a reproducible artifact. PyTorch,
+models and training are not implemented yet.
+
+## Project documentation
+
+- [Living project guide](docs/PROJECT_GUIDE.md): an accessible explanation of
+  ECG foundations, data, leakage, preprocessing, planned modeling, evaluation,
+  architecture, reproducibility, current evidence and interview questions.
+- [Current status](docs/context/STATUS.md): the active handoff and next action.
+- [Stable decisions](docs/context/DECISIONS.md): constraints that remain valid
+  across missions.
 
 ## Requirements
 

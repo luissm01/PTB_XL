@@ -194,3 +194,20 @@ Why: the public PTB-XL benchmarking implementation uses a single scaler fitted
 on flattened training signals. A shared scalar transform retains relative
 amplitudes across records and leads, while a streaming implementation preserves
 that simple rule without its high-memory intermediate or pickle dependency.
+
+## D018 — The project guide is living, evidence-led documentation
+
+- Keep `docs/PROJECT_GUIDE.md` as the accessible conceptual and technical
+  explanation of the complete system.
+- Clearly distinguish implemented and verified behavior from planned work and
+  pending results.
+- Ground project-specific figures in versioned evidence and important general
+  claims in primary or official sources.
+- Update only affected guide sections after material missions; operational
+  handoff remains in `STATUS.md` and detailed contracts remain in mission files.
+- Never fill future result sections with estimates or use final-test evidence to
+  rewrite earlier model-selection decisions.
+
+Why: the owner needs one teachable, interview-ready narrative that evolves with
+the repository without becoming a second status log or overstating unfinished
+work.
