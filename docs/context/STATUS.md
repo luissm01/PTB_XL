@@ -4,21 +4,34 @@ Last updated: 2026-08-31
 
 ## Current mission
 
-Mission 007 — fit train-only global signal standardization.
-
-- Issue: `#19`.
-- Branch: `preprocessing/19-train-only-global-standardization`.
-- Contract: `docs/context/missions/007_fit_train_only_global_standardizer.md`.
+No active implementation mission. Mission 007, fitting reproducible train-only
+global signal standardization, is complete.
 
 ## Current step
 
-Implementation, synthetic tests, two real train-only fits and local quality
-review pass. Pull request `#20` is awaiting independent CI and security checks.
+Development is intentionally paused at the owner's request. The repository is
+clean and synchronized after the implementation merge; PR checks and the
+post-merge Quality workflow passed.
 
 ## Next actions
 
-1. Verify Python quality and GitGuardian on pull request `#20`.
-2. Merge only after every check passes, then close the durable context.
+1. When development resumes, read this status, Mission 007 and D017 before
+   opening a new issue.
+2. Create `docs/PROJECT_GUIDE.md` as the next focused portfolio/documentation
+   mission so the completed data and preprocessing foundations are teachable.
+3. Then introduce a thin PyTorch Dataset/DataLoader adapter that reuses
+   `load_sample` and the frozen global standardizer without duplicating logic.
+
+## Last completed mission
+
+Mission 007 — fit train-only global signal standardization:
+
+- Issue `#19` closed.
+- Pull request `#20` squash-merged as `12b945a`.
+- Python quality and GitGuardian passed on the PR.
+- Post-merge Quality workflow passed on `main`.
+- Local and remote implementation branches were removed.
+- Full local suite passed: 86 tests, Ruff lint, Ruff format and package build.
 
 ## Mission 007 evidence
 
@@ -34,32 +47,6 @@ review pass. Pull request `#20` is awaiting independent CI and security checks.
 - No dependency, filter, resampling, augmentation, PyTorch or model behavior was
   added.
 
-## Last completed mission
-
-Mission 006 — build the framework-independent sample contract:
-
-- Issue `#16` closed.
-- Pull request `#17` squash-merged as `d494f54`.
-- Python quality and GitGuardian passed on the PR.
-- Post-merge Quality workflow passed on `main`.
-- Local and remote implementation branches were removed.
-- Full local suite passed: 73 tests, Ruff lint and Ruff format.
-- The source distribution and wheel built successfully.
-
-## Mission 006 evidence
-
-- The transient sample index contains all 21,388 cohort rows in unchanged order.
-- `ecg_id` associates one-to-one with the unique official `filename_lr`.
-- Every sample retains patient, official fold/split and the fixed five-target
-  order `NORM`, `MI`, `STTC`, `CD`, `HYP`.
-- Signals load lazily in canonical NumPy shape `(1000, 12)` and targets use
-  shape `(5,)` with `float32` dtype.
-- Structural smoke checks loaded one train, validation and test sample at 100 Hz
-  with the established 12-lead order.
-- Full-cohort validation occurs before a consumer can select a split.
-- No filtering, normalization, learned statistic, PyTorch or model decision
-  entered the mission.
-
 ## Stable repository foundation
 
 - Reproducible Python 3.11 environment managed by uv.
@@ -70,6 +57,8 @@ Mission 006 — build the framework-independent sample contract:
   cohort.
 - Framework-independent samples compose identity, signal, targets and official
   split without duplicating source logic.
+- A deterministic global standardizer is fitted only on train, versioned with
+  source provenance and reusable unchanged by later splits and inference.
 - GitHub Actions and GitGuardian green on `main`.
 - Durable decisions live in `docs/context/DECISIONS.md`; completed contracts
   remain under `docs/context/missions/`.

@@ -155,7 +155,10 @@ Los dos fits completos procesaron exactamente 17.084 ECG y 205.008.000 valores.
 Ambos produjeron media `-0.0008252533901116082`, desviación poblacional
 `0.23222258117564917` y el mismo SHA-256 de artefacto:
 `f791aeb9795c669a54a391d979f69806ccdca19f05128a9fde8f408ec36090bc`.
-La suite local pasó con 86 tests, Ruff y build de paquete.
+La suite local pasó con 86 tests, Ruff y build de paquete. Python quality y
+GitGuardian pasaron en la PR `#20`, fusionada mediante squash como `12b945a`;
+el workflow Quality posterior también pasó en `main`, el issue `#19` se cerró y
+las ramas de implementación se eliminaron.
 
 ### Qué debería entender el propietario
 

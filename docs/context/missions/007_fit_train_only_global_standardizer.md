@@ -86,7 +86,7 @@ later training and inference. It contains no patient-level or waveform values.
 - [x] Two complete real-data fits produce identical artifact bytes.
 - [x] Versioned artifact records source hashes, counts and learned parameters.
 - [x] Full Pytest, Ruff and package-build checks pass: 86 tests.
-- [ ] Pull request `#20`, GitGuardian and post-merge CI pass.
+- [x] Pull request `#20`, GitGuardian and post-merge CI pass.
 
 ## Real-data evidence
 
@@ -115,3 +115,12 @@ later training and inference. It contains no patient-level or waveform values.
 Filtering, baseline-wander removal, denoising, resampling, augmentation,
 per-record or per-lead scaling, PyTorch, DataLoader behavior, sampling,
 class weights, models, losses, metrics, thresholds and checkpointing.
+
+## Closure
+
+- Issue `#19`: closed.
+- Pull request `#20`: squash-merged.
+- Merge commit: `12b945a`.
+- Python quality and GitGuardian on the PR: passed.
+- Post-merge Quality workflow on `main`: passed.
+- Local and remote implementation branches: removed.
