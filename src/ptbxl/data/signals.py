@@ -119,7 +119,7 @@ def audit_lr_signals(
     dataset_root: str | Path,
 ) -> dict[str, Any]:
     """Inspect each cohort signal sequentially and return aggregate evidence."""
-    signal_rows = _associate_signal_paths(cohort, metadata)
+    signal_rows = associate_signal_paths(cohort, metadata)
     shapes: Counter[str] = Counter()
     frequencies: Counter[str] = Counter()
     lead_orders: Counter[str] = Counter()
@@ -180,10 +180,11 @@ def audit_lr_signals(
     }
 
 
-def _associate_signal_paths(
+def associate_signal_paths(
     cohort: pd.DataFrame,
     metadata: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Associate each cohort ECG with one unique official signal basename."""
     for name, table, required in (
         ("cohort", cohort, ("ecg_id",)),
         ("metadata", metadata, ("ecg_id", "filename_lr")),

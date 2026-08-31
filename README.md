@@ -6,7 +6,9 @@ Production-oriented machine learning project for multilabel classification of
 ## Status
 
 Official PTB-XL v1.0.3 metadata, labels, cohort definition and 100 Hz signal
-integrity loading are implemented. Preprocessing and models are not implemented.
+integrity loading are implemented. A framework-independent sample boundary now
+composes identities, targets, official splits and signals. Preprocessing and
+models are not implemented.
 
 ## Requirements
 
@@ -104,5 +106,31 @@ The command resolves each cohort `ecg_id` through the official `filename_lr`,
 loads one WFDB record at a time and audits shape, sampling frequency, lead order
 and finite numeric values. It performs no normalization, filtering or
 resampling.
+
+## Compose a framework-independent sample
+
+The sample boundary validates the complete cohort before associating official
+signal basenames, then loads individual signals lazily:
+
+```python
+import pandas as pd
+
+from ptbxl.data import build_sample_index, load_sample
+
+cohort = pd.read_csv(
+    "data/processed/ptbxl_v1.0.3_five_superclass_cohort.csv"
+)
+metadata = pd.read_csv(
+    "data/raw/ptbxl_database.csv",
+    usecols=["ecg_id", "filename_lr"],
+)
+sample_index = build_sample_index(cohort, metadata)
+sample = load_sample(sample_index.iloc[0].to_dict(), "data/raw/ptb-xl/1.0.3")
+```
+
+`sample.signal` keeps the canonical NumPy shape `(1000, 12)`.
+`sample.targets` has shape `(5,)`, `float32` dtype and the fixed order `NORM`,
+`MI`, `STTC`, `CD`, `HYP`. The transient index is not a new persisted data
+product, and this boundary performs no preprocessing or PyTorch conversion.
 
 This project is experimental and is not intended for clinical use.
