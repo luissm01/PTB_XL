@@ -62,7 +62,7 @@ transpose, batch or transform samples.
       included in the wheel.
 - [x] Complete diff reviewed; no dependency, raw-data or artifact changes.
 - [x] GitHub issue created with the scoped contract.
-- [ ] Pull request `#17` and CI pass.
+- [x] Pull request `#17` and CI pass.
 
 ## Real-data structural evidence
 
@@ -91,3 +91,12 @@ transpose, batch or transform samples.
 Normalization, filtering, resampling, augmentation, channel-first conversion,
 PyTorch, DataLoader behavior, sampling strategies, models, loss functions,
 metrics, thresholding, training and checkpointing.
+
+## Closure
+
+- Issue `#16`: closed.
+- Pull request `#17`: squash-merged.
+- Merge commit: `d494f54`.
+- Python quality and GitGuardian on the PR: passed.
+- Post-merge Quality workflow on `main`: passed.
+- Local and remote implementation branches: removed.
