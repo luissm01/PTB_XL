@@ -5,6 +5,47 @@ is away. Stable constraints remain in `docs/context/DECISIONS.md`, current work
 remains in `docs/context/STATUS.md` and detailed acceptance contracts remain in
 `docs/context/missions/`.
 
+## Mission 012 — Validation-selected fit and safe checkpoints
+
+### Qué se hizo
+
+Se añadió `fit` multi-época, selección por mínima loss de validation y un
+checkpoint atómico que restaura modelo y optimizer. Guarda historial completo y
+procedencia; carga únicamente en modo `weights_only`.
+
+### Decisiones y alternativas
+
+El primer mínimo gana los empates. Se rechazaron early stopping y scheduler para
+mantener aislada la semántica básica. Un JSON no puede contener tensores; se usa
+el formato PyTorch seguro con estructuras simples y validación explícita.
+
+### Riesgos de leakage revisados
+
+Los loaders deben declarar `train` y `validation`; `test` falla antes del fit.
+Solo se usaron datos sintéticos y no existen métricas o thresholds.
+
+### Archivos y tests
+
+- `src/ptbxl/training/fit.py`
+- `tests/training/test_fit.py`
+- `docs/context/missions/012_add_validation_fit_checkpoints.md`
+
+Nueve tests cubren fit completo, historial, selección en empates, restauración,
+round-trip exacto, roles de split, configuración, schema y procedencia.
+La suite local completa pasó con 136 tests, Ruff y build del paquete.
+
+### Qué debería entender el propietario
+
+El checkpoint no es solo pesos: identifica con qué dataset, cohorte,
+preprocessing, modelo, seed y commit se produjo. Validation elige; test no puede
+entrar en esta API.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Por qué guardar estado del optimizer además del modelo?
+- ¿Por qué seleccionar el primer mínimo en un empate?
+- ¿Qué riesgos reducen escritura atómica y `weights_only=True`?
+
 ## Mission 011 — Reproducible epoch train/evaluate engine
 
 ### Qué se hizo

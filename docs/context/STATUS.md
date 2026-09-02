@@ -4,20 +4,22 @@ Last updated: 2026-09-02
 
 ## Current mission
 
-No active implementation mission. Mission 011, adding the reproducible
-epoch-level train/evaluate engine, is complete.
+Mission 012 — add fixed multi-epoch fitting and safe checkpoints selected only
+by validation loss.
 
 ## Current step
 
-The implementation is merged and synchronized. PR checks and the post-merge
-Quality workflow passed; the implementation branch was removed.
+Issue `#34` and branch `training/34-validation-fit-checkpoints` are open. Fit,
+atomic weights-only checkpointing and nine synthetic tests are implemented and
+passing. Documentation and all local checks are complete; PR review and remote
+checks are next.
 
 ## Next actions
 
-1. Add small multi-epoch orchestration with deterministic checkpoint artifacts.
-2. Prove complete synthetic fitting, checkpoint round-trip and validation-only
-   model selection.
-3. Then define multilabel validation metrics before any real training run.
+1. Review and merge the Mission 012 implementation PR after remote checks.
+2. Record closure evidence and synchronize `main`.
+3. Pause before defining multilabel validation metrics, as requested by the
+   owner.
 
 ## Last completed mission
 

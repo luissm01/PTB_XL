@@ -264,3 +264,19 @@ test-driven architecture selection.
 Why: this establishes reproducible, testable optimization semantics before
 multi-epoch state, checkpoint selection or metrics make failures harder to
 isolate.
+
+## D022 — Checkpoints are selected only by validation loss and loaded safely
+
+- Require explicit train and validation Dataset roles in `fit`; reject test as
+  a selection loader in code.
+- Run a fixed positive number of epochs and keep the first strict minimum
+  validation loss, avoiding ambiguous replacement on ties.
+- Persist best model/optimizer state, full train/validation loss history and
+  dataset/cohort/preprocessing/model/seed/Git provenance.
+- Write through a same-directory temporary file and atomic replacement.
+- Load with PyTorch `weights_only=True`, validate schema/provenance first and
+  restore the selected model and optimizer before returning from fit.
+
+Why: model selection and recovery must be reproducible without allowing fold 10
+into the development loop or accepting arbitrary pickle objects from a
+checkpoint.
