@@ -4,43 +4,43 @@ Last updated: 2026-09-02
 
 ## Current mission
 
-Mission 010 — implement a small, configurable 1D-CNN baseline contract from
-channel-first ECG batches to five raw logits.
+No active implementation mission. Mission 010, implementing the small 1D-CNN
+baseline contract, is complete.
 
 ## Current step
 
-Issue `#28` and branch `models/28-small-1d-cnn` are open. The configurable
-38,597-parameter model, 22 focused test cases and documentation updates are
-implemented. The full 118-test suite, Ruff, format and package build pass; PR
-review is next.
+The implementation is merged and synchronized. PR checks and the post-merge
+Quality workflow passed; the implementation branch was removed.
 
 ## Next actions
 
-1. Review the complete diff and open the implementation PR.
-2. Complete GitHub checks and squash-merge.
-3. Record Mission 010 closure before training work.
+1. Define reproducible seed/device utilities and a minimal `train_one_epoch`
+   boundary using `BCEWithLogitsLoss`.
+2. Prove with synthetic data that training produces finite loss and updates
+   parameters while evaluation does not update them.
+3. Add checkpointing only after the epoch-level train/evaluate contract is
+   stable and tested.
 
 ## Last completed mission
 
-Mission 009 — add the thin PyTorch Dataset/DataLoader boundary:
+Mission 010 — implement the small 1D-CNN baseline contract:
 
-- Issue `#25` closed.
-- Pull request `#26` squash-merged as `9e6ab7e`.
+- Issue `#28` closed.
+- Pull request `#29` squash-merged as `a228b42`.
 - Python quality and GitGuardian passed on the PR.
 - Post-merge Quality workflow passed on `main`.
 - Local and remote implementation branches were removed.
-- Full local suite passed: 96 tests, Ruff lint, Ruff format and package build.
+- Full local suite passed: 118 tests, Ruff lint, Ruff format and package build.
 
-## Mission 009 evidence
+## Mission 010 evidence
 
-- `PTBXLDataset` delegates to `load_sample` and the frozen
-  `GlobalStandardizer`, opening no signal during construction.
-- Each Dataset accepts exactly one explicit split and produces contiguous
-  `float32` signals `(12, 1000)` plus targets `(5,)` and provenance.
-- DataLoader batches `(B, 12, 1000)` / `(B, 5)` and requires a seed for shuffle.
-- A real smoke check passed for two records per split with one unchanged
-  train-fitted standardizer.
-- No model, loss, sampling policy, metric or final-test selection was added.
+- `SmallECGCNN` maps `float32 (B, 12, 1000)` to five raw logits.
+- The frozen config records channels `32, 64, 128`, kernels `7, 5, 3` and
+  dropout `0.2`; the default model has 38,597 trainable parameters.
+- Synthetic BCE loss, forward and gradients are finite for every trainable
+  parameter; eval output is deterministic.
+- The model contains no sigmoid or softmax and opens no real waveform.
+- No optimizer, training, metric, threshold or final-test behavior was added.
 
 ## Stable repository foundation
 
@@ -58,6 +58,8 @@ Mission 009 — add the thin PyTorch Dataset/DataLoader boundary:
   reasoning accessible without overstating unfinished work.
 - A thin PyTorch boundary reuses those contracts and produces deterministic,
   channel-first batches without duplicating dataset semantics.
+- A small configurable 1D-CNN converts valid batches to five raw logits with a
+  tested multilabel loss/gradient contract.
 - GitHub Actions and GitGuardian green on `main`.
 - Durable decisions live in `docs/context/DECISIONS.md`; completed contracts
   remain under `docs/context/missions/`.

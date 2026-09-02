@@ -68,6 +68,11 @@ software; el modelo no está entrenado y no existe resultado predictivo. La suit
 completa pasó con 118 tests, Ruff y build, y el wheel contiene el paquete
 `ptbxl.models`.
 
+La implementación se asoció al issue `#28` y a la pull request `#29`. Python
+quality y GitGuardian pasaron en la PR, fusionada mediante squash como
+`a228b42`; el workflow Quality posterior también pasó en `main`. El issue quedó
+cerrado y las ramas de implementación se eliminaron.
+
 ### Qué debería entender el propietario
 
 Los logits son números sin limitar y no probabilidades. Durante entrenamiento

@@ -8,6 +8,7 @@ logits for the multilabel task.
 
 - Issue: `#28` — `[MODEL] Implement a small 1D CNN baseline contract`.
 - Branch: `models/28-small-1d-cnn`.
+- Pull request: `#29` — `Model: add small 1D CNN baseline`.
 - Input contract: `torch.float32` `(B, 12, 1000)`.
 - Output contract: raw logits `(B, 5)`.
 
@@ -68,8 +69,7 @@ comparisons belong to later validation-governed experiments.
 - [x] Eval output is deterministic for fixed input and state.
 - [x] README and living guide explain the implemented model boundary.
 - [x] Stable decisions, status and autonomous log are updated.
-- [ ] Tests, Ruff, format, build and GitHub checks pass. All local checks pass
-  with 118 tests; GitHub checks are pending the pull request.
+- [x] Tests, Ruff, format, build and GitHub checks pass.
 
 ## Out of scope
 
@@ -85,3 +85,12 @@ evaluation.
 - The built wheel contains `ptbxl/models/__init__.py` and `cnn.py`.
 - `git diff --check`: passed.
 - No PTB-XL waveform, validation prediction or test prediction was opened.
+
+## Closure
+
+- Issue `#28`: closed by the merged implementation.
+- Pull request `#29`: squash-merged.
+- Merge commit: `a228b42`.
+- Python quality and GitGuardian on the PR: passed.
+- Post-merge Quality workflow on `main`: passed.
+- Local and remote implementation branches: removed.
