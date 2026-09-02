@@ -5,10 +5,10 @@ qué se tomaron las decisiones actuales y cómo deberían construirse las etapas
 que faltan. Está pensada para poder leerla sin experiencia previa en ECG o deep
 learning y, al mismo tiempo, servir como material de preparación técnica.
 
-> **Estado de esta edición:** las misiones 001–010 están implementadas y
-> verificadas. La frontera PyTorch y una CNN 1D pequeña existen; el entrenamiento
-> y las métricas de modelo aún no están implementados. Este proyecto es
-> experimental y no está destinado a uso clínico.
+> **Estado de esta edición:** las misiones 001–011 están implementadas y
+> verificadas. La frontera PyTorch, la CNN y el motor por época existen; el
+> ajuste completo, checkpoints y métricas aún no están implementados. Este
+> proyecto es experimental y no está destinado a uso clínico.
 
 ## Cómo leer el estado de cada sección
 
@@ -692,8 +692,8 @@ Las siguientes fronteras mínimas deberían añadirse una misión cada vez:
 
 ## Parte 8 — MLOps y reproducibilidad
 
-**Estado: entorno, pruebas, CI, evidencia y flujo Git implementados para las
-capas existentes; tracking de entrenamiento y checkpoints planificados.**
+**Estado: entorno, pruebas, CI, seeds y motor por época implementados; tracking
+y checkpoints planificados.**
 
 ### 8.1 Entorno reproducible
 
@@ -755,6 +755,12 @@ sin reconstruir la historia desde una conversación.
 
 ### 8.5 Lo que deberá añadirse con entrenamiento
 
+El núcleo ya separa `train_one_epoch` y `evaluate_loss`. La primera activa
+gradientes y optimizer steps; la segunda usa modo eval e inference. Ambas
+ponderan la loss por muestras, para que un último batch corto no pese igual que
+uno completo. Una seed reinicia Python, NumPy, PyTorch y CUDA, aunque hardware y
+kernels GPU todavía pueden limitar la reproducibilidad absoluta.
+
 Antes de considerar reproducible un experimento de modelo harán falta, como
 mínimo:
 
@@ -790,7 +796,8 @@ pendientes.**
 | Preprocessing | 17.084 ECG de train, parámetros globales deterministas y congelados |
 | PyTorch | Dataset lazy por split y batches `(B, 12, 1000)` / `(B, 5)` verificados con datos sintéticos y un smoke check real |
 | Modelo | CNN de 38.597 parámetros, entrada/salida, BCE y gradientes verificados sintéticamente |
-| Calidad de software | 118 tests, Ruff y build superados al cerrar la misión 010 |
+| Entrenamiento | train/evaluate por época separados, loss ponderada y seeds verificados sintéticamente |
+| Calidad de software | 127 tests, Ruff y build superados al cerrar la misión 011 |
 
 Estos son resultados de **ingeniería e integridad de datos**, no rendimiento
 predictivo.
@@ -930,10 +937,10 @@ convertirse después en otra ronda de tuning.
 
 ### 10.16 ¿Qué harías a continuación y por qué?
 
-Añadiría un training loop pequeño que reciba el DataLoader y la CNN ya probados,
-controle dispositivo y seeds, calcule `BCEWithLogitsLoss` y guarde checkpoints
-reproducibles usando únicamente train/validation. Mantendría métricas complejas
-y test final fuera hasta demostrar primero un mini entrenamiento sintético.
+Añadiría orquestación multi-época y checkpoints deterministas sobre el motor ya
+probado, registrando configuración y seleccionando únicamente con validation.
+Mantendría métricas y test final fuera hasta demostrar un mini entrenamiento
+sintético completo.
 
 ### 10.17 ¿Qué limitación temporal tiene la primera CNN?
 

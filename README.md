@@ -11,7 +11,8 @@ composes identities, targets, official splits and signals. Train-only global
 standardization is implemented and frozen in a reproducible artifact. A thin
 PyTorch Dataset/DataLoader boundary produces channel-first batches without
 duplicating data logic. A small 1D-CNN baseline maps those batches to five raw
-logits. Training and model evaluation are not implemented yet.
+logits. Reproducible single-epoch train and loss-evaluation functions are also
+implemented; multi-epoch fitting, checkpoints and metrics are next.
 
 ## Project documentation
 
@@ -226,5 +227,27 @@ logits = model(batch["signal"])
 and deliberately contains no sigmoid or softmax: future training will pass the
 raw logits directly to `BCEWithLogitsLoss`. This is an architecture contract,
 not a trained model or a performance result.
+
+## Run one training epoch
+
+```python
+import torch
+
+from ptbxl.training import resolve_device, seed_random_generators, train_one_epoch
+
+seed_random_generators(2026)
+device = resolve_device("auto")
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+result = train_one_epoch(
+    model,
+    loader,
+    optimizer,
+    torch.nn.BCEWithLogitsLoss(),
+    device,
+)
+```
+
+The result contains sample-weighted mean loss, sample count and batch count.
+This API is tested, but no real PTB-XL training result exists yet.
 
 This project is experimental and is not intended for clinical use.

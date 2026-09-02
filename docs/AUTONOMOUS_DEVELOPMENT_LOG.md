@@ -5,6 +5,47 @@ is away. Stable constraints remain in `docs/context/DECISIONS.md`, current work
 remains in `docs/context/STATUS.md` and detailed acceptance contracts remain in
 `docs/context/missions/`.
 
+## Mission 011 — Reproducible epoch train/evaluate engine
+
+### Qué se hizo
+
+Se añadieron seeds unificadas, resolución explícita CPU/CUDA y dos fronteras:
+`train_one_epoch` actualiza parámetros y `evaluate_loss` evalúa sin gradientes.
+Ambas devuelven loss media ponderada por muestras y conteos.
+
+### Por qué y decisiones técnicas
+
+Separar train de evaluación evita optimizer steps accidentales. La ponderación
+por muestras trata correctamente el batch final corto. Se validan mappings
+`signal`/`targets`, shapes, loader no vacío y loss finita.
+
+### Riesgos de leakage revisados
+
+Solo se usaron datos sintéticos. No existen selección de checkpoint, métricas,
+thresholds ni acceso a PTB-XL para entrenar.
+
+### Archivos y tests
+
+- `src/ptbxl/training/engine.py`
+- `src/ptbxl/training/reproducibility.py`
+- `tests/training/test_engine.py`
+
+Nueve tests verifican streams reproducibles, devices, actualización exclusiva
+en train, ausencia de cambios en evaluación, ponderación y errores explícitos.
+La suite completa pasó con 127 tests, Ruff y build.
+
+### Qué debería entender el propietario
+
+Una seed controla fuentes conocidas de azar, pero no promete identidad absoluta
+entre cualquier GPU. Evaluación cambia a modo eval y no crea gradientes; train
+es la única frontera que hace optimizer steps.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Por qué promediar loss por muestras y no por batches?
+- ¿Qué cambia entre `model.train()` y `model.eval()`?
+- ¿Qué garantiza una seed y qué no garantiza en GPU?
+
 ## Mission 010 — Small 1D-CNN baseline contract
 
 ### Qué se hizo
