@@ -33,6 +33,9 @@ Solo se usaron datos sintéticos y no existen métricas o thresholds.
 Nueve tests cubren fit completo, historial, selección en empates, restauración,
 round-trip exacto, roles de split, configuración, schema y procedencia.
 La suite local completa pasó con 136 tests, Ruff y build del paquete.
+El issue `#34` quedó cerrado; la PR `#35` se fusionó como `1bf5443` después de
+pasar Python quality y GitGuardian. Quality volvió a pasar después del merge en
+`main` y se eliminaron las ramas de implementación.
 
 ### Qué debería entender el propietario
 
