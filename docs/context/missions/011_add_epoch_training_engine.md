@@ -8,6 +8,7 @@ checkpoint selection or metrics.
 
 - Issue: `#31` — `[TRAINING] Add a reproducible epoch train/evaluate engine`.
 - Branch: `training/31-epoch-engine`.
+- Pull request: `#32` — `Training: add reproducible epoch engine`.
 
 ## Contract
 
@@ -36,8 +37,7 @@ checkpoint selection or metrics.
 - [x] Empty, malformed and non-finite cases fail clearly.
 - [x] Train and eval modes are explicit.
 - [x] README, guide, decisions, status and autonomous log are updated.
-- [ ] Full tests, Ruff, format, build and GitHub checks pass. All local checks
-  pass with 127 tests; GitHub checks are pending the pull request.
+- [x] Full tests, Ruff, format, build and GitHub checks pass.
 
 ## Out of scope
 
@@ -50,3 +50,10 @@ metrics, thresholds, experiment tracking, final-test evaluation and inference.
 - Ruff lint and format check: passed.
 - Source distribution and wheel build: passed.
 - `git diff --check`: passed.
+
+## Closure
+
+- Issue `#31`: closed by the merged implementation.
+- Pull request `#32`: squash-merged as `79a64f8`.
+- Python quality, GitGuardian and post-merge Quality: passed.
+- Local and remote implementation branches: removed.
