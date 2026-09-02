@@ -1,25 +1,24 @@
 # Project status
 
-Last updated: 2026-08-31
+Last updated: 2026-09-02
 
 ## Current mission
 
-No active implementation mission. Mission 008, building the living project
-guide, is complete.
+Mission 009 — add a thin PyTorch Dataset/DataLoader boundary over the validated
+sample contract and frozen train-only standardizer.
 
 ## Current step
 
-Development is intentionally paused after the agreed documentation milestone.
-The repository is clean and synchronized after the implementation merge; PR
-checks and the post-merge Quality workflow passed.
+Issue `#25` and branch `data/25-thin-pytorch-dataset` are open. The adapter,
+ten synthetic tests and documentation updates are implemented; targeted checks
+and a two-record-per-split real smoke check pass. The full 96-test suite, Ruff,
+format and package build also pass; PR review is next.
 
 ## Next actions
 
-1. When development resumes, read this status, Mission 008 and D018.
-2. Introduce a thin PyTorch Dataset/DataLoader adapter that reuses `load_sample`
-   and the frozen global standardizer without duplicating logic.
-3. Then implement a small, tested 1D-CNN baseline without using final test for
-   model or threshold selection.
+1. Review the complete diff and open the implementation PR.
+2. Complete GitHub checks and squash-merge.
+3. Record Mission 009 closure before starting the CNN mission.
 
 ## Last completed mission
 

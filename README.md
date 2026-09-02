@@ -8,8 +8,9 @@ Production-oriented machine learning project for multilabel classification of
 Official PTB-XL v1.0.3 metadata, labels, cohort definition and 100 Hz signal
 integrity loading are implemented. A framework-independent sample boundary now
 composes identities, targets, official splits and signals. Train-only global
-standardization is implemented and frozen in a reproducible artifact. PyTorch,
-models and training are not implemented yet.
+standardization is implemented and frozen in a reproducible artifact. A thin
+PyTorch Dataset/DataLoader boundary produces channel-first batches without
+duplicating data logic. Models and training are not implemented yet.
 
 ## Project documentation
 
@@ -165,5 +166,48 @@ The versioned artifact records 17,084 train ECGs and 205,008,000 values. It is
 loaded unchanged for every later split and inference; validation and test never
 participate in fitting. This baseline adds no filtering, per-record scaling,
 denoising, resampling or augmentation.
+
+## Build channel-first PyTorch batches
+
+Build the complete validated sample index first, then select one split and wrap
+it with the same frozen standardizer used by every later stage:
+
+```python
+import pandas as pd
+
+from ptbxl.data import PTBXLDataset, build_dataloader, build_sample_index
+from ptbxl.preprocessing import load_global_standardizer
+
+cohort = pd.read_csv(
+    "data/processed/ptbxl_v1.0.3_five_superclass_cohort.csv"
+)
+metadata = pd.read_csv(
+    "data/raw/ptbxl_database.csv",
+    usecols=["ecg_id", "filename_lr"],
+)
+sample_index = build_sample_index(cohort, metadata)
+train_index = sample_index.loc[sample_index["split"] == "train"]
+standardizer = load_global_standardizer(
+    "reports/preprocessing/ptbxl_v1.0.3_train_global_standardizer.json"
+)
+
+dataset = PTBXLDataset(
+    train_index,
+    "data/raw/ptb-xl/1.0.3",
+    standardizer,
+    split="train",
+)
+loader = build_dataloader(
+    dataset,
+    batch_size=32,
+    shuffle=True,
+    seed=2026,
+)
+batch = next(iter(loader))
+```
+
+`batch["signal"]` has shape `(B, 12, 1000)` and `float32` dtype;
+`batch["targets"]` has shape `(B, 5)`. Dataset construction is lazy, mixed
+splits are rejected, and enabling shuffle requires an explicit seed.
 
 This project is experimental and is not intended for clinical use.
