@@ -249,3 +249,18 @@ and seeded shuffle make accidental mixing and hidden randomness harder.
 Why: a small conventional network is fast to test and easy to explain. It
 establishes the model/loss boundary without mixing in training, evaluation or
 test-driven architecture selection.
+
+## D021 — Train and evaluation are separate sample-weighted epoch boundaries
+
+- Seed Python, NumPy, PyTorch and CUDA streams from one validated integer.
+- Resolve CPU/CUDA explicitly and fail rather than silently falling back from a
+  requested unavailable CUDA device.
+- Let `train_one_epoch` own gradients and optimizer steps; let `evaluate_loss`
+  use eval/inference mode and never update parameters.
+- Aggregate batch losses weighted by sample count so a short final batch does
+  not receive the same weight as a full batch.
+- Reject malformed batches, shape mismatches, empty loaders and non-finite loss.
+
+Why: this establishes reproducible, testable optimization semantics before
+multi-epoch state, checkpoint selection or metrics make failures harder to
+isolate.

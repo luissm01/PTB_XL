@@ -4,22 +4,20 @@ Last updated: 2026-09-02
 
 ## Current mission
 
-No active implementation mission. Mission 010, implementing the small 1D-CNN
-baseline contract, is complete.
+Mission 011 — add reproducible seed/device utilities and separate epoch-level
+train and loss-evaluation boundaries.
 
 ## Current step
 
-The implementation is merged and synchronized. PR checks and the post-merge
-Quality workflow passed; the implementation branch was removed.
+Issue `#31` and branch `training/31-epoch-engine` are open. The engine and nine
+focused synthetic tests are implemented and documented. The full 127-test
+suite, Ruff, format and package build pass; PR review is next.
 
 ## Next actions
 
-1. Define reproducible seed/device utilities and a minimal `train_one_epoch`
-   boundary using `BCEWithLogitsLoss`.
-2. Prove with synthetic data that training produces finite loss and updates
-   parameters while evaluation does not update them.
-3. Add checkpointing only after the epoch-level train/evaluate contract is
-   stable and tested.
+1. Review the complete diff and open the implementation PR.
+2. Complete GitHub checks and squash-merge.
+3. Close Mission 011 before adding multi-epoch orchestration and checkpoints.
 
 ## Last completed mission
 
