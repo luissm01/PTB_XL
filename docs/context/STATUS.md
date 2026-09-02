@@ -4,21 +4,21 @@ Last updated: 2026-09-02
 
 ## Current mission
 
-No active implementation mission. Mission 009, adding the thin PyTorch
-Dataset/DataLoader boundary, is complete.
+Mission 010 — implement a small, configurable 1D-CNN baseline contract from
+channel-first ECG batches to five raw logits.
 
 ## Current step
 
-The implementation is merged and synchronized. PR checks and the post-merge
-Quality workflow passed; the implementation branch was removed.
+Issue `#28` and branch `models/28-small-1d-cnn` are open. The configurable
+38,597-parameter model, 22 focused test cases and documentation updates are
+implemented. The full 118-test suite, Ruff, format and package build pass; PR
+review is next.
 
 ## Next actions
 
-1. Define a small 1D-CNN that accepts `(B, 12, 1000)` and returns five logits.
-2. Test parameterized input validation, forward/backward behavior and
-   compatibility with `BCEWithLogitsLoss` using synthetic tensors.
-3. Keep training, metrics, checkpointing and final-test access out of that model
-   contract mission.
+1. Review the complete diff and open the implementation PR.
+2. Complete GitHub checks and squash-merge.
+3. Record Mission 010 closure before training work.
 
 ## Last completed mission
 

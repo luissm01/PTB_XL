@@ -5,6 +5,84 @@ is away. Stable constraints remain in `docs/context/DECISIONS.md`, current work
 remains in `docs/context/STATUS.md` and detailed acceptance contracts remain in
 `docs/context/missions/`.
 
+## Mission 010 — Small 1D-CNN baseline contract
+
+### Qué se hizo
+
+Se implementó `SmallECGCNN`, el primer modelo del proyecto. Recibe batches
+`float32` `(B, 12, 1000)`, extrae características con tres bloques Conv1D y
+devuelve cinco logits crudos. `ECGCNNConfig` conserva de forma inmutable y
+validada los canales, kernels y dropout de la arquitectura.
+
+### Por qué se hizo
+
+Dataset y batching ya tenían un contrato estable. Antes de construir un bucle de
+entrenamiento era necesario demostrar por separado que un modelo pequeño acepta
+exactamente ese contrato, representa correctamente una tarea multilabel y
+propaga gradientes finitos.
+
+### Decisiones técnicas
+
+- Tres bloques `Conv1D -> BatchNorm1D -> ReLU -> MaxPool1D`.
+- Canales por defecto `32, 64, 128` y kernels impares `7, 5, 3`.
+- Padding que conserva longitud antes de cada pooling factor dos.
+- Adaptive global average pooling, dropout `0.2` y Linear a cinco logits.
+- Entrada exacta `float32 (B, 12, 1000)` con errores previos a las convoluciones.
+- Ninguna sigmoid/softmax en el modelo; BCE recibe logits directamente.
+- Configuración por defecto con 38.597 parámetros entrenables.
+
+### Alternativas consideradas
+
+Un transformer, ResNet grande o ensemble habría ocultado errores básicos y
+añadido coste antes de disponer de training. Una MLP ignoraría la estructura
+temporal. También era posible omitir BatchNorm o pooling, pero el bloque clásico
+elegido ofrece un baseline compacto, reconocible y fácil de explicar.
+
+### Riesgos de leakage revisados
+
+- La arquitectura se eligió por simplicidad de ingeniería, sin observar
+  resultados de validation ni test.
+- Los tests usan exclusivamente tensores sintéticos.
+- No se añadieron prevalencias, class weights, sampler, threshold ni métricas.
+- El modelo no conoce splits y no abre datos.
+
+### Archivos principales
+
+- `src/ptbxl/models/cnn.py`
+- `src/ptbxl/models/__init__.py`
+- `tests/models/test_cnn.py`
+- `docs/context/missions/010_implement_small_1d_cnn.md`
+
+### Tests añadidos
+
+Veintidós casos cubren configuración congelada, valores inválidos, varios
+tamaños de batch, rango completo de errores de input, logits sin activación,
+parameter count, loss BCE, gradientes de todos los parámetros y determinismo en
+modo evaluación.
+
+### Resultados obtenidos
+
+El forward produce `(B, 5)`, la loss sintética es finita y todos los parámetros
+entrenables reciben gradientes finitos. Estos son resultados de contrato de
+software; el modelo no está entrenado y no existe resultado predictivo. La suite
+completa pasó con 118 tests, Ruff y build, y el wheel contiene el paquete
+`ptbxl.models`.
+
+### Qué debería entender el propietario
+
+Los logits son números sin limitar y no probabilidades. Durante entrenamiento
+`BCEWithLogitsLoss` combina de forma estable cada logit con su decisión binaria.
+Sigmoid solo será necesaria cuando evaluación o inferencia conviertan logits a
+probabilidades.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Por qué Conv1D usa 12 canales y recorre el eje de 1.000 muestras?
+- ¿Por qué la cabeza devuelve cinco logits sin sigmoid?
+- ¿Qué aporta el global average pooling y qué información puede perder?
+- ¿Por qué fijar y probar el número de parámetros del baseline?
+- ¿Qué significa un campo receptivo local de 0,3 segundos en esta arquitectura?
+
 ## Mission 009 — Thin PyTorch Dataset/DataLoader boundary
 
 ### Qué se hizo
