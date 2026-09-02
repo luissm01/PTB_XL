@@ -74,6 +74,11 @@ En los tres casos obtuvo señales `(2, 12, 1000)`, targets `(2, 5)`, dtype
 resultados de modelo. La suite completa pasó con 96 tests, Ruff y build; el
 wheel contiene el adaptador y declara PyTorch como dependencia.
 
+La implementación se asoció al issue `#25` y a la pull request `#26`. Python
+quality y GitGuardian pasaron en la PR, fusionada mediante squash como
+`9e6ab7e`; el workflow Quality posterior también pasó en `main`. El issue quedó
+cerrado y las ramas de implementación se eliminaron.
+
 ### Qué debería entender el propietario
 
 El Dataset no decide qué es una muestra: adapta una muestra que las capas

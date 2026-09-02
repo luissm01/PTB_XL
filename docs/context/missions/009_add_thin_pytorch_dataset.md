@@ -8,6 +8,7 @@ logic into the framework layer.
 
 - Issue: `#25` — `[DATA] Add a thin PyTorch dataset adapter`.
 - Branch: `data/25-thin-pytorch-dataset`.
+- Pull request: `#26` — `Data: add thin PyTorch dataset adapter`.
 - Dataset: PTB-XL v1.0.3, five-superclass cohort, 100 Hz signals.
 
 ## Dependency decision
@@ -69,8 +70,7 @@ environment is introduced in this first framework mission.
 - [x] Failure paths have synthetic tests.
 - [x] README and living guide explain the implemented boundary.
 - [x] Stable decisions, status and autonomous log are updated.
-- [ ] Tests, Ruff, format, build and GitHub checks pass. All local checks pass
-  with 96 tests; GitHub checks are pending the pull request.
+- [x] Tests, Ruff, format, build and GitHub checks pass.
 
 ## Out of scope
 
@@ -94,3 +94,12 @@ augmentation, metrics, thresholds, checkpoints and final-test evaluation.
 - Source distribution and wheel build: passed.
 - The built wheel contains `ptbxl/data/pytorch.py` and declares PyTorch.
 - `git diff --check`: passed.
+
+## Closure
+
+- Issue `#25`: closed by the merged implementation.
+- Pull request `#26`: squash-merged.
+- Merge commit: `9e6ab7e`.
+- Python quality and GitGuardian on the PR: passed.
+- Post-merge Quality workflow on `main`: passed.
+- Local and remote implementation branches: removed.

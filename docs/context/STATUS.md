@@ -4,45 +4,43 @@ Last updated: 2026-09-02
 
 ## Current mission
 
-Mission 009 — add a thin PyTorch Dataset/DataLoader boundary over the validated
-sample contract and frozen train-only standardizer.
+No active implementation mission. Mission 009, adding the thin PyTorch
+Dataset/DataLoader boundary, is complete.
 
 ## Current step
 
-Issue `#25` and branch `data/25-thin-pytorch-dataset` are open. The adapter,
-ten synthetic tests and documentation updates are implemented; targeted checks
-and a two-record-per-split real smoke check pass. The full 96-test suite, Ruff,
-format and package build also pass; PR review is next.
+The implementation is merged and synchronized. PR checks and the post-merge
+Quality workflow passed; the implementation branch was removed.
 
 ## Next actions
 
-1. Review the complete diff and open the implementation PR.
-2. Complete GitHub checks and squash-merge.
-3. Record Mission 009 closure before starting the CNN mission.
+1. Define a small 1D-CNN that accepts `(B, 12, 1000)` and returns five logits.
+2. Test parameterized input validation, forward/backward behavior and
+   compatibility with `BCEWithLogitsLoss` using synthetic tensors.
+3. Keep training, metrics, checkpointing and final-test access out of that model
+   contract mission.
 
 ## Last completed mission
 
-Mission 008 — build the living project guide:
+Mission 009 — add the thin PyTorch Dataset/DataLoader boundary:
 
-- Issue `#22` closed.
-- Pull request `#23` squash-merged as `395c74b`.
+- Issue `#25` closed.
+- Pull request `#26` squash-merged as `9e6ab7e`.
 - Python quality and GitGuardian passed on the PR.
 - Post-merge Quality workflow passed on `main`.
 - Local and remote implementation branches were removed.
-- Full local suite passed: 86 tests, Ruff lint, Ruff format and package build.
+- Full local suite passed: 96 tests, Ruff lint, Ruff format and package build.
 
-## Mission 008 evidence
+## Mission 009 evidence
 
-- `docs/PROJECT_GUIDE.md` contains all ten agreed parts and 16 explained
-  interview questions.
-- Implemented behavior, planned work and pending model results are explicitly
-  separated.
-- Project figures trace to the five versioned evidence reports and important
-  general claims link primary or official sources.
-- Every local Markdown target exists and all nine external destinations
-  responded during validation.
-- No dependency, runtime behavior, model result or final-test selection was
-  added.
+- `PTBXLDataset` delegates to `load_sample` and the frozen
+  `GlobalStandardizer`, opening no signal during construction.
+- Each Dataset accepts exactly one explicit split and produces contiguous
+  `float32` signals `(12, 1000)` plus targets `(5,)` and provenance.
+- DataLoader batches `(B, 12, 1000)` / `(B, 5)` and requires a seed for shuffle.
+- A real smoke check passed for two records per split with one unchanged
+  train-fitted standardizer.
+- No model, loss, sampling policy, metric or final-test selection was added.
 
 ## Stable repository foundation
 
@@ -58,6 +56,8 @@ Mission 008 — build the living project guide:
   source provenance and reusable unchanged by later splits and inference.
 - A living project guide makes the verified system, future design and interview
   reasoning accessible without overstating unfinished work.
+- A thin PyTorch boundary reuses those contracts and produces deterministic,
+  channel-first batches without duplicating dataset semantics.
 - GitHub Actions and GitGuardian green on `main`.
 - Durable decisions live in `docs/context/DECISIONS.md`; completed contracts
   remain under `docs/context/missions/`.
