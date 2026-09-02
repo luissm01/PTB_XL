@@ -250,4 +250,13 @@ result = train_one_epoch(
 The result contains sample-weighted mean loss, sample count and batch count.
 This API is tested, but no real PTB-XL training result exists yet.
 
+## Fit and save the best validation checkpoint
+
+`ptbxl.training.fit` runs a fixed number of epochs and saves the first minimum
+validation loss. It requires loaders backed by datasets declaring exactly
+`train` and `validation`; a test loader is rejected. The checkpoint records
+model/optimizer state, complete loss history and dataset, cohort, preprocessing,
+seed and Git provenance. It is written atomically and loaded with PyTorch's
+weights-only mode. Checkpoints remain ignored by Git.
+
 This project is experimental and is not intended for clinical use.

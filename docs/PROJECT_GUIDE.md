@@ -5,9 +5,10 @@ qué se tomaron las decisiones actuales y cómo deberían construirse las etapas
 que faltan. Está pensada para poder leerla sin experiencia previa en ECG o deep
 learning y, al mismo tiempo, servir como material de preparación técnica.
 
-> **Estado de esta edición:** las misiones 001–011 están implementadas y
+> **Estado de esta edición:** las misiones 001–012 están implementadas y
 > verificadas. La frontera PyTorch, la CNN y el motor por época existen; el
-> ajuste completo, checkpoints y métricas aún no están implementados. Este
+> fit multi-época y checkpoints también existen; métricas y entrenamiento real
+> aún no están implementados. Este
 > proyecto es experimental y no está destinado a uso clínico.
 
 ## Cómo leer el estado de cada sección
@@ -692,8 +693,8 @@ Las siguientes fronteras mínimas deberían añadirse una misión cada vez:
 
 ## Parte 8 — MLOps y reproducibilidad
 
-**Estado: entorno, pruebas, CI, seeds y motor por época implementados; tracking
-y checkpoints planificados.**
+**Estado: entorno, pruebas, CI, seeds, fit y checkpoints implementados; métricas
+y tracking comparativo planificados.**
 
 ### 8.1 Entorno reproducible
 
@@ -761,6 +762,12 @@ ponderan la loss por muestras, para que un último batch corto no pese igual que
 uno completo. Una seed reinicia Python, NumPy, PyTorch y CUDA, aunque hardware y
 kernels GPU todavía pueden limitar la reproducibilidad absoluta.
 
+`fit` añade un número fijo de épocas y selecciona el primer mínimo de loss de
+validation. La API comprueba los roles declarados por los Dataset y rechaza test
+como fuente de selección. El mejor estado de modelo y optimizer se escribe
+atómicamente junto con el historial completo y procedencia; la carga usa
+`weights_only=True` y restaura ese estado antes de devolver el resultado.
+
 Antes de considerar reproducible un experimento de modelo harán falta, como
 mínimo:
 
@@ -797,7 +804,8 @@ pendientes.**
 | PyTorch | Dataset lazy por split y batches `(B, 12, 1000)` / `(B, 5)` verificados con datos sintéticos y un smoke check real |
 | Modelo | CNN de 38.597 parámetros, entrada/salida, BCE y gradientes verificados sintéticamente |
 | Entrenamiento | train/evaluate por época separados, loss ponderada y seeds verificados sintéticamente |
-| Calidad de software | 127 tests, Ruff y build superados al cerrar la misión 011 |
+| Checkpoint | primer mínimo de validation, historial/procedencia y round-trip exacto verificados sintéticamente |
+| Calidad de software | 136 tests, Ruff y build superados al cerrar la misión 012 |
 
 Estos son resultados de **ingeniería e integridad de datos**, no rendimiento
 predictivo.
@@ -937,10 +945,9 @@ convertirse después en otra ronda de tuning.
 
 ### 10.16 ¿Qué harías a continuación y por qué?
 
-Añadiría orquestación multi-época y checkpoints deterministas sobre el motor ya
-probado, registrando configuración y seleccionando únicamente con validation.
-Mantendría métricas y test final fuera hasta demostrar un mini entrenamiento
-sintético completo.
+Añadiría métricas multilabel puras y testeadas —AUROC/AUPRC macro y por clase—
+para validation. Después integraría predicciones al historial de experimentos,
+manteniendo thresholds y test final fuera hasta congelar el protocolo.
 
 ### 10.17 ¿Qué limitación temporal tiene la primera CNN?
 
