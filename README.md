@@ -10,7 +10,8 @@ integrity loading are implemented. A framework-independent sample boundary now
 composes identities, targets, official splits and signals. Train-only global
 standardization is implemented and frozen in a reproducible artifact. A thin
 PyTorch Dataset/DataLoader boundary produces channel-first batches without
-duplicating data logic. Models and training are not implemented yet.
+duplicating data logic. A small 1D-CNN baseline maps those batches to five raw
+logits. Training and model evaluation are not implemented yet.
 
 ## Project documentation
 
@@ -209,5 +210,21 @@ batch = next(iter(loader))
 `batch["signal"]` has shape `(B, 12, 1000)` and `float32` dtype;
 `batch["targets"]` has shape `(B, 5)`. Dataset construction is lazy, mixed
 splits are rejected, and enabling shuffle requires an explicit seed.
+
+## Run the small 1D-CNN baseline
+
+The first model consumes the batch contract directly:
+
+```python
+from ptbxl.models import SmallECGCNN
+
+model = SmallECGCNN()
+logits = model(batch["signal"])
+```
+
+`logits` has shape `(B, 5)`. The default model has 38,597 trainable parameters
+and deliberately contains no sigmoid or softmax: future training will pass the
+raw logits directly to `BCEWithLogitsLoss`. This is an architecture contract,
+not a trained model or a performance result.
 
 This project is experimental and is not intended for clinical use.

@@ -230,3 +230,22 @@ work.
 Why: the framework layer should adapt representation and batching, not become a
 second implementation of dataset semantics or preprocessing. Explicit splits
 and seeded shuffle make accidental mixing and hidden randomness harder.
+
+## D020 — The first model is a small configurable 1D-CNN
+
+- Use three `Conv1D -> BatchNorm1D -> ReLU -> MaxPool1D` blocks with default
+  channels `32, 64, 128` and odd kernels `7, 5, 3`.
+- Summarize time with adaptive global average pooling, then configurable dropout
+  and one linear layer.
+- Require `float32` inputs `(B, 12, 1000)` and emit exactly five raw logits with
+  no sigmoid or softmax inside the model.
+- Keep architecture fields in a frozen validated dataclass and test the default
+  trainable parameter count of 38,597.
+- Prove compatibility with `BCEWithLogitsLoss` and finite gradients using only
+  synthetic tensors.
+- Treat the roughly 0.3-second local receptive field before global pooling as a
+  documented baseline limitation, not a result-driven optimum.
+
+Why: a small conventional network is fast to test and easy to explain. It
+establishes the model/loss boundary without mixing in training, evaluation or
+test-driven architecture selection.

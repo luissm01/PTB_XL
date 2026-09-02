@@ -5,8 +5,8 @@ qué se tomaron las decisiones actuales y cómo deberían construirse las etapas
 que faltan. Está pensada para poder leerla sin experiencia previa en ECG o deep
 learning y, al mismo tiempo, servir como material de preparación técnica.
 
-> **Estado de esta edición:** las misiones 001–009 están implementadas y
-> verificadas. La frontera PyTorch de datos existe; el modelo, el entrenamiento
+> **Estado de esta edición:** las misiones 001–010 están implementadas y
+> verificadas. La frontera PyTorch y una CNN 1D pequeña existen; el entrenamiento
 > y las métricas de modelo aún no están implementados. Este proyecto es
 > experimental y no está destinado a uso clínico.
 
@@ -36,7 +36,8 @@ learning y, al mismo tiempo, servir como material de preparación técnica.
 
 ## Parte 1 — El problema
 
-**Estado: problema definido; modelado aún planificado.**
+**Estado: problema definido y contrato del primer modelo implementado; capacidad
+predictiva aún no evaluada.**
 
 ### 1.1 Qué representa un ECG
 
@@ -396,10 +397,12 @@ un baseline medible.
 
 ## Parte 5 — Deep learning para este problema
 
-**Estado: frontera de datos PyTorch implementada; modelo aún planificado.**
+**Estado: frontera de datos PyTorch y baseline CNN implementados; entrenamiento
+aún planificado.**
 
-Esta parte separa el contrato de tensores ya implementado del diseño conceptual
-de una arquitectura que todavía no ha sido elegida mediante resultados.
+Esta parte separa los contratos ya implementados de las decisiones de
+entrenamiento que todavía no existen. La CNN actual es el baseline inicial
+elegido por simplicidad y facilidad de prueba, no por resultados de validation.
 
 ### 5.1 De NumPy a un batch para Conv1D
 
@@ -440,25 +443,40 @@ Conceptos esenciales:
 - **receptive field:** cantidad de señal original que puede influir en una
   activación profunda.
 
-El campo receptivo crece al apilar convoluciones y downsampling. Debe ser lo
-suficientemente amplio para representar eventos relevantes, pero su tamaño no
-se elegirá mirando test. La API y formas esperadas de una convolución temporal
-están documentadas en [`torch.nn.Conv1d`](https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv1d.html).
+`SmallECGCNN` implementa tres bloques con canales `32, 64, 128` y kernels
+`7, 5, 3`. Cada convolución conserva longitud y cada max pooling la divide por
+dos:
+
+```text
+(B, 12, 1000)
+  -> (B, 32, 500)
+  -> (B, 64, 250)
+  -> (B, 128, 125)
+```
+
+El campo receptivo local antes del pooling global es de 30 muestras, unos
+0,3 segundos a 100 Hz. Puede representar morfología local, pero es una limitación
+explícita para relaciones temporales largas. Modificarlo deberá ser un
+experimento gobernado por validation, nunca por test. La API y formas de la
+convolución temporal están documentadas en
+[`torch.nn.Conv1d`](https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv1d.html).
 
 ### 5.3 Pooling y representación del registro
 
-El pooling reduce la dimensión temporal. Puede:
+El pooling reduce la dimensión temporal. En el baseline puede:
 
 - disminuir coste y memoria;
 - dar tolerancia a pequeños desplazamientos en el tiempo;
 - resumir una secuencia completa antes de la cabeza de clasificación.
 
-Demasiado pooling puede borrar eventos breves. Una futura arquitectura deberá
-probar el equilibrio usando validation y documentar las formas de los tensores.
+Después de los tres bloques, `AdaptiveAvgPool1d(1)` promedia las 125 posiciones
+restantes y obtiene un vector de 128 características por ECG. Demasiado pooling
+o un promedio global pueden diluir eventos breves; ese equilibrio deberá
+evaluarse con validation.
 
 ### 5.4 Cinco logits, no una softmax
 
-La última capa deberá emitir cinco **logits**, números reales sin limitar:
+La última capa emite cinco **logits**, números reales sin limitar:
 
 ```text
 logits.shape = (batch_size, 5)
@@ -480,24 +498,27 @@ La pérdida base prevista es `BCEWithLogitsLoss`: binary cross-entropy aplicada
 a cada una de las cinco salidas y combinada con la sigmoid de forma
 numéricamente estable. Recibe logits, no probabilidades ya transformadas. La
 [documentación oficial de BCEWithLogitsLoss](https://docs.pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html)
-explica esta combinación.
+explica esta combinación. La compatibilidad matemática y el backward ya se han
+probado con tensores sintéticos, pero todavía no existe un training loop.
 
 Los pesos de clase o `pos_weight` no se añadirán automáticamente. Pueden mejorar
 algún objetivo bajo desbalance, pero también cambian el compromiso entre falsos
 positivos y falsos negativos; necesitarán hipótesis, experimento y validación.
 
-### 5.6 Contrato mínimo de la futura primera CNN
+### 5.6 Contrato implementado de la primera CNN
 
-La primera misión de modelo debería demostrar, con tests sintéticos:
+Los tests sintéticos demuestran:
 
-- tensor de entrada `(B, 12, 1000)` y salida `(B, 5)`;
-- forward y backward finitos;
-- logits crudos compatibles con `BCEWithLogitsLoss`;
-- configuración reproducible y número de parámetros registrado;
-- ningún acceso implícito a validation o test desde el entrenamiento.
+- tensor de entrada `float32` `(B, 12, 1000)` y salida `(B, 5)`;
+- forward, loss y backward finitos;
+- gradiente para cada parámetro entrenable;
+- ausencia de sigmoid y softmax dentro del modelo;
+- configuración inmutable y validada;
+- 38.597 parámetros entrenables en la configuración por defecto;
+- forward determinista en modo evaluación para estado e input fijos.
 
 Arquitecturas más complejas —ResNet, transformers o ensembles— no deben preceder
-a un baseline pequeño que permita detectar errores de datos y entrenamiento.
+a entrenar y evaluar correctamente este baseline pequeño.
 
 ---
 
@@ -586,8 +607,8 @@ actualmente no forma parte del proyecto.
 
 ## Parte 7 — Arquitectura de software
 
-**Estado: arquitectura de datos, preprocessing y entrada a PyTorch implementada;
-modelado planificado.**
+**Estado: arquitectura de datos, preprocessing, entrada a PyTorch y baseline CNN
+implementados; entrenamiento planificado.**
 
 ### 7.1 Flujo actual
 
@@ -619,7 +640,10 @@ PTB-XL v1.0.3 + manifiestos SHA-256
  adapter PyTorch: tensor (12, 1000) + target (5,)
                   |
                   v
-           [PLANIFICADO] CNN -> métricas
+       CNN pequeña -> cinco logits
+                  |
+                  v
+       [PLANIFICADO] training -> métricas
 ```
 
 Cada frontera valida su entrada antes de producir la siguiente. Así un fallo de
@@ -637,6 +661,7 @@ identidad o leakage aparece cerca de su causa, no durante el entrenamiento.
 | [`data/samples.py`](../src/ptbxl/data/samples.py) | componer y cargar una muestra completa, lazy y agnóstica de framework |
 | [`data/pytorch.py`](../src/ptbxl/data/pytorch.py) | adaptar un split a tensores channel-first y batches reproducibles |
 | [`preprocessing/standardization.py`](../src/ptbxl/preprocessing/standardization.py) | ajustar, transformar, guardar y cargar la estandarización global |
+| [`models/cnn.py`](../src/ptbxl/models/cnn.py) | validar el batch y producir cinco logits con la CNN configurable |
 
 Los scripts bajo [`scripts/`](../scripts/) son puntos de entrada reproducibles
 que coordinan estas funciones. La lógica reutilizable permanece bajo `src/` y
@@ -658,11 +683,10 @@ importantes con datos sintéticos pequeños.
 
 Las siguientes fronteras mínimas deberían añadirse una misión cada vez:
 
-1. CNN 1D pequeña con contrato de formas y configuración explícita.
-2. bucle de entrenamiento reproducible y checkpointing.
-3. predicciones y métricas de validation sin tocar test para selección.
-4. comparación controlada de experimentos y selección de umbrales.
-5. evaluación final sellada y reporte de limitaciones.
+1. bucle de entrenamiento reproducible y checkpointing.
+2. predicciones y métricas de validation sin tocar test para selección.
+3. comparación controlada de experimentos y selección de umbrales.
+4. evaluación final sellada y reporte de limitaciones.
 
 ---
 
@@ -679,6 +703,8 @@ capas existentes; tracking de entrenamiento y checkpoints planificados.**
 - `uv sync --locked` impide que CI resuelva versiones diferentes en silencio.
 - PyTorch 2.13.0 está fijado actualmente; el mismo paquete funciona en CPU y
   detecta la GPU NVIDIA local para futuros entrenamientos.
+- La arquitectura CNN vive en una dataclass congelada; canales, kernels y
+  dropout pueden registrarse sin depender de valores ocultos en un script.
 - Los datos raw y productos grandes permanecen ignorados.
 
 ### 8.2 Pruebas y CI
@@ -763,7 +789,8 @@ pendientes.**
 | Muestras | identidad, señal, targets y split compuestos de forma lazy |
 | Preprocessing | 17.084 ECG de train, parámetros globales deterministas y congelados |
 | PyTorch | Dataset lazy por split y batches `(B, 12, 1000)` / `(B, 5)` verificados con datos sintéticos y un smoke check real |
-| Calidad de software | 96 tests, Ruff y build superados al cerrar la misión 009 |
+| Modelo | CNN de 38.597 parámetros, entrada/salida, BCE y gradientes verificados sintéticamente |
+| Calidad de software | 118 tests, Ruff y build superados al cerrar la misión 010 |
 
 Estos son resultados de **ingeniería e integridad de datos**, no rendimiento
 predictivo.
@@ -903,11 +930,18 @@ convertirse después en otra ronda de tuning.
 
 ### 10.16 ¿Qué harías a continuación y por qué?
 
-Añadiría una CNN 1D pequeña que acepte exactamente el batch ya demostrado y
-devuelva cinco logits. Probaría shapes, forward, backward y compatibilidad con
-`BCEWithLogitsLoss` antes de escribir el bucle de entrenamiento. Ese orden
-extiende una frontera comprobada cada vez y hace que los fallos sean fáciles de
-localizar.
+Añadiría un training loop pequeño que reciba el DataLoader y la CNN ya probados,
+controle dispositivo y seeds, calcule `BCEWithLogitsLoss` y guarde checkpoints
+reproducibles usando únicamente train/validation. Mantendría métricas complejas
+y test final fuera hasta demostrar primero un mini entrenamiento sintético.
+
+### 10.17 ¿Qué limitación temporal tiene la primera CNN?
+
+Sus tres convoluciones y poolings producen un campo receptivo local de unas 30
+muestras antes del promedio global. Detecta patrones locales distribuidos por
+los diez segundos, pero el promedio no modela explícitamente el orden entre
+eventos alejados. Es una limitación medible que podría motivar un experimento
+posterior, no una razón para complicar el baseline antes de entrenarlo.
 
 ---
 
