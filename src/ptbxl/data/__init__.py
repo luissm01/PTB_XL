@@ -21,6 +21,7 @@ from ptbxl.data.metadata import (
     load_metadata,
     prepare_metadata,
 )
+from ptbxl.data.pytorch import PTBXLDataset, build_dataloader
 from ptbxl.data.samples import ECGSample, build_sample_index, load_sample
 from ptbxl.data.signals import (
     ECGSignal,
@@ -34,10 +35,12 @@ __all__ = [
     "TARGET_SUPERCLASSES",
     "ECGSample",
     "ECGSignal",
+    "PTBXLDataset",
     "associate_signal_paths",
     "audit_lr_signals",
     "build_cohort_summary",
     "build_diagnostic_superclass_mapping",
+    "build_dataloader",
     "build_label_summary",
     "build_metadata_summary",
     "build_modeling_cohort",

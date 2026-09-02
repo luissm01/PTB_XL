@@ -211,3 +211,22 @@ that simple rule without its high-memory intermediate or pickle dependency.
 Why: the owner needs one teachable, interview-ready narrative that evolves with
 the repository without becoming a second status log or overstating unfinished
 work.
+
+## D019 — PyTorch remains a thin, split-explicit framework boundary
+
+- Add PyTorch only now that identity, signals, samples and frozen preprocessing
+  have framework-independent contracts.
+- Require each `PTBXLDataset` to contain exactly one explicitly declared split.
+- Delegate sample loading to `load_sample` and transformation to the supplied
+  train-fitted `GlobalStandardizer`; never fit inside the Dataset.
+- Convert `(1000, 12)` NumPy signals to contiguous `float32` tensors
+  `(12, 1000)` and preserve `float32` targets `(5,)` plus provenance.
+- Use default PyTorch collation and require an explicit non-negative seed for
+  shuffled DataLoaders.
+- Keep the standard PyTorch package because it supports CPU and the available
+  local NVIDIA GPU; accept its larger Linux dependency footprint instead of
+  introducing separate accelerator environments now.
+
+Why: the framework layer should adapt representation and batching, not become a
+second implementation of dataset semantics or preprocessing. Explicit splits
+and seeded shuffle make accidental mixing and hidden randomness harder.

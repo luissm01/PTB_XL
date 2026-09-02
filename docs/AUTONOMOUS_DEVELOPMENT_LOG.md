@@ -5,6 +5,89 @@ is away. Stable constraints remain in `docs/context/DECISIONS.md`, current work
 remains in `docs/context/STATUS.md` and detailed acceptance contracts remain in
 `docs/context/missions/`.
 
+## Mission 009 — Thin PyTorch Dataset/DataLoader boundary
+
+### Qué se hizo
+
+Se añadió la primera frontera PyTorch del proyecto. `PTBXLDataset` recibe un
+índice de muestras ya validado y de un único split, carga cada ECG bajo demanda,
+aplica el standardizer global congelado y produce señal `float32` con forma
+`(12, 1000)`, target `float32` `(5,)` y procedencia. Un constructor pequeño de
+DataLoader hace explícita la seed cuando se activa shuffle.
+
+### Por qué se hizo
+
+La CNN futura necesita batches channel-first, pero las reglas de identidad,
+labels, paths, splits y preprocessing ya estaban correctamente resueltas fuera
+del framework. Una capa fina permite aprovechar PyTorch sin crear una segunda
+implementación divergente del dataset.
+
+### Decisiones técnicas
+
+- PyTorch 2.13.0 se añadió con `uv add`; el lockfile fue generado por uv.
+- Se mantiene el paquete estándar compatible con CPU/CUDA porque la RTX 3060 Ti
+  local está disponible para futuros entrenamientos.
+- Un Dataset contiene exactamente un split declarado y rechaza índices vacíos,
+  mezclados o con columnas ausentes.
+- `load_sample` sigue siendo la única composición señal-target.
+- `GlobalStandardizer.transform` se reutiliza sin refit para cualquier split.
+- La transposición se materializa como array contiguo antes de `torch.from_numpy`.
+- Se usa la collation estándar; no se añadió un batch o sampler personalizado.
+
+### Alternativas consideradas
+
+Mover los joins y el preprocessing a `__getitem__` habría duplicado reglas ya
+probadas. Persistir tensores preprocesados habría aumentado almacenamiento y
+creado otra fuente derivada. Un DataModule o framework de entrenamiento completo
+habría sido prematuro. También se consideró un entorno CPU-only más ligero, pero
+se mantuvo soporte CUDA real sin añadir variantes de entorno todavía.
+
+### Riesgos de leakage revisados
+
+- El índice completo debe construirse y validarse antes de seleccionar un split.
+- Cada Dataset rechaza una mezcla de train, validation y test.
+- Ni Dataset ni DataLoader conocen una operación de fit.
+- El smoke check de validation/test solo verificó forma, dtype, continuidad e
+  identidad ya fijados; no produjo estadísticas ni decisiones de modelado.
+- No se añadieron sampling weights, class weights, augmentations ni métricas.
+
+### Archivos principales
+
+- `src/ptbxl/data/pytorch.py`
+- `tests/data/test_pytorch.py`
+- `docs/context/missions/009_add_thin_pytorch_dataset.md`
+- `pyproject.toml`
+- `uv.lock`
+
+### Tests añadidos
+
+Diez tests sintéticos cubren carga lazy, copia defensiva del índice, los tres
+splits, valores/forma/dtype/continuidad, procedencia, columnas ausentes, índice
+vacío, split inválido o mezclado, standardizer inválido, índices fuera de rango,
+batching y shuffle reproducible.
+
+### Resultados obtenidos
+
+Un smoke check real cargó dos ECG de cada split con el mismo artefacto de train.
+En los tres casos obtuvo señales `(2, 12, 1000)`, targets `(2, 5)`, dtype
+`torch.float32` y memoria contigua. Son comprobaciones estructurales, no
+resultados de modelo. La suite completa pasó con 96 tests, Ruff y build; el
+wheel contiene el adaptador y declara PyTorch como dependencia.
+
+### Qué debería entender el propietario
+
+El Dataset no decide qué es una muestra: adapta una muestra que las capas
+anteriores ya saben construir y validar. La separación `(1000, 12)` en NumPy y
+`(12, 1000)` en PyTorch mantiene el dominio de datos independiente y concentra
+la convención del framework en un único lugar.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Por qué el Dataset exige un único split aunque cada fila ya incluya `split`?
+- ¿Por qué el preprocessing no debe ajustarse dentro de `__getitem__`?
+- ¿Por qué se fuerza memoria contigua después de transponer?
+- ¿Qué parte de la reproducibilidad aporta el generator del DataLoader?
+
 ## Mission 008 — Living project guide
 
 ### Qué se hizo

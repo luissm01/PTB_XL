@@ -5,10 +5,10 @@ qué se tomaron las decisiones actuales y cómo deberían construirse las etapas
 que faltan. Está pensada para poder leerla sin experiencia previa en ECG o deep
 learning y, al mismo tiempo, servir como material de preparación técnica.
 
-> **Estado de esta edición:** las misiones 001–007 están implementadas y
-> verificadas. PyTorch, el modelo, el entrenamiento y las métricas de modelo aún
-> no están implementados. Este proyecto es experimental y no está destinado a
-> uso clínico.
+> **Estado de esta edición:** las misiones 001–009 están implementadas y
+> verificadas. La frontera PyTorch de datos existe; el modelo, el entrenamiento
+> y las métricas de modelo aún no están implementados. Este proyecto es
+> experimental y no está destinado a uso clínico.
 
 ## Cómo leer el estado de cada sección
 
@@ -396,16 +396,16 @@ un baseline medible.
 
 ## Parte 5 — Deep learning para este problema
 
-**Estado: planificado; no existe todavía dependencia de PyTorch ni modelo.**
+**Estado: frontera de datos PyTorch implementada; modelo aún planificado.**
 
-Esta parte explica el diseño esperado, no una arquitectura ya elegida mediante
-resultados.
+Esta parte separa el contrato de tensores ya implementado del diseño conceptual
+de una arquitectura que todavía no ha sido elegida mediante resultados.
 
 ### 5.1 De NumPy a un batch para Conv1D
 
 La representación canónica sigue siendo `(tiempo, leads) = (1000, 12)` porque
-coincide con WFDB y es independiente del framework. En la futura frontera con
-PyTorch se hará una única conversión:
+coincide con WFDB y es independiente del framework. `PTBXLDataset` realiza una
+única conversión en la frontera con PyTorch:
 
 ```text
 muestra NumPy:       (1000, 12)
@@ -413,9 +413,16 @@ tensor de muestra:   (12, 1000)
 batch:               (batch_size, 12, 1000)
 ```
 
-Así las 12 derivaciones se convierten en canales y la convolución recorre el
-tiempo. El adaptador deberá reutilizar `load_sample` y el standardizer congelado,
-no duplicar joins, labels o splits.
+Así las 12 derivaciones se convierten en canales y una futura convolución podrá
+recorrer el tiempo. El adaptador reutiliza `load_sample`, aplica el standardizer
+congelado y devuelve almacenamiento contiguo `float32`; no reconstruye joins,
+labels ni reglas de split.
+
+Cada Dataset contiene exactamente un split declarado y conserva `ecg_id`,
+`patient_id`, fold, split y `filename_lr`. `build_dataloader` usa la collation
+estándar de PyTorch, exige una seed si hay shuffle y produce señales
+`(B, 12, 1000)` y targets `(B, 5)`. La construcción sigue siendo lazy: el WFDB
+solo se abre al solicitar un elemento.
 
 ### 5.2 Qué aprende una Conv1D
 
@@ -579,8 +586,8 @@ actualmente no forma parte del proyecto.
 
 ## Parte 7 — Arquitectura de software
 
-**Estado: arquitectura de datos y preprocessing implementada; capas de framework
-y modelado planificadas.**
+**Estado: arquitectura de datos, preprocessing y entrada a PyTorch implementada;
+modelado planificado.**
 
 ### 7.1 Flujo actual
 
@@ -609,7 +616,10 @@ PTB-XL v1.0.3 + manifiestos SHA-256
        transform de una señal float32
                   |
                   v
-     [PLANIFICADO] adapter PyTorch -> CNN -> métricas
+ adapter PyTorch: tensor (12, 1000) + target (5,)
+                  |
+                  v
+           [PLANIFICADO] CNN -> métricas
 ```
 
 Cada frontera valida su entrada antes de producir la siguiente. Así un fallo de
@@ -625,6 +635,7 @@ identidad o leakage aparece cerca de su causa, no durante el entrenamiento.
 | [`data/cohort.py`](../src/ptbxl/data/cohort.py) | incluir registros con al menos un target y auditar exclusiones |
 | [`data/signals.py`](../src/ptbxl/data/signals.py) | asociar y validar registros WFDB a 100 Hz |
 | [`data/samples.py`](../src/ptbxl/data/samples.py) | componer y cargar una muestra completa, lazy y agnóstica de framework |
+| [`data/pytorch.py`](../src/ptbxl/data/pytorch.py) | adaptar un split a tensores channel-first y batches reproducibles |
 | [`preprocessing/standardization.py`](../src/ptbxl/preprocessing/standardization.py) | ajustar, transformar, guardar y cargar la estandarización global |
 
 Los scripts bajo [`scripts/`](../scripts/) son puntos de entrada reproducibles
@@ -637,8 +648,8 @@ los notebooks, cuando existan, serán solo para exploración.
 - La construcción de labels no decide la cohorte.
 - El índice de muestras no persiste otra copia de las rutas.
 - El standardizer no conoce el modelo ni los targets.
-- El futuro Dataset de PyTorch no debe volver a implementar ninguna de esas
-  reglas.
+- El Dataset de PyTorch delega la composición y el preprocessing en esas capas
+  y solo cambia representación y batching.
 
 Esta separación reduce duplicación y permite probar las transformaciones
 importantes con datos sintéticos pequeños.
@@ -647,13 +658,11 @@ importantes con datos sintéticos pequeños.
 
 Las siguientes fronteras mínimas deberían añadirse una misión cada vez:
 
-1. Dataset/DataLoader de PyTorch que transforma una muestra existente a
-   channel-first.
-2. CNN 1D pequeña con contrato de formas y configuración explícita.
-3. bucle de entrenamiento reproducible y checkpointing.
-4. predicciones y métricas de validation sin tocar test para selección.
-5. comparación controlada de experimentos y selección de umbrales.
-6. evaluación final sellada y reporte de limitaciones.
+1. CNN 1D pequeña con contrato de formas y configuración explícita.
+2. bucle de entrenamiento reproducible y checkpointing.
+3. predicciones y métricas de validation sin tocar test para selección.
+4. comparación controlada de experimentos y selección de umbrales.
+5. evaluación final sellada y reporte de limitaciones.
 
 ---
 
@@ -668,6 +677,8 @@ capas existentes; tracking de entrenamiento y checkpoints planificados.**
 - `pyproject.toml` declara dependencias directas.
 - `uv.lock` fija la resolución exacta y no se edita manualmente.
 - `uv sync --locked` impide que CI resuelva versiones diferentes en silencio.
+- PyTorch 2.13.0 está fijado actualmente; el mismo paquete funciona en CPU y
+  detecta la GPU NVIDIA local para futuros entrenamientos.
 - Los datos raw y productos grandes permanecen ignorados.
 
 ### 8.2 Pruebas y CI
@@ -751,7 +762,8 @@ pendientes.**
 | Señales | 21.388/21.388 válidas a 100 Hz, forma `(1000, 12)`, sin no-finitos |
 | Muestras | identidad, señal, targets y split compuestos de forma lazy |
 | Preprocessing | 17.084 ECG de train, parámetros globales deterministas y congelados |
-| Calidad de software | 86 tests, Ruff, build y CI superados al cerrar la misión 007 |
+| PyTorch | Dataset lazy por split y batches `(B, 12, 1000)` / `(B, 5)` verificados con datos sintéticos y un smoke check real |
+| Calidad de software | 96 tests, Ruff y build superados al cerrar la misión 009 |
 
 Estos son resultados de **ingeniería e integridad de datos**, no rendimiento
 predictivo.
@@ -836,7 +848,9 @@ fuente adicional que podría quedar desactualizada.
 
 Es la forma natural que entrega WFDB y mantiene la capa de datos independiente
 del framework. La transposición a `(channels, samples)` pertenece a un único
-adaptador, donde `Conv1D` la necesita.
+adaptador, donde `Conv1D` la necesita. Hacer una copia contigua en ese punto
+evita que el resto del pipeline tenga que conocer strides de una vista NumPy
+transpuesta.
 
 ### 10.9 ¿Cómo se ajusta la media sin cargar todo el dataset?
 
@@ -889,10 +903,11 @@ convertirse después en otra ronda de tuning.
 
 ### 10.16 ¿Qué harías a continuación y por qué?
 
-Añadiría un adaptador PyTorch muy fino que reutilice el contrato de muestra y el
-standardizer. Probaría shapes, dtypes, transposición y ausencia de refit antes de
-añadir una CNN. Ese orden extiende una frontera comprobada cada vez y hace que
-los fallos sean fáciles de localizar.
+Añadiría una CNN 1D pequeña que acepte exactamente el batch ya demostrado y
+devuelva cinco logits. Probaría shapes, forward, backward y compatibilidad con
+`BCEWithLogitsLoss` antes de escribir el bucle de entrenamiento. Ese orden
+extiende una frontera comprobada cada vez y hace que los fallos sean fáciles de
+localizar.
 
 ---
 
