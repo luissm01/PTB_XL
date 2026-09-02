@@ -4,41 +4,40 @@ Last updated: 2026-09-02
 
 ## Current mission
 
-Mission 012 — add fixed multi-epoch fitting and safe checkpoints selected only
-by validation loss.
+No active implementation mission. Mission 012, adding validation-selected fit
+and safe checkpoints, is complete.
 
 ## Current step
 
-Issue `#34` and branch `training/34-validation-fit-checkpoints` are open. Fit,
-atomic weights-only checkpointing and nine synthetic tests are implemented and
-passing. Documentation and all local checks are complete; PR review and remote
-checks are next.
+The implementation is merged and synchronized. PR checks and the post-merge
+Quality workflow passed; the implementation branch was removed. Development is
+paused at the owner's request.
 
 ## Next actions
 
-1. Review and merge the Mission 012 implementation PR after remote checks.
-2. Record closure evidence and synchronize `main`.
-3. Pause before defining multilabel validation metrics, as requested by the
-   owner.
+1. When the owner resumes development, define pure multilabel validation
+   metrics without accessing the final test fold.
+2. Add AUROC/AUPRC edge-case tests before integrating metrics with training.
+3. Keep real training, thresholds and final-test evaluation out of that mission.
 
 ## Last completed mission
 
-Mission 011 — add the reproducible epoch train/evaluate engine:
+Mission 012 — add validation-selected fit and safe checkpoints:
 
-- Issue `#31` closed.
-- Pull request `#32` squash-merged as `79a64f8`.
+- Issue `#34` closed.
+- Pull request `#35` squash-merged as `1bf5443`.
 - Python quality and GitGuardian passed on the PR.
 - Post-merge Quality workflow passed on `main`.
 - Local and remote implementation branches were removed.
-- Full local suite passed: 127 tests, Ruff lint, Ruff format and package build.
+- Full local suite passed: 136 tests, Ruff lint, Ruff format and package build.
 
-## Mission 011 evidence
+## Mission 012 evidence
 
-- One seed resets Python, NumPy, PyTorch and CUDA random streams.
-- Train and loss evaluation have separate gradient/mode semantics.
-- Epoch loss is weighted by sample count and rejects invalid/non-finite input.
-- Synthetic training updates parameters; evaluation changes none.
-- No real training, checkpoint selection, metric or final-test behavior exists.
+- Fit accepts only explicitly declared train and validation Dataset roles.
+- The first minimum validation loss selects the restorable model and optimizer.
+- Checkpoints contain complete loss history and source/model/run provenance.
+- Atomic save and weights-only load behavior are covered synthetically.
+- No real training, metric, threshold or final-test behavior exists.
 
 ## Stable repository foundation
 
@@ -59,6 +58,8 @@ Mission 011 — add the reproducible epoch train/evaluate engine:
 - A small configurable 1D-CNN converts valid batches to five raw logits with a
   tested multilabel loss/gradient contract.
 - A reproducible epoch engine separates optimization from loss-only evaluation.
+- Fixed multi-epoch fit selects only by validation and safely restores a
+  provenance-bound checkpoint.
 - GitHub Actions and GitGuardian green on `main`.
 - Durable decisions live in `docs/context/DECISIONS.md`; completed contracts
   remain under `docs/context/missions/`.

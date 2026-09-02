@@ -8,6 +8,7 @@ training point safely.
 
 - Issue: `#34` — `[TRAINING] Add validation-selected fit and checkpoints`.
 - Branch: `training/34-validation-fit-checkpoints`.
+- Pull request: `#35` — `Training: add validation-selected fit checkpoints`.
 
 ## Contract
 
@@ -41,7 +42,7 @@ training point safely.
 - [x] Schema and expected provenance are validated before state restoration.
 - [x] Synthetic checkpoint round-trip reproduces logits exactly.
 - [x] README, guide, decisions, status and autonomous log are updated.
-- [ ] Full local checks pass; GitHub checks are pending.
+- [x] Full tests, Ruff, format, build and GitHub checks pass.
 
 ## Out of scope
 
@@ -53,3 +54,11 @@ experiment comparison, final-test evaluation and inference.
 - 136 tests passed.
 - Ruff lint and format checks passed.
 - Source distribution and wheel built successfully.
+- `git diff --check` passed.
+
+## Closure
+
+- Issue `#34`: closed by the merged implementation.
+- Pull request `#35`: squash-merged as `1bf5443`.
+- Python quality, GitGuardian and post-merge Quality: passed.
+- Local and remote implementation branches: removed.
