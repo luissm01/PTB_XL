@@ -34,6 +34,9 @@ Nueve tests verifican streams reproducibles, devices, actualización exclusiva
 en train, ausencia de cambios en evaluación, ponderación y errores explícitos.
 La suite completa pasó con 127 tests, Ruff y build.
 
+Issue `#31` y PR `#32` quedaron cerrados; la PR se fusionó como `79a64f8` con
+Python quality, GitGuardian y Quality posterior al merge en verde.
+
 ### Qué debería entender el propietario
 
 Una seed controla fuentes conocidas de azar, pero no promete identidad absoluta

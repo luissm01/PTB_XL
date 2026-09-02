@@ -4,41 +4,39 @@ Last updated: 2026-09-02
 
 ## Current mission
 
-Mission 011 — add reproducible seed/device utilities and separate epoch-level
-train and loss-evaluation boundaries.
+No active implementation mission. Mission 011, adding the reproducible
+epoch-level train/evaluate engine, is complete.
 
 ## Current step
 
-Issue `#31` and branch `training/31-epoch-engine` are open. The engine and nine
-focused synthetic tests are implemented and documented. The full 127-test
-suite, Ruff, format and package build pass; PR review is next.
+The implementation is merged and synchronized. PR checks and the post-merge
+Quality workflow passed; the implementation branch was removed.
 
 ## Next actions
 
-1. Review the complete diff and open the implementation PR.
-2. Complete GitHub checks and squash-merge.
-3. Close Mission 011 before adding multi-epoch orchestration and checkpoints.
+1. Add small multi-epoch orchestration with deterministic checkpoint artifacts.
+2. Prove complete synthetic fitting, checkpoint round-trip and validation-only
+   model selection.
+3. Then define multilabel validation metrics before any real training run.
 
 ## Last completed mission
 
-Mission 010 — implement the small 1D-CNN baseline contract:
+Mission 011 — add the reproducible epoch train/evaluate engine:
 
-- Issue `#28` closed.
-- Pull request `#29` squash-merged as `a228b42`.
+- Issue `#31` closed.
+- Pull request `#32` squash-merged as `79a64f8`.
 - Python quality and GitGuardian passed on the PR.
 - Post-merge Quality workflow passed on `main`.
 - Local and remote implementation branches were removed.
-- Full local suite passed: 118 tests, Ruff lint, Ruff format and package build.
+- Full local suite passed: 127 tests, Ruff lint, Ruff format and package build.
 
-## Mission 010 evidence
+## Mission 011 evidence
 
-- `SmallECGCNN` maps `float32 (B, 12, 1000)` to five raw logits.
-- The frozen config records channels `32, 64, 128`, kernels `7, 5, 3` and
-  dropout `0.2`; the default model has 38,597 trainable parameters.
-- Synthetic BCE loss, forward and gradients are finite for every trainable
-  parameter; eval output is deterministic.
-- The model contains no sigmoid or softmax and opens no real waveform.
-- No optimizer, training, metric, threshold or final-test behavior was added.
+- One seed resets Python, NumPy, PyTorch and CUDA random streams.
+- Train and loss evaluation have separate gradient/mode semantics.
+- Epoch loss is weighted by sample count and rejects invalid/non-finite input.
+- Synthetic training updates parameters; evaluation changes none.
+- No real training, checkpoint selection, metric or final-test behavior exists.
 
 ## Stable repository foundation
 
@@ -58,6 +56,7 @@ Mission 010 — implement the small 1D-CNN baseline contract:
   channel-first batches without duplicating dataset semantics.
 - A small configurable 1D-CNN converts valid batches to five raw logits with a
   tested multilabel loss/gradient contract.
+- A reproducible epoch engine separates optimization from loss-only evaluation.
 - GitHub Actions and GitGuardian green on `main`.
 - Durable decisions live in `docs/context/DECISIONS.md`; completed contracts
   remain under `docs/context/missions/`.
