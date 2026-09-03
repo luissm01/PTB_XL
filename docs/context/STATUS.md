@@ -4,24 +4,22 @@ Last updated: 2026-09-03
 
 ## Current mission
 
-No active mission. Mission 014 completed the first configured, reproducible
-real train/validation baseline.
+Mission 015 — select and freeze per-class operating thresholds using validation
+only.
 
 ## Current step
 
-Mission 014 implementation and evidence are complete in issue `#39` and pull
-request `#40`. The fixed ten-epoch run from clean commit `3b35e5f` used 17,084
-train and 2,146 validation ECGs, selected epoch 9 and recorded attributed
-ranking metrics. Fold 10 remained sealed. The local gate passed with 158 tests,
-Ruff lint, Ruff format and package build; the PR gate passed Python quality and
-GitGuardian. GitHub is authoritative for the final squash-merge identity.
+Issue `#41` and branch `evaluation/41-validation-thresholds` are active. The
+policy is fixed in D026: maximize F1 independently per class on fold 9, choose
+the highest threshold on ties, and bind the frozen artifact to its complete
+provenance. Fold 10 remains sealed.
 
 ## Next actions
 
-1. Start one cohesive mission to define, test and freeze threshold policy using
+1. Implement and test threshold selection, point metrics and artifact loading.
+2. Add a clean-tree command that restores the existing checkpoint and evaluates
    validation only.
-2. Preserve the frozen model, preprocessing and threshold identities together.
-3. Keep fold 10 sealed until an explicit one-time final-evaluation mission.
+3. Generate the real frozen artifact, document it and close one PR.
 
 ## Operating mode for upcoming work
 

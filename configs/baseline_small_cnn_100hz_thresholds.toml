@@ -1,0 +1,16 @@
+schema_version = 1
+
+[selection]
+name = "baseline_small_cnn_100hz_per_class_f1"
+method = "per_class_max_f1"
+device = "cuda"
+batch_size = 128
+num_workers = 4
+
+[inputs]
+experiment_config_path = "configs/baseline_small_cnn_100hz.toml"
+experiment_report_path = "reports/experiments/baseline_small_cnn_100hz.json"
+checkpoint_path = "artifacts/experiments/baseline_small_cnn_100hz.pt"
+
+[output]
+artifact_path = "reports/evaluation/baseline_small_cnn_100hz_thresholds.json"
