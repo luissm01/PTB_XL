@@ -8,6 +8,7 @@ first real baseline result.
 
 - Issue: `#39` — `[EXPERIMENT] Run the reproducible real baseline`.
 - Branch: `experiment/39-real-baseline`.
+- Pull request: `#40` — `Experiment: run reproducible PTB-XL baseline`.
 
 ## Contract
 

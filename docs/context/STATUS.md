@@ -9,7 +9,8 @@ train/validation baseline.
 
 ## Current step
 
-Issue `#39` and branch `experiment/39-real-baseline` are active. The fixed
+Issue `#39`, branch `experiment/39-real-baseline` and pull request `#40` are
+active. The fixed
 ten-epoch run completed from clean commit `3b35e5f`: it used 17,084 train and
 2,146 validation ECGs, selected epoch 9 and recorded attributed ranking metrics.
 Fold 10 remained sealed. Documentation and the final quality gate are in
@@ -18,9 +19,9 @@ Ruff lint, Ruff format and package build.
 
 ## Next actions
 
-1. Commit the real report and closure documentation.
-2. Open the single mission PR and use its passing checks as the merge gate.
-3. Merge, verify the issue/branch handoff and stop.
+1. Use pull request `#40` checks as the merge gate.
+2. Record the passing PR gate in this same PR.
+3. Squash-merge, verify the issue/branch handoff and stop.
 
 ## Operating mode for upcoming work
 
