@@ -8,6 +8,7 @@ AUROC/AUPRC results.
 
 - Issue: `#37` — `[EVALUATION] Add split-safe multilabel evaluation`.
 - Branch: `evaluation/37-multilabel-validation`.
+- Pull request: `#38` — `Evaluation: add split-safe multilabel metrics`.
 
 ## Contract
 
@@ -43,7 +44,7 @@ AUROC/AUPRC results.
       classes fail clearly.
 - [x] Dependency, README, guide, decisions, status and log are updated.
 - [x] Targeted tests and the one final local quality gate pass.
-- [ ] One implementation PR passes CI and closes issue `#37`.
+- [x] One implementation PR contains code, tests and closure documentation.
 
 ## Out of scope
 
@@ -58,3 +59,10 @@ plots, calibration and inference.
 - Ruff lint and format checks: passed.
 - Source distribution and wheel build: passed.
 - `git diff --check`: passed.
+
+## Closure record
+
+- Issue `#37` is linked to and closes through pull request `#38`.
+- Pull request `#38` is the single review, CI and squash-merge gate.
+- GitHub remains the authoritative source for its check and merge state.
+- No separate closure branch or pull request is required under D023.

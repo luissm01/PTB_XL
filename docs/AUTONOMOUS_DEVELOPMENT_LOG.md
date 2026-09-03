@@ -46,7 +46,8 @@ formas, valores, duplicados y clases degeneradas.
 
 La frontera sintética está implementada; no representa rendimiento real del
 modelo. Pasaron los 16 casos de evaluación y la suite completa de 152 tests,
-Ruff y el build del paquete. El PR se registra en el contrato de misión.
+Ruff y el build del paquete. El issue `#37` y la única PR `#38` reúnen código,
+tests, documentación y cierre; GitHub conserva el estado final de CI y merge.
 
 ### Qué debería entender el propietario
 

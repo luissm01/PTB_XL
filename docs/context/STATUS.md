@@ -4,21 +4,20 @@ Last updated: 2026-09-02
 
 ## Current mission
 
-Mission 013 — add split-safe threshold-independent multilabel evaluation for
-the five diagnostic superclasses.
+No active implementation mission. Mission 013 delivered the split-safe
+threshold-independent multilabel evaluation boundary.
 
 ## Current step
 
-Issue `#37` and branch `evaluation/37-multilabel-validation` are active. The
-validation-only prediction and ranking-metric boundary is implemented and
-documented. All 152 tests, Ruff and package build pass; diff review and the
-single implementation PR are next.
+Issue `#37` and pull request `#38` carry the implementation, tests and closure
+record in one review unit. The local gate passed with 152 tests, Ruff and package
+build; GitHub records the authoritative CI and merge state.
 
 ## Next actions
 
-1. Review the complete Mission 013 diff and publish its single PR.
-2. Merge only after PR quality and security checks pass.
-3. Next, build the reproducible experiment command and local tracking contract.
+1. Build the reproducible experiment command and local tracking contract.
+2. Run the first real baseline using train and validation only.
+3. Keep threshold selection and final-test access outside that next mission.
 
 ## Operating mode for upcoming work
 
@@ -29,22 +28,22 @@ reproducibility or final-test isolation for speed.
 
 ## Last completed mission
 
-Mission 012 — add validation-selected fit and safe checkpoints:
+Mission 013 — add split-safe multilabel validation evaluation:
 
-- Issue `#34` closed.
-- Pull request `#35` squash-merged as `1bf5443`.
-- Python quality and GitGuardian passed on the PR.
-- Post-merge Quality workflow passed on `main`.
-- Local and remote implementation branches were removed.
-- Full local suite passed: 136 tests, Ruff lint, Ruff format and package build.
+- Issue `#37` is closed through pull request `#38`.
+- The single PR contains implementation, tests, decisions and closure context.
+- Full local suite passed: 152 tests, Ruff lint, Ruff format and package build.
+- GitHub is the authoritative source for PR checks and squash-merge identity.
 
-## Mission 012 evidence
+## Mission 013 evidence
 
-- Fit accepts only explicitly declared train and validation Dataset roles.
-- The first minimum validation loss selects the restorable model and optimizer.
-- Checkpoints contain complete loss history and source/model/run provenance.
-- Atomic save and weights-only load behavior are covered synthetically.
-- No real training, metric, threshold or final-test behavior exists.
+- Prediction collection accepts only an explicitly declared validation Dataset.
+- Ordered unique ECG identities, binary targets and sigmoid probabilities are
+  preserved in immutable result contracts.
+- AUROC and non-interpolated average-precision AUPRC are reported per class,
+  macro and micro using scikit-learn 1.9.0.
+- Undefined classes and malformed inputs fail instead of yielding silent scores.
+- No real model score, threshold choice or final-test access exists.
 
 ## Stable repository foundation
 
@@ -67,6 +66,8 @@ Mission 012 — add validation-selected fit and safe checkpoints:
 - A reproducible epoch engine separates optimization from loss-only evaluation.
 - Fixed multi-epoch fit selects only by validation and safely restores a
   provenance-bound checkpoint.
+- Split-safe evaluation produces strict per-class, macro and micro AUROC/AUPRC
+  results without choosing thresholds.
 - GitHub Actions and GitGuardian green on `main`.
 - Durable decisions live in `docs/context/DECISIONS.md`; completed contracts
   remain under `docs/context/missions/`.
