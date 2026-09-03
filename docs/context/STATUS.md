@@ -4,21 +4,28 @@ Last updated: 2026-09-02
 
 ## Current mission
 
-No active implementation mission. Mission 012, adding validation-selected fit
-and safe checkpoints, is complete.
+Mission 013 — add split-safe threshold-independent multilabel evaluation for
+the five diagnostic superclasses.
 
 ## Current step
 
-The implementation is merged and synchronized. PR checks and the post-merge
-Quality workflow passed; the implementation branch was removed. Development is
-paused at the owner's request.
+Issue `#37` and branch `evaluation/37-multilabel-validation` are active. The
+validation-only prediction and ranking-metric boundary is implemented and
+documented. All 152 tests, Ruff and package build pass; diff review and the
+single implementation PR are next.
 
 ## Next actions
 
-1. When the owner resumes development, define pure multilabel validation
-   metrics without accessing the final test fold.
-2. Add AUROC/AUPRC edge-case tests before integrating metrics with training.
-3. Keep real training, thresholds and final-test evaluation out of that mission.
+1. Review the complete Mission 013 diff and publish its single PR.
+2. Merge only after PR quality and security checks pass.
+3. Next, build the reproducible experiment command and local tracking contract.
+
+## Operating mode for upcoming work
+
+Use the batched workflow in D023: broader cohesive missions, one issue/branch/PR
+including closure documentation, targeted checks during development and one
+complete local validation before review. Do not trade away leakage prevention,
+reproducibility or final-test isolation for speed.
 
 ## Last completed mission
 

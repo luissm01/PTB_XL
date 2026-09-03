@@ -5,10 +5,10 @@ qué se tomaron las decisiones actuales y cómo deberían construirse las etapas
 que faltan. Está pensada para poder leerla sin experiencia previa en ECG o deep
 learning y, al mismo tiempo, servir como material de preparación técnica.
 
-> **Estado de esta edición:** las misiones 001–012 están implementadas y
+> **Estado de esta edición:** las misiones 001–013 están implementadas y
 > verificadas. La frontera PyTorch, la CNN y el motor por época existen; el
-> fit multi-época y checkpoints también existen; métricas y entrenamiento real
-> aún no están implementados. Este
+> fit multi-época, checkpoints y métricas de ranking para validation también
+> existen; el entrenamiento real aún no está ejecutado. Este
 > proyecto es experimental y no está destinado a uso clínico.
 
 ## Cómo leer el estado de cada sección
@@ -525,8 +525,8 @@ a entrenar y evaluar correctamente este baseline pequeño.
 
 ## Parte 6 — Evaluación
 
-**Estado: teoría y política planificadas; todavía no existen predicciones ni
-métricas de modelo.**
+**Estado: predicciones y métricas de ranking implementadas para validation;
+thresholds y métricas de punto operativo todavía planificados.**
 
 ### 6.1 De probabilidades a decisiones
 
@@ -573,8 +573,11 @@ validación apropiada.
   depende de la prevalencia.
 
 Ambas evitan escoger primero un umbral, pero no sustituyen las métricas del punto
-operativo finalmente elegido. La futura implementación deberá usar funciones
-probadas, declarar cómo trata clases degeneradas y fijar versiones.
+operativo finalmente elegido. La implementación usa las funciones probadas de
+scikit-learn 1.9.0 y llama AUPRC a su *average precision* no interpolada. No usa
+la integral trapezoidal de la curva PR, que puede producir un valor diferente.
+Si una clase no contiene al menos un positivo y un negativo, el cálculo falla de
+forma explícita porque AUROC no está definida.
 
 ### 6.4 Macro frente a micro
 
@@ -584,8 +587,10 @@ probadas, declarar cómo trata clases degeneradas y fijar versiones.
 - **Micro:** agrega todos los pares target-predicción antes de calcular la
   métrica. Las decisiones de las clases frecuentes pesan más.
 
-En multilabel conviene reportar ambas perspectivas y también valores por clase.
-Un único promedio puede ocultar un fallo importante.
+La frontera implementada reporta ambas perspectivas y también valores por
+clase, siempre en orden `NORM`, `MI`, `STTC`, `CD`, `HYP`. Macro es la media no
+ponderada de las cinco clases; micro aplana todos los pares etiqueta-predicción.
+Un único promedio podría ocultar un fallo importante.
 
 ### 6.5 Protocolo planificado de selección
 
@@ -644,7 +649,10 @@ PTB-XL v1.0.3 + manifiestos SHA-256
        CNN pequeña -> cinco logits
                   |
                   v
-       [PLANIFICADO] training -> métricas
+ train/validation -> checkpoint por loss
+                  |
+                  v
+ validation -> sigmoid -> AUROC/AUPRC
 ```
 
 Cada frontera valida su entrada antes de producir la siguiente. Así un fallo de
@@ -663,6 +671,9 @@ identidad o leakage aparece cerca de su causa, no durante el entrenamiento.
 | [`data/pytorch.py`](../src/ptbxl/data/pytorch.py) | adaptar un split a tensores channel-first y batches reproducibles |
 | [`preprocessing/standardization.py`](../src/ptbxl/preprocessing/standardization.py) | ajustar, transformar, guardar y cargar la estandarización global |
 | [`models/cnn.py`](../src/ptbxl/models/cnn.py) | validar el batch y producir cinco logits con la CNN configurable |
+| [`training/engine.py`](../src/ptbxl/training/engine.py) | ejecutar una época de optimización o evaluación de loss con semánticas separadas |
+| [`training/fit.py`](../src/ptbxl/training/fit.py) | orquestar épocas y restaurar el primer mínimo de validation desde un checkpoint seguro |
+| [`evaluation/multilabel.py`](../src/ptbxl/evaluation/multilabel.py) | recoger predicciones de validation y calcular AUROC/AUPRC por clase, macro y micro |
 
 Los scripts bajo [`scripts/`](../scripts/) son puntos de entrada reproducibles
 que coordinan estas funciones. La lógica reutilizable permanece bajo `src/` y
@@ -682,19 +693,19 @@ importantes con datos sintéticos pequeños.
 
 ### 7.4 Arquitectura planificada
 
-Las siguientes fronteras mínimas deberían añadirse una misión cada vez:
+Las siguientes fronteras mínimas quedan por añadir:
 
-1. bucle de entrenamiento reproducible y checkpointing.
-2. predicciones y métricas de validation sin tocar test para selección.
-3. comparación controlada de experimentos y selección de umbrales.
-4. evaluación final sellada y reporte de limitaciones.
+1. comando/configuración de experimento reproducible y tracking local simple.
+2. baseline real y comparación controlada usando exclusivamente validation.
+3. selección y congelación de umbrales.
+4. evaluación final sellada, error analysis, interpretación e inferencia.
 
 ---
 
 ## Parte 8 — MLOps y reproducibilidad
 
-**Estado: entorno, pruebas, CI, seeds, fit y checkpoints implementados; métricas
-y tracking comparativo planificados.**
+**Estado: entorno, pruebas, CI, seeds, fit, checkpoints y métricas de ranking
+implementados; tracking comparativo planificado.**
 
 ### 8.1 Entorno reproducible
 
@@ -704,6 +715,8 @@ y tracking comparativo planificados.**
 - `uv sync --locked` impide que CI resuelva versiones diferentes en silencio.
 - PyTorch 2.13.0 está fijado actualmente; el mismo paquete funciona en CPU y
   detecta la GPU NVIDIA local para futuros entrenamientos.
+- scikit-learn 1.9.0 proporciona AUROC y average precision probadas en lugar de
+  mantener implementaciones estadísticas propias.
 - La arquitectura CNN vive en una dataclass congelada; canales, kernels y
   dropout pueden registrarse sin depender de valores ocultos en un script.
 - Los datos raw y productos grandes permanecen ignorados.
@@ -805,7 +818,8 @@ pendientes.**
 | Modelo | CNN de 38.597 parámetros, entrada/salida, BCE y gradientes verificados sintéticamente |
 | Entrenamiento | train/evaluate por época separados, loss ponderada y seeds verificados sintéticamente |
 | Checkpoint | primer mínimo de validation, historial/procedencia y round-trip exacto verificados sintéticamente |
-| Calidad de software | 136 tests, Ruff y build superados al cerrar la misión 012 |
+| Evaluación | identidades ordenadas y AUROC/AUPRC por clase, macro y micro verificados sintéticamente |
+| Calidad de software | 152 tests, Ruff y build superados al cerrar la misión 013 |
 
 Estos son resultados de **ingeniería e integridad de datos**, no rendimiento
 predictivo.
@@ -815,7 +829,7 @@ predictivo.
 No se dispone aún de:
 
 - loss de entrenamiento o validación;
-- AUROC, AUPRC, F1, sensibilidad o especificidad de ningún modelo;
+- AUROC, AUPRC, F1, sensibilidad o especificidad de un modelo entrenado real;
 - checkpoint seleccionado;
 - umbrales;
 - comparación de arquitecturas;
@@ -945,9 +959,10 @@ convertirse después en otra ronda de tuning.
 
 ### 10.16 ¿Qué harías a continuación y por qué?
 
-Añadiría métricas multilabel puras y testeadas —AUROC/AUPRC macro y por clase—
-para validation. Después integraría predicciones al historial de experimentos,
-manteniendo thresholds y test final fuera hasta congelar el protocolo.
+Construiría un comando de experimento reproducible que una datos, modelo, fit,
+checkpoint y las métricas ya probadas en un registro local estructurado. Después
+ejecutaría el baseline real usando validation, manteniendo thresholds y test
+final fuera hasta congelar el protocolo.
 
 ### 10.17 ¿Qué limitación temporal tiene la primera CNN?
 

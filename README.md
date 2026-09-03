@@ -12,7 +12,9 @@ standardization is implemented and frozen in a reproducible artifact. A thin
 PyTorch Dataset/DataLoader boundary produces channel-first batches without
 duplicating data logic. A small 1D-CNN baseline maps those batches to five raw
 logits. Reproducible single-epoch train and loss-evaluation functions are also
-implemented; multi-epoch fitting, checkpoints and metrics are next.
+implemented, together with validation-selected multi-epoch fitting, safe
+checkpoints and split-safe multilabel ranking metrics. Real model training and
+performance results are still pending.
 
 ## Project documentation
 
@@ -258,5 +260,21 @@ validation loss. It requires loaders backed by datasets declaring exactly
 model/optimizer state, complete loss history and dataset, cohort, preprocessing,
 seed and Git provenance. It is written atomically and loaded with PyTorch's
 weights-only mode. Checkpoints remain ignored by Git.
+
+## Evaluate validation ranking metrics
+
+```python
+from ptbxl.evaluation import evaluate_validation
+
+evaluation = evaluate_validation(model, validation_loader, device)
+print(evaluation.metrics.macro_auroc)
+print(evaluation.metrics.macro_auprc)
+```
+
+This boundary accepts only a Dataset explicitly declaring `validation`, keeps
+the ordered `ecg_id` values and reports AUROC/AUPRC per class, macro and micro.
+AUPRC is non-interpolated average precision. Undefined classes, malformed
+predictions and duplicate identities fail explicitly. This API is tested only
+with synthetic data so far; the repository contains no claimed model score.
 
 This project is experimental and is not intended for clinical use.
