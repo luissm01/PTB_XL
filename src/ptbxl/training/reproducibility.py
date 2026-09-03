@@ -1,5 +1,6 @@
 """Small reproducibility and device-selection utilities."""
 
+import os
 import random
 
 import numpy as np
@@ -7,6 +8,15 @@ import torch
 
 
 MAX_NUMPY_SEED = 2**32 - 1
+CUBLAS_WORKSPACE_CONFIG = ":4096:8"
+
+
+def configure_deterministic_execution() -> None:
+    """Require deterministic PyTorch algorithms for the current process."""
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = CUBLAS_WORKSPACE_CONFIG
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+    torch.use_deterministic_algorithms(True, warn_only=False)
 
 
 def seed_random_generators(seed: int) -> None:

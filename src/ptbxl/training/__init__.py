@@ -11,7 +11,11 @@ from ptbxl.training.fit import (
     load_training_checkpoint,
     save_training_checkpoint,
 )
-from ptbxl.training.reproducibility import resolve_device, seed_random_generators
+from ptbxl.training.reproducibility import (
+    configure_deterministic_execution,
+    resolve_device,
+    seed_random_generators,
+)
 
 __all__ = [
     "EpochResult",
@@ -20,6 +24,7 @@ __all__ = [
     "FitEpochResult",
     "FitResult",
     "LoadedCheckpoint",
+    "configure_deterministic_execution",
     "evaluate_loss",
     "fit",
     "load_training_checkpoint",

@@ -317,3 +317,25 @@ validity.
 Why: a strict metric boundary makes comparisons unambiguous, exposes invalid
 evaluation cohorts early and reuses a mature statistical implementation while
 keeping the final test fold outside development.
+
+## D025 — The first real experiment is one predeclared neutral baseline
+
+- Use the unchanged default `SmallECGCNN` on official 100 Hz signals with the
+  frozen train-fitted global standardizer.
+- Train for 10 fixed epochs with seed 2026, batch size 128, Adam at learning rate
+  0.001, no weight decay and unweighted `BCEWithLogitsLoss`.
+- Apply standard seeded shuffling only to train; add no class weights,
+  oversampling, augmentation or scheduler before observing the neutral baseline.
+- Require deterministic PyTorch algorithms and seeded DataLoader workers,
+  accepting their performance cost and documenting that releases/hardware can
+  still change exact floating-point results.
+- Select the first minimum validation loss, then report validation AUROC/AUPRC
+  from that restored checkpoint. Do not use those results to retroactively
+  change this baseline configuration.
+- Track the experiment in one versioned TOML and one deterministic JSON report;
+  do not add MLflow before multiple runs make the simpler format insufficient.
+- Construct train and validation Datasets only. Fold 10 remains sealed.
+
+Why: one fully attributed baseline proves the complete training path and creates
+an honest reference point before any imbalance treatment, tuning or threshold
+selection.

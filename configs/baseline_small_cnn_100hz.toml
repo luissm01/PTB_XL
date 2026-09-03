@@ -1,0 +1,32 @@
+schema_version = 1
+
+[experiment]
+name = "baseline_small_cnn_100hz"
+seed = 2026
+device = "cuda"
+
+[data]
+dataset_version = "1.0.3"
+cohort_name = "five_superclass_at_least_one_target"
+cohort_path = "data/processed/ptbxl_v1.0.3_five_superclass_cohort.csv"
+metadata_path = "data/raw/ptbxl_database.csv"
+dataset_root = "data/raw/ptb-xl/1.0.3"
+standardizer_path = "reports/preprocessing/ptbxl_v1.0.3_train_global_standardizer.json"
+expected_train_records = 17084
+expected_validation_records = 2146
+
+[model]
+feature_channels = [32, 64, 128]
+kernel_sizes = [7, 5, 3]
+dropout_probability = 0.2
+
+[training]
+epochs = 10
+batch_size = 128
+num_workers = 4
+learning_rate = 0.001
+weight_decay = 0.0
+
+[outputs]
+checkpoint_path = "artifacts/experiments/baseline_small_cnn_100hz.pt"
+report_path = "reports/experiments/baseline_small_cnn_100hz.json"

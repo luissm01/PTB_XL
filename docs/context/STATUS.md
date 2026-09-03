@@ -1,23 +1,24 @@
 # Project status
 
-Last updated: 2026-09-02
+Last updated: 2026-09-03
 
 ## Current mission
 
-No active implementation mission. Mission 013 delivered the split-safe
-threshold-independent multilabel evaluation boundary.
+Mission 014 — execute and record the first configured, reproducible real
+train/validation baseline.
 
 ## Current step
 
-Issue `#37` and pull request `#38` carry the implementation, tests and closure
-record in one review unit. The local gate passed with 152 tests, Ruff and package
-build; GitHub records the authoritative CI and merge state.
+Issue `#39` and branch `experiment/39-real-baseline` are active. TOML loading,
+deterministic execution, end-to-end orchestration and structured reporting pass
+the targeted synthetic checks. A clean implementation commit is required before
+the attributed real run.
 
 ## Next actions
 
-1. Build the reproducible experiment command and local tracking contract.
-2. Run the first real baseline using train and validation only.
-3. Keep threshold selection and final-test access outside that next mission.
+1. Commit the runner, configuration and synthetic tests.
+2. Execute the fixed ten-epoch baseline on the local GPU using train/validation.
+3. Record observed results, run one final local gate and merge one PR.
 
 ## Operating mode for upcoming work
 

@@ -277,4 +277,19 @@ AUPRC is non-interpolated average precision. Undefined classes, malformed
 predictions and duplicate identities fail explicitly. This API is tested only
 with synthetic data so far; the repository contains no claimed model score.
 
+## Run the configured baseline experiment
+
+From a clean Git worktree with the previously documented local PTB-XL files:
+
+```bash
+uv run --locked python scripts/run_baseline_experiment.py
+```
+
+The versioned configuration is
+[`configs/baseline_small_cnn_100hz.toml`](configs/baseline_small_cnn_100hz.toml).
+The command constructs train and validation loaders only, enforces deterministic
+PyTorch algorithms, saves the best checkpoint under ignored `artifacts/` and
+writes the attributed validation report under `reports/experiments/`. It refuses
+to run from uncommitted code. The test fold is not opened by this command.
+
 This project is experimental and is not intended for clinical use.

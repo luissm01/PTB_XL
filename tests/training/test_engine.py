@@ -1,4 +1,5 @@
 import copy
+import os
 import random
 
 import numpy as np
@@ -7,6 +8,7 @@ import torch
 from torch import nn
 
 from ptbxl.training import (
+    configure_deterministic_execution,
     evaluate_loss,
     resolve_device,
     seed_random_generators,
@@ -36,6 +38,26 @@ def test_seed_resets_python_numpy_and_torch() -> None:
     assert first[0] == second[0]
     assert first[1] == second[1]
     torch.testing.assert_close(first[2], second[2], rtol=0, atol=0)
+
+
+def test_configures_strict_deterministic_execution(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    previous_algorithms = torch.are_deterministic_algorithms_enabled()
+    previous_benchmark = torch.backends.cudnn.benchmark
+    previous_cudnn = torch.backends.cudnn.deterministic
+    monkeypatch.delenv("CUBLAS_WORKSPACE_CONFIG", raising=False)
+    try:
+        configure_deterministic_execution()
+
+        assert os.environ["CUBLAS_WORKSPACE_CONFIG"] == ":4096:8"
+        assert torch.are_deterministic_algorithms_enabled()
+        assert not torch.backends.cudnn.benchmark
+        assert torch.backends.cudnn.deterministic
+    finally:
+        torch.use_deterministic_algorithms(previous_algorithms)
+        torch.backends.cudnn.benchmark = previous_benchmark
+        torch.backends.cudnn.deterministic = previous_cudnn
 
 
 @pytest.mark.parametrize("seed", [True, -1, 2**32])
