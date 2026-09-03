@@ -4,19 +4,29 @@ Last updated: 2026-09-03
 
 ## Current mission
 
-Mission 016 — execute the fully frozen baseline on fold 10 exactly once.
+Mission 016 — close the completed one-time fold-10 evaluation.
 
 ## Current step
 
-Issue `#43` and branch `evaluation/43-final-test` are active. The test-only
-runner, exact-hash seal and one-time output guards pass 187 tests plus lint,
-format and build. No fold-10 waveform has yet been opened by a model.
+Issue `#43` and branch `evaluation/43-final-test` are active. Commit `056cdc4`
+executed the frozen pipeline once on all 2,158 fold-10 ECGs. The report and
+local prediction artifact were reloaded read-only; fold 10 is now closed.
 
 ## Next actions
 
-1. Commit the verified implementation so the event has a clean Git identity.
-2. Revalidate the five declared hashes and absence of both outputs.
-3. Execute fold 10 once, inspect without rerunning, and record the result.
+1. Commit the final report and documentation without rerunning inference.
+2. Open the mission's single pull request and use its checks as merge gate.
+3. Merge, close issue `#43`, prune the branch and pause before a new mission.
+
+## Mission 016 evidence
+
+- Final ranking macro/micro AUROC: `0.9088946765` / `0.9228580874`.
+- Final ranking macro/micro AUPRC: `0.7858496654` / `0.8277150848`.
+- Frozen-threshold macro/micro F1: `0.7253766434` / `0.7568415548`.
+- Prediction fingerprint: `578c8289e0c863b18603c71e2321c7e355e13686c0eb19547b51fe718c09a5d2`.
+- Prediction artifact SHA-256: `07840774d81768cd7c97ea0a1ebe2b8498dda9f6f99361aaebb7a44e4415245f`.
+- Aggregate report SHA-256: `ac5fa3510b8f5776068f279a878da5fb5c26b459381599f37bcb9e99b9d63cfb`.
+- No training, fitting, threshold selection or repeated test inference occurred.
 
 ## Operating mode for upcoming work
 

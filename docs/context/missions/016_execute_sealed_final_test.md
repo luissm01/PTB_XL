@@ -8,6 +8,7 @@ development set.
 
 - Issue: `#43` — `[EVALUATION] Execute the sealed final test once`.
 - Branch: `evaluation/43-final-test`.
+- Attributed execution commit: `056cdc4c27029f53cda5c3a6090fea864a9e1cf5`.
 
 ## Frozen inputs before implementation
 
@@ -47,8 +48,8 @@ development set.
 - [x] A synthetic end-to-end test evaluation runs once and refuses repetition.
 - [x] Ranking and operating metrics reuse the existing tested definitions.
 - [x] The local prediction artifact round-trips without pickle.
-- [ ] The real event processes exactly 2,158 fold-10 ECGs once.
-- [ ] The report records complete input/output hashes and final metrics.
+- [x] The real event processes exactly 2,158 fold-10 ECGs once.
+- [x] The report records complete input/output hashes and final metrics.
 - [x] Documentation labels all post-test work descriptive and forbids tuning.
 - [ ] One final local quality gate and one PR gate pass.
 
@@ -57,3 +58,28 @@ development set.
 Retraining, model comparison, threshold changes, preprocessing changes,
 post-test selection, interpretability, error-analysis presentation and
 inference CLI.
+
+## Final-test evidence
+
+- Records: 2,158 from official fold 10.
+- Macro AUROC/AUPRC: `0.9088946765` / `0.7858496654`.
+- Micro AUROC/AUPRC: `0.9228580874` / `0.8277150848`.
+- Frozen-threshold macro precision/sensitivity/specificity/F1:
+  `0.7173560409` / `0.7462298550` / `0.8967218047` / `0.7253766434`.
+- Frozen-threshold micro precision/sensitivity/specificity/F1:
+  `0.7371816638` / `0.7775787966` / `0.9032258065` / `0.7568415548`.
+- Prediction fingerprint:
+  `578c8289e0c863b18603c71e2321c7e355e13686c0eb19547b51fe718c09a5d2`.
+- Local prediction artifact SHA-256:
+  `07840774d81768cd7c97ea0a1ebe2b8498dda9f6f99361aaebb7a44e4415245f`.
+- Versioned report SHA-256:
+  `ac5fa3510b8f5776068f279a878da5fb5c26b459381599f37bcb9e99b9d63cfb`.
+- The saved artifact was reloaded read-only with split `test`, 2,158 unique IDs,
+  arrays shaped `(2158, 5)` and the same canonical fingerprint.
+
+## Local quality evidence
+
+- 187 tests passed before the real event.
+- Ruff lint and format check passed.
+- Source distribution and wheel built successfully.
+- The real final-test command ran once and only once.

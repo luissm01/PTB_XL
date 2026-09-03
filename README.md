@@ -14,9 +14,9 @@ duplicating data logic. A small 1D-CNN baseline maps those batches to five raw
 logits. Reproducible single-epoch train and loss-evaluation functions are also
 implemented, together with validation-selected multi-epoch fitting, safe
 checkpoints and split-safe multilabel ranking metrics. The first configured
-baseline has now trained on folds 1–8 and been evaluated on fold 9; fold 10
-remains sealed for the final evaluation. Per-class F1 thresholds are also
-selected and frozen using fold 9 only.
+baseline trained on folds 1–8, selected its checkpoint and per-class F1
+thresholds using fold 9, and completed its one-time final evaluation on fold
+10. That final fold is now closed to further model or threshold decisions.
 
 ## Project documentation
 
@@ -322,6 +322,19 @@ The frozen thresholds are NORM `0.327765`, MI `0.511551`, STTC `0.380263`, CD
 provenance are stored in the
 [`threshold artifact`](reports/evaluation/baseline_small_cnn_100hz_thresholds.json).
 These operating metrics reuse the data that selected the thresholds and are
-therefore optimistic. Fold 10 remains unopened.
+therefore optimistic.
+
+## Sealed final-test result
+
+The frozen pipeline was evaluated exactly once on the 2,158 ECGs of fold 10
+from clean commit `056cdc4`. It obtained macro AUROC `0.908895`, macro AUPRC
+`0.785850`, micro AUROC `0.922858`, micro AUPRC `0.827715`, macro F1 `0.725377`
+and micro F1 `0.756842`. The complete per-class results and provenance are in
+the [`final-test report`](reports/evaluation/baseline_small_cnn_100hz_final_test.json).
+
+The command in `scripts/evaluate_final_test.py` is retained for auditability,
+but its outputs already exist and its one-time guard forbids another execution.
+These results may support descriptive error analysis only; they must not be
+used to retune or replace the frozen pipeline.
 
 This project is experimental and is not intended for clinical use.

@@ -5,6 +5,56 @@ is away. Stable constraints remain in `docs/context/DECISIONS.md`, current work
 remains in `docs/context/STATUS.md` and detailed acceptance contracts remain in
 `docs/context/missions/`.
 
+## Mission 016 — One-time sealed final evaluation
+
+### Qué se hizo
+
+Se añadió un runner independiente que verifica por hashes exactos el baseline,
+checkpoint, standardizer y thresholds congelados antes de construir un Dataset
+exclusivo de test. Desde el commit limpio `056cdc4` se evaluaron una sola vez
+los 2.158 ECG de fold 10 y se guardó el reporte agregado versionado.
+
+### Por qué se hizo
+
+Validation permitió construir y seleccionar el sistema, pero no proporciona una
+estimación independiente de generalización. El evento sellado preserva esa
+independencia y convierte fold 10 en evidencia final, no en otra fuente de
+iteraciones.
+
+### Decisiones técnicas y riesgos
+
+El comando rechaza cualquier hash distinto y cualquier output preexistente
+antes de leer señales. Solo acepta un loader declarado como `test`, restaura el
+checkpoint sin optimizar y reutiliza las definiciones de ranking y punto
+operativo. Las predicciones por ECG se guardan localmente como arrays NPZ sin
+pickle; el reporte conserva tanto el hash del archivo como una huella canónica.
+Tras observar el resultado quedan prohibidos tuning, calibración y selección
+basados en test.
+
+### Resultados obtenidos
+
+Fold 10 produjo AUROC macro/micro `0,908895` / `0,922858`, AUPRC macro/micro
+`0,785850` / `0,827715` y F1 macro/micro en thresholds congelados `0,725377` /
+`0,756842`. `HYP` fue la clase más débil por AUPRC (`0,6249`) y F1 (`0,5932`),
+una observación descriptiva que no autoriza cambiar el pipeline. El artefacto
+local se recargó con 2.158 IDs y fingerprint idéntico. Antes del evento pasaron
+187 tests, Ruff y build.
+
+### Qué debería entender el propietario
+
+El resultado final es interno a PTB-XL y no demuestra utilidad clínica ni
+generalización externa. Su valor principal es que procede de un pipeline
+completamente fijado y una sola observación del test. El siguiente desarrollo
+puede explicar errores y facilitar inferencia, pero no mejorar este mismo
+baseline usando fold 10.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Por qué el test debe ejecutarse una sola vez?
+- ¿Qué diferencia hay entre el hash NPZ y la huella canónica del contenido?
+- ¿Por qué un resultado final interno no equivale a validación clínica?
+- ¿Qué trabajo posterior puede hacerse sin convertir test en validation?
+
 ## Mission 015 — Frozen validation thresholds
 
 ### Qué se hizo
