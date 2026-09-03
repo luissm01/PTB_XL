@@ -15,7 +15,8 @@ logits. Reproducible single-epoch train and loss-evaluation functions are also
 implemented, together with validation-selected multi-epoch fitting, safe
 checkpoints and split-safe multilabel ranking metrics. The first configured
 baseline has now trained on folds 1–8 and been evaluated on fold 9; fold 10
-remains sealed for the final evaluation.
+remains sealed for the final evaluation. Per-class F1 thresholds are also
+selected and frozen using fold 9 only.
 
 ## Project documentation
 
@@ -299,5 +300,28 @@ loss history, per-class metrics and provenance are recorded in the
 [`baseline_small_cnn_100hz` report](reports/experiments/baseline_small_cnn_100hz.json).
 These are internal validation results, not final-test results or evidence of
 clinical usefulness.
+
+## Select and freeze validation thresholds
+
+With the baseline checkpoint available locally, run from the clean repository
+root:
+
+```bash
+uv run --locked python scripts/select_validation_thresholds.py
+```
+
+The separate
+[`baseline_small_cnn_100hz_thresholds.toml`](configs/baseline_small_cnn_100hz_thresholds.toml)
+restores the checkpoint without retraining, reconstructs only the validation
+Dataset and maximizes F1 independently for each class. Equal optima choose the
+highest threshold and decisions use `probability >= threshold`.
+
+The frozen thresholds are NORM `0.327765`, MI `0.511551`, STTC `0.380263`, CD
+`0.387861` and HYP `0.145285`. Validation macro F1 is `0.737768` and micro F1 is
+`0.767029`; precision, sensitivity, specificity, confusion counts and complete
+provenance are stored in the
+[`threshold artifact`](reports/evaluation/baseline_small_cnn_100hz_thresholds.json).
+These operating metrics reuse the data that selected the thresholds and are
+therefore optimistic. Fold 10 remains unopened.
 
 This project is experimental and is not intended for clinical use.

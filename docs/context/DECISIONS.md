@@ -339,3 +339,25 @@ keeping the final test fold outside development.
 Why: one fully attributed baseline proves the complete training path and creates
 an honest reference point before any imbalance treatment, tuning or threshold
 selection.
+
+## D026 — Operating thresholds maximize per-class validation F1
+
+- Select one threshold independently for each target using fold 9 only.
+- Use `probability >= threshold` as the decision rule.
+- Maximize per-class F1 because the task is multilabel and the first operating
+  point should balance precision and sensitivity without inventing clinical
+  costs that the project does not possess.
+- If several observed cutoffs produce the same maximum F1, choose the highest
+  threshold for a deterministic, more conservative tie break.
+- Freeze thresholds with confusion counts, precision, sensitivity/recall,
+  specificity and F1 per class plus macro and micro summaries.
+- Bind the artifact to the checkpoint, experiment configuration/report,
+  preprocessing and a canonical validation-prediction fingerprint.
+- Do not alter the baseline or inspect fold 10 after seeing validation operating
+  metrics.
+
+Why: ranking metrics do not define deployable binary decisions. A transparent,
+validation-only rule supplies the missing operating point while preserving the
+independence of the final test. Per-class thresholds accommodate different
+prevalences and score distributions without claiming a clinically optimized
+utility function.

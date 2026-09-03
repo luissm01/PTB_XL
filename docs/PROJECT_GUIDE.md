@@ -5,10 +5,10 @@ qué se tomaron las decisiones actuales y cómo deberían construirse las etapas
 que faltan. Está pensada para poder leerla sin experiencia previa en ECG o deep
 learning y, al mismo tiempo, servir como material de preparación técnica.
 
-> **Estado de esta edición:** las misiones 001–014 están implementadas y
-> verificadas. El primer baseline reproducible se entrenó con folds 1–8 y se
-> evaluó internamente con fold 9; fold 10 continúa sellado. Este proyecto es
-> experimental y no está destinado a uso clínico.
+> **Estado de esta edición:** las misiones 001–015 están implementadas y
+> verificadas. El primer baseline reproducible se entrenó con folds 1–8; fold 9
+> seleccionó el checkpoint y los thresholds por clase. Fold 10 continúa sellado.
+> Este proyecto es experimental y no está destinado a uso clínico.
 
 ## Cómo leer el estado de cada sección
 
@@ -525,8 +525,8 @@ a entrenar y evaluar correctamente este baseline pequeño.
 
 ## Parte 6 — Evaluación
 
-**Estado: predicciones y métricas de ranking implementadas para validation;
-thresholds y métricas de punto operativo todavía planificados.**
+**Estado: ranking, thresholds y métricas de punto operativo implementados para
+validation; evaluación final todavía pendiente.**
 
 ### 6.1 De probabilidades a decisiones
 
@@ -537,8 +537,14 @@ binarias se necesita un umbral `t`:
 predicción positiva si probability >= t
 ```
 
-`0,5` es un punto de partida, no una verdad universal. Puede usarse un umbral
-global o uno por clase, pero la regla debe elegirse y congelarse con validation.
+`0,5` es un punto de partida, no una verdad universal. Este proyecto maximiza
+F1 por separado para cada superclase usando validation y después congela los
+cinco valores. Si varios cutoffs empatan, conserva el más alto. La regla de
+decisión es siempre `probability >= threshold`.
+
+Los thresholds observados son NORM `0,327765`, MI `0,511551`, STTC `0,380263`,
+CD `0,387861` y HYP `0,145285`. Que difieran confirma que una frontera única de
+`0,5` no representaría igual las cinco distribuciones de scores.
 
 ### 6.2 Matriz de confusión por etiqueta
 
@@ -592,17 +598,21 @@ clase, siempre en orden `NORM`, `MI`, `STTC`, `CD`, `HYP`. Macro es la media no
 ponderada de las cinco clases; micro aplana todos los pares etiqueta-predicción.
 Un único promedio podría ocultar un fallo importante.
 
-### 6.5 Protocolo planificado de selección
+### 6.5 Protocolo de selección y evaluación final
 
 1. Entrenar exclusivamente con folds 1–8.
 2. Evaluar checkpoints en fold 9 con una métrica primaria declarada.
 3. Seleccionar checkpoint e hiperparámetros con validation.
-4. Ajustar umbral global o por clase únicamente con validation, si forma parte
-   del experimento.
+4. Ajustar umbrales por clase únicamente con validation.
 5. Congelar código, configuración, standardizer, pesos y umbrales.
 6. Ejecutar fold 10 una sola vez para la evaluación final autorizada.
 7. Reportar métricas por clase, macro y micro junto con intervalos o variabilidad
    cuando el diseño experimental lo permita.
+
+Los pasos 1–5 están completados para el baseline. Los pasos 6–7 pertenecen al
+evento final aún no ejecutado. El F1 observado ahora en validation reutiliza el
+mismo conjunto que eligió los thresholds y es, por construcción, optimista; el
+resultado independiente será el de fold 10.
 
 El catálogo de métricas multilabel de
 [scikit-learn](https://scikit-learn.org/stable/modules/model_evaluation.html#multilabel-ranking-metrics)
@@ -612,8 +622,8 @@ es la referencia de la implementación fijada en scikit-learn 1.9.0.
 
 ## Parte 7 — Arquitectura de software
 
-**Estado: pipeline reproducible de train/validation y tracking local del primer
-baseline implementados; umbrales, test final e inferencia pendientes.**
+**Estado: pipeline reproducible de train/validation, tracking y thresholds
+congelados; test final e inferencia pendientes.**
 
 ### 7.1 Flujo actual
 
@@ -652,6 +662,9 @@ PTB-XL v1.0.3 + manifiestos SHA-256
                   |
                   v
  validation -> sigmoid -> AUROC/AUPRC
+                  |
+                  v
+ validation -> thresholds por clase -> artefacto congelado
 ```
 
 Cada frontera valida su entrada antes de producir la siguiente. Así un fallo de
@@ -673,7 +686,9 @@ identidad o leakage aparece cerca de su causa, no durante el entrenamiento.
 | [`training/engine.py`](../src/ptbxl/training/engine.py) | ejecutar una época de optimización o evaluación de loss con semánticas separadas |
 | [`training/fit.py`](../src/ptbxl/training/fit.py) | orquestar épocas y restaurar el primer mínimo de validation desde un checkpoint seguro |
 | [`evaluation/multilabel.py`](../src/ptbxl/evaluation/multilabel.py) | recoger predicciones de validation y calcular AUROC/AUPRC por clase, macro y micro |
+| [`evaluation/thresholds.py`](../src/ptbxl/evaluation/thresholds.py) | seleccionar thresholds por F1 y calcular métricas de punto operativo reutilizables |
 | [`experiments/baseline.py`](../src/ptbxl/experiments/baseline.py) | validar la configuración y orquestar el experimento real con procedencia y reporte determinista |
+| [`experiments/thresholds.py`](../src/ptbxl/experiments/thresholds.py) | restaurar el baseline y congelar el operating point usando solo validation |
 
 Los scripts bajo [`scripts/`](../scripts/) son puntos de entrada reproducibles
 que coordinan estas funciones. La lógica reutilizable permanece bajo `src/` y
@@ -695,17 +710,16 @@ importantes con datos sintéticos pequeños.
 
 Las siguientes fronteras mínimas quedan por añadir:
 
-1. selección y congelación de umbrales usando exclusivamente validation;
-2. evaluación final sellada en fold 10;
-3. análisis de errores e interpretación;
-4. carga reproducible del artefacto e inferencia sobre señales nuevas.
+1. evaluación final sellada en fold 10;
+2. análisis de errores e interpretación;
+3. carga reproducible del artefacto e inferencia sobre señales nuevas.
 
 ---
 
 ## Parte 8 — MLOps y reproducibilidad
 
-**Estado: entorno, pruebas, CI, ejecución determinista y tracking local del
-primer baseline implementados; tracking comparativo avanzado no necesario aún.**
+**Estado: entorno, pruebas, CI, ejecución determinista y artefactos locales del
+baseline y thresholds implementados; tracking avanzado no necesario aún.**
 
 ### 8.1 Entorno reproducible
 
@@ -797,8 +811,16 @@ La configuración vive en
 [`baseline_small_cnn_100hz.toml`](../configs/baseline_small_cnn_100hz.toml) y el
 runner en [`run_baseline_experiment.py`](../scripts/run_baseline_experiment.py).
 El informe JSON atribuye el resultado al commit, las fuentes, el standardizer,
-la configuración, el checkpoint y las versiones de ejecución. Los umbrales y
-el comando de test se incorporarán solo después de congelar el protocolo.
+la configuración, el checkpoint y las versiones de ejecución. Los thresholds
+se guardan en un segundo artefacto congelado; el comando de test todavía no
+existe para evitar abrirlo antes de tiempo.
+
+La selección de thresholds tiene una configuración y un comando independientes.
+Su artefacto enlaza por SHA-256 configuración, reporte, checkpoint,
+standardizer y un fingerprint canónico de las predicciones ordenadas de
+validation. El cargador vuelve a calcular invariantes de matrices de confusión y
+rechaza un checkpoint distinto. Así un archivo de thresholds no puede mezclarse
+silenciosamente con otros pesos.
 
 Un sistema de tracking se justificará cuando existan suficientes experimentos
 para que archivos simples dejen de ser claros. Introducirlo antes añadiría una
@@ -828,7 +850,8 @@ resultado final de test permanece pendiente y sellado.**
 | Checkpoint | primer mínimo de validation, historial/procedencia y round-trip exacto verificados sintéticamente |
 | Evaluación | identidades ordenadas y AUROC/AUPRC por clase, macro y micro verificados sintéticamente |
 | Baseline real | 17.084 ECG de train, 2.146 de validation y mejor checkpoint en época 9 |
-| Calidad de software | 158 tests, Ruff y build superados al cerrar la misión 014 |
+| Thresholds | cinco cutoffs por F1, métricas de punto operativo y artefacto vinculado por hashes |
+| Calidad de software | 176 tests, Ruff y build superados al cerrar la misión 015 |
 
 La mayor parte de la tabla demuestra ingeniería e integridad. La fila del
 baseline sí contiene rendimiento predictivo interno, pero no rendimiento final.
@@ -855,21 +878,39 @@ La configuración predeclarada entrenó durante diez épocas y seleccionó la é
 para futuros análisis, no autorización para ajustar el baseline después de ver
 estos resultados. El informe completo y atribuible está en
 [`baseline_small_cnn_100hz.json`](../reports/experiments/baseline_small_cnn_100hz.json).
-No se eligieron thresholds y fold 10 no se abrió.
+Fold 10 no se abrió.
 
-### 9.3 Resultados que todavía no existen
+### 9.3 Operating point seleccionado en validation
 
-- métricas en un threshold congelado: F1, sensibilidad y especificidad;
+Cada threshold maximiza el F1 de su propia clase en fold 9:
+
+| Clase | Threshold | Precision | Sensibilidad | Especificidad | F1 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `NORM` | 0,3278 | 0,7878 | 0,9173 | 0,8018 | 0,8476 |
+| `MI` | 0,5116 | 0,7684 | 0,6759 | 0,9315 | 0,7192 |
+| `STTC` | 0,3803 | 0,7074 | 0,8106 | 0,8906 | 0,7555 |
+| `CD` | 0,3879 | 0,7961 | 0,7414 | 0,9431 | 0,7678 |
+| `HYP` | 0,1453 | 0,5222 | 0,7015 | 0,9084 | 0,5987 |
+
+El F1 macro es `0,7378` y el micro `0,7670`. Estos valores describen el mismo
+fold que optimizó los cutoffs, así que son optimistas y no sustituyen el test
+independiente. El artefacto conserva también TP, TN, FP y FN en
+[`baseline_small_cnn_100hz_thresholds.json`](../reports/evaluation/baseline_small_cnn_100hz_thresholds.json).
+
+### 9.4 Resultados que todavía no existen
+
 - comparación controlada de arquitecturas o estrategias de desbalance;
 - variabilidad entre seeds o intervalos de incertidumbre;
 - análisis de errores e interpretación;
 - resultado final en fold 10.
 
-### 9.4 Limitaciones actuales
+### 9.5 Limitaciones actuales
 
 - Es un único entrenamiento con una seed y una arquitectura pequeña.
 - Los resultados observados pertenecen a validation y no son una estimación
   final independiente.
+- Los resultados de punto operativo reutilizan los datos que eligieron los
+  thresholds y tienen optimismo adicional.
 - Solo se ha elegido la señal oficial de 100 Hz; 500 Hz queda como posible
   experimento posterior.
 - Las etiquetas son anotaciones del dataset, no una verdad clínica perfecta.
@@ -987,10 +1028,10 @@ convertirse después en otra ronda de tuning.
 
 ### 10.16 ¿Qué harías a continuación y por qué?
 
-Definiría y congelaría una política de thresholds usando solo validation. Con
-modelo, preprocessing, checkpoint y thresholds inmovilizados, ejecutaría la
-evaluación final de fold 10 una sola vez y evitaría convertirla en otra ronda de
-tuning.
+Verificaría conjuntamente las identidades congeladas de preprocessing,
+checkpoint y thresholds, y ejecutaría fold 10 una sola vez mediante un comando
+separado. Después no cambiaría el modelo a partir de ese resultado: cualquier
+nueva iteración tendría que declararse como un experimento posterior.
 
 ### 10.17 ¿Qué limitación temporal tiene la primera CNN?
 
@@ -999,6 +1040,14 @@ muestras antes del promedio global. Detecta patrones locales distribuidos por
 los diez segundos, pero el promedio no modela explícitamente el orden entre
 eventos alejados. Es una limitación medible que podría motivar un experimento
 posterior, no una razón para complicar el baseline antes de entrenarlo.
+
+### 10.18 ¿Cómo se seleccionaron los thresholds?
+
+Se maximizó F1 por clase exclusivamente en fold 9 y se eligió el threshold más
+alto en caso de empate. F1 aporta un equilibrio neutral entre precision y
+sensibilidad cuando no existen costes clínicos definidos. Usar thresholds por
+clase reconoce que prevalencia y distribución de scores difieren. Los valores,
+la regla `>=`, los conteos y los hashes quedaron congelados antes de abrir test.
 
 ---
 
@@ -1020,6 +1069,7 @@ Evidencia versionada del proyecto:
 - [auditoría de señales](../reports/signals/ptbxl_v1.0.3_lr_signal_audit.json)
 - [standardizer de train](../reports/preprocessing/ptbxl_v1.0.3_train_global_standardizer.json)
 - [primer baseline real](../reports/experiments/baseline_small_cnn_100hz.json)
+- [thresholds congelados](../reports/evaluation/baseline_small_cnn_100hz_thresholds.json)
 
 ## Cómo mantener esta guía
 
