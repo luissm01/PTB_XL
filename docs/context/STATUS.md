@@ -1,23 +1,27 @@
 # Project status
 
-Last updated: 2026-09-02
+Last updated: 2026-09-03
 
 ## Current mission
 
-No active implementation mission. Mission 013 delivered the split-safe
-threshold-independent multilabel evaluation boundary.
+No active mission. Mission 014 completed the first configured, reproducible
+real train/validation baseline.
 
 ## Current step
 
-Issue `#37` and pull request `#38` carry the implementation, tests and closure
-record in one review unit. The local gate passed with 152 tests, Ruff and package
-build; GitHub records the authoritative CI and merge state.
+Mission 014 implementation and evidence are complete in issue `#39` and pull
+request `#40`. The fixed ten-epoch run from clean commit `3b35e5f` used 17,084
+train and 2,146 validation ECGs, selected epoch 9 and recorded attributed
+ranking metrics. Fold 10 remained sealed. The local gate passed with 158 tests,
+Ruff lint, Ruff format and package build; the PR gate passed Python quality and
+GitGuardian. GitHub is authoritative for the final squash-merge identity.
 
 ## Next actions
 
-1. Build the reproducible experiment command and local tracking contract.
-2. Run the first real baseline using train and validation only.
-3. Keep threshold selection and final-test access outside that next mission.
+1. Start one cohesive mission to define, test and freeze threshold policy using
+   validation only.
+2. Preserve the frozen model, preprocessing and threshold identities together.
+3. Keep fold 10 sealed until an explicit one-time final-evaluation mission.
 
 ## Operating mode for upcoming work
 
@@ -26,7 +30,19 @@ including closure documentation, targeted checks during development and one
 complete local validation before review. Do not trade away leakage prevention,
 reproducibility or final-test isolation for speed.
 
-## Last completed mission
+## Mission 014 evidence
+
+- The strict TOML config and runner bind dataset, model, optimizer, seed,
+  runtime, Git commit and output identities.
+- Deterministic execution includes PyTorch deterministic algorithms and seeded
+  DataLoader workers.
+- The best checkpoint is epoch 9 with validation loss `0.2949302586`.
+- Fold-9 macro AUROC/AUPRC are `0.9153098458` / `0.7859935473`; micro values are
+  `0.9260575328` / `0.8323655924`.
+- The checkpoint reload and its reported SHA-256/provenance were verified.
+- No threshold, test Dataset, test waveform or test metric was created.
+
+## Previous completed mission
 
 Mission 013 — add split-safe multilabel validation evaluation:
 

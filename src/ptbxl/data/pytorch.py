@@ -1,6 +1,7 @@
 """Thin PyTorch adapters for validated PTB-XL samples."""
 
 import operator
+import random
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -119,5 +120,14 @@ def build_dataloader(
         shuffle=shuffle,
         num_workers=num_workers,
         generator=generator,
+        worker_init_fn=_seed_worker,
         drop_last=False,
     )
+
+
+def _seed_worker(worker_id: int) -> None:
+    """Seed NumPy and Python from PyTorch's deterministic worker seed."""
+    del worker_id
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)

@@ -5,11 +5,10 @@ qué se tomaron las decisiones actuales y cómo deberían construirse las etapas
 que faltan. Está pensada para poder leerla sin experiencia previa en ECG o deep
 learning y, al mismo tiempo, servir como material de preparación técnica.
 
-> **Estado de esta edición:** las misiones 001–013 están implementadas y
-> verificadas. La frontera PyTorch, la CNN y el motor por época existen; el
-> fit multi-época, checkpoints y métricas de ranking para validation también
-> existen; el entrenamiento real aún no está ejecutado. Este
-> proyecto es experimental y no está destinado a uso clínico.
+> **Estado de esta edición:** las misiones 001–014 están implementadas y
+> verificadas. El primer baseline reproducible se entrenó con folds 1–8 y se
+> evaluó internamente con fold 9; fold 10 continúa sellado. Este proyecto es
+> experimental y no está destinado a uso clínico.
 
 ## Cómo leer el estado de cada sección
 
@@ -37,8 +36,8 @@ learning y, al mismo tiempo, servir como material de preparación técnica.
 
 ## Parte 1 — El problema
 
-**Estado: problema definido y contrato del primer modelo implementado; capacidad
-predictiva aún no evaluada.**
+**Estado: problema definido y primer baseline evaluado internamente; rendimiento
+final y utilidad clínica no evaluados.**
 
 ### 1.1 Qué representa un ECG
 
@@ -398,12 +397,12 @@ un baseline medible.
 
 ## Parte 5 — Deep learning para este problema
 
-**Estado: frontera de datos PyTorch y baseline CNN implementados; entrenamiento
-aún planificado.**
+**Estado: frontera de datos PyTorch, baseline CNN y primer entrenamiento real
+implementados.**
 
-Esta parte separa los contratos ya implementados de las decisiones de
-entrenamiento que todavía no existen. La CNN actual es el baseline inicial
-elegido por simplicidad y facilidad de prueba, no por resultados de validation.
+La CNN actual es el baseline inicial elegido por simplicidad y facilidad de
+prueba, no por resultados de validation. Su primera configuración se declaró
+antes de entrenar y ahora proporciona un punto de referencia reproducible.
 
 ### 5.1 De NumPy a un batch para Conv1D
 
@@ -499,8 +498,9 @@ La pérdida base prevista es `BCEWithLogitsLoss`: binary cross-entropy aplicada
 a cada una de las cinco salidas y combinada con la sigmoid de forma
 numéricamente estable. Recibe logits, no probabilidades ya transformadas. La
 [documentación oficial de BCEWithLogitsLoss](https://docs.pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html)
-explica esta combinación. La compatibilidad matemática y el backward ya se han
-probado con tensores sintéticos, pero todavía no existe un training loop.
+explica esta combinación. La compatibilidad matemática y el backward se
+probaron primero con tensores sintéticos; el training loop reproducible ya se
+utilizó con PTB-XL real.
 
 Los pesos de clase o `pos_weight` no se añadirán automáticamente. Pueden mejorar
 algún objetivo bajo desbalance, pero también cambian el compromiso entre falsos
@@ -606,15 +606,14 @@ Un único promedio podría ocultar un fallo importante.
 
 El catálogo de métricas multilabel de
 [scikit-learn](https://scikit-learn.org/stable/modules/model_evaluation.html#multilabel-ranking-metrics)
-servirá como referencia de API si esa dependencia se justifica más adelante;
-actualmente no forma parte del proyecto.
+es la referencia de la implementación fijada en scikit-learn 1.9.0.
 
 ---
 
 ## Parte 7 — Arquitectura de software
 
-**Estado: arquitectura de datos, preprocessing, entrada a PyTorch y baseline CNN
-implementados; entrenamiento planificado.**
+**Estado: pipeline reproducible de train/validation y tracking local del primer
+baseline implementados; umbrales, test final e inferencia pendientes.**
 
 ### 7.1 Flujo actual
 
@@ -674,6 +673,7 @@ identidad o leakage aparece cerca de su causa, no durante el entrenamiento.
 | [`training/engine.py`](../src/ptbxl/training/engine.py) | ejecutar una época de optimización o evaluación de loss con semánticas separadas |
 | [`training/fit.py`](../src/ptbxl/training/fit.py) | orquestar épocas y restaurar el primer mínimo de validation desde un checkpoint seguro |
 | [`evaluation/multilabel.py`](../src/ptbxl/evaluation/multilabel.py) | recoger predicciones de validation y calcular AUROC/AUPRC por clase, macro y micro |
+| [`experiments/baseline.py`](../src/ptbxl/experiments/baseline.py) | validar la configuración y orquestar el experimento real con procedencia y reporte determinista |
 
 Los scripts bajo [`scripts/`](../scripts/) son puntos de entrada reproducibles
 que coordinan estas funciones. La lógica reutilizable permanece bajo `src/` y
@@ -691,21 +691,21 @@ los notebooks, cuando existan, serán solo para exploración.
 Esta separación reduce duplicación y permite probar las transformaciones
 importantes con datos sintéticos pequeños.
 
-### 7.4 Arquitectura planificada
+### 7.4 Fronteras que quedan por construir
 
 Las siguientes fronteras mínimas quedan por añadir:
 
-1. comando/configuración de experimento reproducible y tracking local simple.
-2. baseline real y comparación controlada usando exclusivamente validation.
-3. selección y congelación de umbrales.
-4. evaluación final sellada, error analysis, interpretación e inferencia.
+1. selección y congelación de umbrales usando exclusivamente validation;
+2. evaluación final sellada en fold 10;
+3. análisis de errores e interpretación;
+4. carga reproducible del artefacto e inferencia sobre señales nuevas.
 
 ---
 
 ## Parte 8 — MLOps y reproducibilidad
 
-**Estado: entorno, pruebas, CI, seeds, fit, checkpoints y métricas de ranking
-implementados; tracking comparativo planificado.**
+**Estado: entorno, pruebas, CI, ejecución determinista y tracking local del
+primer baseline implementados; tracking comparativo avanzado no necesario aún.**
 
 ### 8.1 Entorno reproducible
 
@@ -755,7 +755,7 @@ determinismo.
 
 ### 8.4 Flujo de desarrollo
 
-Cada cambio material se ejecuta como una misión pequeña:
+Cada cambio material se agrupa en una misión cohesiva:
 
 ```text
 issue -> rama -> implementación y tests -> PR -> CI -> squash merge -> cierre
@@ -767,7 +767,7 @@ Las decisiones estables viven en
 [`docs/context/missions/`](context/missions/). Esto permite retomar el trabajo
 sin reconstruir la historia desde una conversación.
 
-### 8.5 Lo que deberá añadirse con entrenamiento
+### 8.5 Experimento reproducible implementado
 
 El núcleo ya separa `train_one_epoch` y `evaluate_loss`. La primera activa
 gradientes y optimizer steps; la segunda usa modo eval e inference. Ambas
@@ -781,16 +781,24 @@ como fuente de selección. El mejor estado de modelo y optimizer se escribe
 atómicamente junto con el historial completo y procedencia; la carga usa
 `weights_only=True` y restaura ese estado antes de devolver el resultado.
 
-Antes de considerar reproducible un experimento de modelo harán falta, como
-mínimo:
+El experimento real ya registra:
 
-- configuración versionada de datos, modelo, optimizer y scheduler;
+- configuración versionada de datos, modelo, optimizer, épocas y ausencia de
+  scheduler;
 - seeds y registro de los límites de determinismo del hardware;
 - identidad del commit y del artefacto de preprocessing;
 - historial de métricas de train y validation;
 - criterio de selección de checkpoint declarado de antemano;
-- pesos, configuración y umbrales vinculados entre sí;
-- comando de evaluación que no pueda refit ni seleccionar usando test.
+- pesos y configuración vinculados por hashes;
+- un comando que construye únicamente train y validation y rechaza un árbol Git
+  sin identificar o con cambios pendientes.
+
+La configuración vive en
+[`baseline_small_cnn_100hz.toml`](../configs/baseline_small_cnn_100hz.toml) y el
+runner en [`run_baseline_experiment.py`](../scripts/run_baseline_experiment.py).
+El informe JSON atribuye el resultado al commit, las fuentes, el standardizer,
+la configuración, el checkpoint y las versiones de ejecución. Los umbrales y
+el comando de test se incorporarán solo después de congelar el protocolo.
 
 Un sistema de tracking se justificará cuando existan suficientes experimentos
 para que archivos simples dejen de ser claros. Introducirlo antes añadiría una
@@ -800,8 +808,8 @@ abstracción sin un problema real que resolver.
 
 ## Parte 9 — Resultados y limitaciones
 
-**Estado: existen resultados de integridad y preprocessing; resultados de modelo
-pendientes.**
+**Estado: existe un primer resultado interno de validation reproducible; el
+resultado final de test permanece pendiente y sellado.**
 
 ### 9.1 Evidencia conseguida hasta ahora
 
@@ -819,29 +827,49 @@ pendientes.**
 | Entrenamiento | train/evaluate por época separados, loss ponderada y seeds verificados sintéticamente |
 | Checkpoint | primer mínimo de validation, historial/procedencia y round-trip exacto verificados sintéticamente |
 | Evaluación | identidades ordenadas y AUROC/AUPRC por clase, macro y micro verificados sintéticamente |
-| Calidad de software | 152 tests, Ruff y build superados al cerrar la misión 013 |
+| Baseline real | 17.084 ECG de train, 2.146 de validation y mejor checkpoint en época 9 |
+| Calidad de software | 158 tests, Ruff y build superados al cerrar la misión 014 |
 
-Estos son resultados de **ingeniería e integridad de datos**, no rendimiento
-predictivo.
+La mayor parte de la tabla demuestra ingeniería e integridad. La fila del
+baseline sí contiene rendimiento predictivo interno, pero no rendimiento final.
 
-### 9.2 Resultados que todavía no existen
+### 9.2 Primer baseline real en validation
 
-No se dispone aún de:
+La configuración predeclarada entrenó durante diez épocas y seleccionó la época
+9 por el primer mínimo estricto de loss de validation (`0,294930`). En fold 9:
 
-- loss de entrenamiento o validación;
-- AUROC, AUPRC, F1, sensibilidad o especificidad de un modelo entrenado real;
-- checkpoint seleccionado;
-- umbrales;
-- comparación de arquitecturas;
+| Agregación | AUROC | AUPRC |
+| --- | ---: | ---: |
+| Macro | 0,915310 | 0,785994 |
+| Micro | 0,926058 | 0,832366 |
+
+| Clase | Positivos | Prevalencia | AUROC | AUPRC |
+| --- | ---: | ---: | ---: | ---: |
+| `NORM` | 955 | 0,4450 | 0,9340 | 0,9137 |
+| `MI` | 540 | 0,2516 | 0,9121 | 0,8039 |
+| `STTC` | 528 | 0,2460 | 0,9247 | 0,7620 |
+| `CD` | 495 | 0,2307 | 0,9136 | 0,8281 |
+| `HYP` | 268 | 0,1249 | 0,8922 | 0,6223 |
+
+`HYP`, la clase menos frecuente, presenta el AUPRC más bajo. Es una señal útil
+para futuros análisis, no autorización para ajustar el baseline después de ver
+estos resultados. El informe completo y atribuible está en
+[`baseline_small_cnn_100hz.json`](../reports/experiments/baseline_small_cnn_100hz.json).
+No se eligieron thresholds y fold 10 no se abrió.
+
+### 9.3 Resultados que todavía no existen
+
+- métricas en un threshold congelado: F1, sensibilidad y especificidad;
+- comparación controlada de arquitecturas o estrategias de desbalance;
+- variabilidad entre seeds o intervalos de incertidumbre;
+- análisis de errores e interpretación;
 - resultado final en fold 10.
 
-Cuando existan, esta sección deberá registrar configuración, criterio de
-selección, métricas por clase/macro/micro y limitaciones. Una tabla vacía no debe
-rellenarse con estimaciones o cifras copiadas de otro proyecto.
+### 9.4 Limitaciones actuales
 
-### 9.3 Limitaciones actuales
-
-- Todavía no se ha demostrado capacidad predictiva.
+- Es un único entrenamiento con una seed y una arquitectura pequeña.
+- Los resultados observados pertenecen a validation y no son una estimación
+  final independiente.
 - Solo se ha elegido la señal oficial de 100 Hz; 500 Hz queda como posible
   experimento posterior.
 - Las etiquetas son anotaciones del dataset, no una verdad clínica perfecta.
@@ -959,10 +987,10 @@ convertirse después en otra ronda de tuning.
 
 ### 10.16 ¿Qué harías a continuación y por qué?
 
-Construiría un comando de experimento reproducible que una datos, modelo, fit,
-checkpoint y las métricas ya probadas en un registro local estructurado. Después
-ejecutaría el baseline real usando validation, manteniendo thresholds y test
-final fuera hasta congelar el protocolo.
+Definiría y congelaría una política de thresholds usando solo validation. Con
+modelo, preprocessing, checkpoint y thresholds inmovilizados, ejecutaría la
+evaluación final de fold 10 una sola vez y evitaría convertirla en otra ronda de
+tuning.
 
 ### 10.17 ¿Qué limitación temporal tiene la primera CNN?
 
@@ -991,6 +1019,7 @@ Evidencia versionada del proyecto:
 - [cohorte](../reports/cohort/ptbxl_v1.0.3_five_superclass_cohort_summary.json)
 - [auditoría de señales](../reports/signals/ptbxl_v1.0.3_lr_signal_audit.json)
 - [standardizer de train](../reports/preprocessing/ptbxl_v1.0.3_train_global_standardizer.json)
+- [primer baseline real](../reports/experiments/baseline_small_cnn_100hz.json)
 
 ## Cómo mantener esta guía
 

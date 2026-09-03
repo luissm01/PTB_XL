@@ -4,6 +4,7 @@ import math
 import os
 import re
 import tempfile
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -104,12 +105,15 @@ def fit(
     config: FitConfig,
     checkpoint_path: str | Path,
     provenance: CheckpointProvenance,
+    on_epoch_end: Callable[[FitEpochResult], None] | None = None,
 ) -> FitResult:
     """Fit fixed epochs and restore the first minimum-validation-loss state."""
     if not isinstance(config, FitConfig):
         raise TypeError("config must be a FitConfig")
     if not isinstance(provenance, CheckpointProvenance):
         raise TypeError("provenance must be CheckpointProvenance")
+    if on_epoch_end is not None and not callable(on_epoch_end):
+        raise TypeError("on_epoch_end must be callable or None")
     _require_loader_split(train_loader, "train")
     _require_loader_split(validation_loader, "validation")
     path = Path(checkpoint_path)
@@ -138,6 +142,8 @@ def fit(
                 history=tuple(history),
                 provenance=provenance,
             )
+        if on_epoch_end is not None:
+            on_epoch_end(epoch_result)
 
     load_training_checkpoint(
         path,

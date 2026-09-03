@@ -13,8 +13,9 @@ PyTorch Dataset/DataLoader boundary produces channel-first batches without
 duplicating data logic. A small 1D-CNN baseline maps those batches to five raw
 logits. Reproducible single-epoch train and loss-evaluation functions are also
 implemented, together with validation-selected multi-epoch fitting, safe
-checkpoints and split-safe multilabel ranking metrics. Real model training and
-performance results are still pending.
+checkpoints and split-safe multilabel ranking metrics. The first configured
+baseline has now trained on folds 1–8 and been evaluated on fold 9; fold 10
+remains sealed for the final evaluation.
 
 ## Project documentation
 
@@ -226,9 +227,8 @@ logits = model(batch["signal"])
 ```
 
 `logits` has shape `(B, 5)`. The default model has 38,597 trainable parameters
-and deliberately contains no sigmoid or softmax: future training will pass the
-raw logits directly to `BCEWithLogitsLoss`. This is an architecture contract,
-not a trained model or a performance result.
+and deliberately contains no sigmoid or softmax: training passes the raw logits
+directly to `BCEWithLogitsLoss`.
 
 ## Run one training epoch
 
@@ -250,7 +250,7 @@ result = train_one_epoch(
 ```
 
 The result contains sample-weighted mean loss, sample count and batch count.
-This API is tested, but no real PTB-XL training result exists yet.
+This API is covered by synthetic tests and used by the configured real baseline.
 
 ## Fit and save the best validation checkpoint
 
@@ -274,7 +274,30 @@ print(evaluation.metrics.macro_auprc)
 This boundary accepts only a Dataset explicitly declaring `validation`, keeps
 the ordered `ecg_id` values and reports AUROC/AUPRC per class, macro and micro.
 AUPRC is non-interpolated average precision. Undefined classes, malformed
-predictions and duplicate identities fail explicitly. This API is tested only
-with synthetic data so far; the repository contains no claimed model score.
+predictions and duplicate identities fail explicitly. The configured real
+baseline uses this same boundary and records its results below.
+
+## Run the configured baseline experiment
+
+From a clean Git worktree with the previously documented local PTB-XL files:
+
+```bash
+uv run --locked python scripts/run_baseline_experiment.py
+```
+
+The versioned configuration is
+[`configs/baseline_small_cnn_100hz.toml`](configs/baseline_small_cnn_100hz.toml).
+The command constructs train and validation loaders only, enforces deterministic
+PyTorch algorithms, saves the best checkpoint under ignored `artifacts/` and
+writes the attributed validation report under `reports/experiments/`. It refuses
+to run from uncommitted code. The test fold is not opened by this command.
+
+The fixed ten-epoch run selected epoch 9 by minimum validation loss. On the
+2,146 ECGs of fold 9 it obtained macro AUROC `0.915310`, macro AUPRC `0.785994`,
+micro AUROC `0.926058` and micro AUPRC `0.832366`. The complete configuration,
+loss history, per-class metrics and provenance are recorded in the
+[`baseline_small_cnn_100hz` report](reports/experiments/baseline_small_cnn_100hz.json).
+These are internal validation results, not final-test results or evidence of
+clinical usefulness.
 
 This project is experimental and is not intended for clinical use.

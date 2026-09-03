@@ -1,0 +1,311 @@
+{
+  "artifacts": {
+    "checkpoint": {
+      "path": "artifacts/experiments/baseline_small_cnn_100hz.pt",
+      "provenance": {
+        "cohort_name": "five_superclass_at_least_one_target",
+        "dataset_version": "PTB-XL-1.0.3",
+        "git_commit": "3b35e5f780ac9f7d37b43aaa3b2cb75bf2f2718a",
+        "model_name": "small_ecg_cnn",
+        "preprocessing_sha256": "f791aeb9795c669a54a391d979f69806ccdca19f05128a9fde8f408ec36090bc",
+        "seed": 2026
+      },
+      "sha256": "26d058b75dd486e0d81b75fea3cce44fabf6f7c625c57da79640caee6b5c9a11"
+    }
+  },
+  "configuration": {
+    "model": {
+      "dropout_probability": 0.2,
+      "feature_channels": [
+        32,
+        64,
+        128
+      ],
+      "kernel_sizes": [
+        7,
+        5,
+        3
+      ],
+      "trainable_parameters": 38597
+    },
+    "path": "configs/baseline_small_cnn_100hz.toml",
+    "seed": 2026,
+    "sha256": "50b5b68f8497baf27101a92d550588f8817b6c47a4832267c8033d8ccea2d714",
+    "training": {
+      "batch_size": 128,
+      "checkpoint_selection": "first_minimum_validation_loss",
+      "class_weighting": "none",
+      "epochs": 10,
+      "learning_rate": 0.001,
+      "loss": "BCEWithLogitsLoss",
+      "num_workers": 4,
+      "optimizer": "Adam",
+      "sampling": "standard_seeded_shuffle",
+      "weight_decay": 0.0
+    }
+  },
+  "dataset": {
+    "cohort": "five_superclass_at_least_one_target",
+    "name": "PTB-XL",
+    "sampling_frequency_hz": 100,
+    "signal_source": "filename_lr",
+    "splits_used": {
+      "train": 17084,
+      "validation": 2146
+    },
+    "targets": [
+      "NORM",
+      "MI",
+      "STTC",
+      "CD",
+      "HYP"
+    ],
+    "version": "1.0.3"
+  },
+  "limitations": [
+    "No threshold-dependent metric or clinical operating point is defined.",
+    "No final-test sample or metric was accessed.",
+    "Exact numerics are not guaranteed across PyTorch releases or hardware.",
+    "This internal validation result is not evidence of clinical utility."
+  ],
+  "run": {
+    "git_commit": "3b35e5f780ac9f7d37b43aaa3b2cb75bf2f2718a",
+    "identity": "baseline_small_cnn_100hz__3b35e5f__seed2026",
+    "name": "baseline_small_cnn_100hz"
+  },
+  "runtime": {
+    "cuda": "13.0",
+    "deterministic_algorithms": true,
+    "hardware": {
+      "accelerator_name": "NVIDIA GeForce RTX 3060 Ti",
+      "requested_device": "cuda",
+      "resolved_device": "cuda"
+    },
+    "numpy": "2.4.6",
+    "python": "3.11.15",
+    "scikit_learn": "1.9.0",
+    "torch": "2.13.0+cu130"
+  },
+  "schema_version": 1,
+  "sources": {
+    "cohort": {
+      "path": "data/processed/ptbxl_v1.0.3_five_superclass_cohort.csv",
+      "sha256": "f1ac3c713d43222eebba16124f54b1354e7634f6704032286e861196f6967058"
+    },
+    "metadata": {
+      "path": "data/raw/ptbxl_database.csv",
+      "sha256": "7600de9c1b27d181d850b3c6038a35d7c3ddb6bb33b702e3a20252a6859d216b"
+    },
+    "standardizer": {
+      "path": "reports/preprocessing/ptbxl_v1.0.3_train_global_standardizer.json",
+      "sha256": "f791aeb9795c669a54a391d979f69806ccdca19f05128a9fde8f408ec36090bc"
+    }
+  },
+  "train_prevalence": {
+    "CD": {
+      "count": 3907,
+      "fraction": 0.22869351439943808
+    },
+    "HYP": {
+      "count": 2119,
+      "fraction": 0.12403418403184266
+    },
+    "MI": {
+      "count": 4379,
+      "fraction": 0.25632170451884806
+    },
+    "NORM": {
+      "count": 7596,
+      "fraction": 0.44462655115897914
+    },
+    "STTC": {
+      "count": 4186,
+      "fraction": 0.2450245844064622
+    }
+  },
+  "training": {
+    "best_epoch": 9,
+    "best_validation_loss": 0.2949302586182633,
+    "history": [
+      {
+        "epoch": 1,
+        "train": {
+          "batches": 134,
+          "loss": 0.41518861865500495,
+          "samples": 17084
+        },
+        "validation": {
+          "batches": 17,
+          "loss": 0.357607287968416,
+          "samples": 2146
+        }
+      },
+      {
+        "epoch": 2,
+        "train": {
+          "batches": 134,
+          "loss": 0.33110889128850457,
+          "samples": 17084
+        },
+        "validation": {
+          "batches": 17,
+          "loss": 0.3397155118844049,
+          "samples": 2146
+        }
+      },
+      {
+        "epoch": 3,
+        "train": {
+          "batches": 134,
+          "loss": 0.3098098562755174,
+          "samples": 17084
+        },
+        "validation": {
+          "batches": 17,
+          "loss": 0.3157018722214659,
+          "samples": 2146
+        }
+      },
+      {
+        "epoch": 4,
+        "train": {
+          "batches": 134,
+          "loss": 0.30045109560913347,
+          "samples": 17084
+        },
+        "validation": {
+          "batches": 17,
+          "loss": 0.317184078560071,
+          "samples": 2146
+        }
+      },
+      {
+        "epoch": 5,
+        "train": {
+          "batches": 134,
+          "loss": 0.29116690299098424,
+          "samples": 17084
+        },
+        "validation": {
+          "batches": 17,
+          "loss": 0.30959309908350496,
+          "samples": 2146
+        }
+      },
+      {
+        "epoch": 6,
+        "train": {
+          "batches": 134,
+          "loss": 0.2877212497954122,
+          "samples": 17084
+        },
+        "validation": {
+          "batches": 17,
+          "loss": 0.3191834028813735,
+          "samples": 2146
+        }
+      },
+      {
+        "epoch": 7,
+        "train": {
+          "batches": 134,
+          "loss": 0.28258015177367696,
+          "samples": 17084
+        },
+        "validation": {
+          "batches": 17,
+          "loss": 0.3090524112133922,
+          "samples": 2146
+        }
+      },
+      {
+        "epoch": 8,
+        "train": {
+          "batches": 134,
+          "loss": 0.27785994544419435,
+          "samples": 17084
+        },
+        "validation": {
+          "batches": 17,
+          "loss": 0.30499897581999924,
+          "samples": 2146
+        }
+      },
+      {
+        "epoch": 9,
+        "train": {
+          "batches": 134,
+          "loss": 0.2748388059836756,
+          "samples": 17084
+        },
+        "validation": {
+          "batches": 17,
+          "loss": 0.2949302586182633,
+          "samples": 2146
+        }
+      },
+      {
+        "epoch": 10,
+        "train": {
+          "batches": 134,
+          "loss": 0.272666666441292,
+          "samples": 17084
+        },
+        "validation": {
+          "batches": 17,
+          "loss": 0.2972337016410508,
+          "samples": 2146
+        }
+      }
+    ]
+  },
+  "validation": {
+    "macro_auprc": 0.7859935472506275,
+    "macro_auroc": 0.9153098458106552,
+    "micro_auprc": 0.8323655924028974,
+    "micro_auroc": 0.9260575328447735,
+    "per_class": [
+      {
+        "auprc": 0.9136763552260125,
+        "auroc": 0.9339514069306887,
+        "label": "NORM",
+        "negatives": 1191,
+        "positives": 955,
+        "prevalence": 0.4450139794967381
+      },
+      {
+        "auprc": 0.8038551047131314,
+        "auroc": 0.9121217886628846,
+        "label": "MI",
+        "negatives": 1606,
+        "positives": 540,
+        "prevalence": 0.2516309412861137
+      },
+      {
+        "auprc": 0.7619800705909855,
+        "auroc": 0.9246567966438177,
+        "label": "STTC",
+        "negatives": 1618,
+        "positives": 528,
+        "prevalence": 0.24603914259086673
+      },
+      {
+        "auprc": 0.8281167750810585,
+        "auroc": 0.9135791592484507,
+        "label": "CD",
+        "negatives": 1651,
+        "positives": 495,
+        "prevalence": 0.23066169617893756
+      },
+      {
+        "auprc": 0.62233943064195,
+        "auroc": 0.8922400775674344,
+        "label": "HYP",
+        "negatives": 1878,
+        "positives": 268,
+        "prevalence": 0.12488350419384903
+      }
+    ],
+    "samples": 2146
+  }
+}
