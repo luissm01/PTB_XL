@@ -8,15 +8,16 @@ Mission 016 — close the completed one-time fold-10 evaluation.
 
 ## Current step
 
-Issue `#43` and branch `evaluation/43-final-test` are active. Commit `056cdc4`
-executed the frozen pipeline once on all 2,158 fold-10 ECGs. The report and
-local prediction artifact were reloaded read-only; fold 10 is now closed.
+Issue `#43`, branch `evaluation/43-final-test` and pull request `#44` are active.
+Commit `056cdc4` executed the frozen pipeline once on all 2,158 fold-10 ECGs.
+The report and local prediction artifact were reloaded read-only; fold 10 is
+now closed.
 
 ## Next actions
 
-1. Commit the final report and documentation without rerunning inference.
-2. Open the mission's single pull request and use its checks as merge gate.
-3. Merge, close issue `#43`, prune the branch and pause before a new mission.
+1. Use pull request `#44` checks as the merge gate.
+2. Merge, close issue `#43` and prune the branch.
+3. Pause before starting a new mission.
 
 ## Mission 016 evidence
 

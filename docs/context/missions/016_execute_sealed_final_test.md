@@ -8,6 +8,7 @@ development set.
 
 - Issue: `#43` — `[EVALUATION] Execute the sealed final test once`.
 - Branch: `evaluation/43-final-test`.
+- Pull request: `#44` — `Evaluation: execute sealed PTB-XL final test`.
 - Attributed execution commit: `056cdc4c27029f53cda5c3a6090fea864a9e1cf5`.
 
 ## Frozen inputs before implementation
@@ -51,7 +52,8 @@ development set.
 - [x] The real event processes exactly 2,158 fold-10 ECGs once.
 - [x] The report records complete input/output hashes and final metrics.
 - [x] Documentation labels all post-test work descriptive and forbids tuning.
-- [ ] One final local quality gate and one PR gate pass.
+- [x] The final local quality gate passed; PR `#44` is the authoritative merge
+  gate.
 
 ## Out of scope
 
@@ -83,3 +85,11 @@ inference CLI.
 - Ruff lint and format check passed.
 - Source distribution and wheel built successfully.
 - The real final-test command ran once and only once.
+
+## Closure record
+
+- Issue `#43`, implementation, final report, documentation and closure evidence
+  are contained in pull request `#44`.
+- The PR is merged only if Python quality and GitGuardian pass.
+- GitHub records the authoritative check state, squash-merge identity and issue
+  closure.
