@@ -4,25 +4,19 @@ Last updated: 2026-09-03
 
 ## Current mission
 
-No active mission. Mission 015 completed validation-only threshold selection
-and freezing.
+Mission 016 — execute the fully frozen baseline on fold 10 exactly once.
 
 ## Current step
 
-Mission 015 is complete in issue `#41` and pull request `#42`. D026 fixes the
-policy: maximize F1 independently per class on fold 9, choose the highest
-threshold on ties, and bind the artifact to complete provenance. The real
-selection from clean commit `d69e057` produced validation macro/micro F1 of
-`0.737768` / `0.767029`. Fold 10 remained sealed. The local gate passed with 176
-tests, Ruff lint, Ruff format and package build. GitHub is authoritative for PR
-checks and the squash-merge identity.
+Issue `#43` and branch `evaluation/43-final-test` are active. The test-only
+runner, exact-hash seal and one-time output guards pass 187 tests plus lint,
+format and build. No fold-10 waveform has yet been opened by a model.
 
 ## Next actions
 
-1. Start an explicit, one-time final-test evaluation mission.
-2. Verify frozen preprocessing, checkpoint and threshold hashes before opening
-   any fold-10 signal.
-3. Record ranking and frozen-threshold metrics without tuning from the result.
+1. Commit the verified implementation so the event has a clean Git identity.
+2. Revalidate the five declared hashes and absence of both outputs.
+3. Execute fold 10 once, inspect without rerunning, and record the result.
 
 ## Operating mode for upcoming work
 

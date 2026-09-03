@@ -361,3 +361,23 @@ validation-only rule supplies the missing operating point while preserving the
 independence of the final test. Per-class thresholds accommodate different
 prevalences and score distributions without claiming a clinically optimized
 utility function.
+
+## D027 — Fold 10 is a one-time immutable final-evaluation event
+
+- Open fold 10 only after the baseline config, train-fitted standardizer,
+  epoch-9 checkpoint and validation-selected thresholds are frozen by exact
+  hashes.
+- Use a separate command that refuses mismatched artifacts and refuses to
+  overwrite an existing final report.
+- Build a test-only Dataset and perform inference without training, checkpoint
+  selection, calibration or threshold selection.
+- Report the same ranking definitions plus metrics at the frozen operating
+  point, per class and with macro/micro summaries.
+- Save row-level test predictions only as an ignored local artifact; version a
+  deterministic aggregate report with its hash and canonical fingerprint.
+- Once observed, treat results and later error/interpretability analysis as
+  descriptive. Do not modify or replace the frozen pipeline because of test.
+
+Why: test estimates how the already selected system generalizes. Repeated use
+or result-driven changes would make it another validation set and invalidate
+the meaning of the final estimate.

@@ -39,16 +39,26 @@ VALIDATION_TARGETS = (
     (1, 1, 0, 0, 1),
     (0, 0, 1, 1, 0),
 )
+TEST_TARGETS = (
+    (1, 0, 1, 0, 1),
+    (0, 1, 0, 1, 0),
+    (1, 1, 0, 0, 1),
+    (0, 0, 1, 1, 0),
+)
 
 
 @pytest.fixture
 def synthetic_experiment(tmp_path: Path) -> tuple[ExperimentConfig, Path]:
     rows: list[dict[str, object]] = []
     metadata_rows: list[dict[str, object]] = []
-    all_targets = (*TRAIN_TARGETS, *VALIDATION_TARGETS)
+    all_targets = (*TRAIN_TARGETS, *VALIDATION_TARGETS, *TEST_TARGETS)
     for position, targets in enumerate(all_targets, start=1):
-        split = "train" if position <= len(TRAIN_TARGETS) else "validation"
-        fold = 1 if split == "train" else 9
+        if position <= len(TRAIN_TARGETS):
+            split, fold = "train", 1
+        elif position <= len(TRAIN_TARGETS) + len(VALIDATION_TARGETS):
+            split, fold = "validation", 9
+        else:
+            split, fold = "test", 10
         rows.append(
             {
                 "ecg_id": position,

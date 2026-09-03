@@ -163,6 +163,11 @@ def test_prediction_fingerprint_is_order_and_value_sensitive() -> None:
 
     assert fingerprint_predictions(original) == fingerprint_predictions(repeated)
     assert fingerprint_predictions(original) != fingerprint_predictions(changed)
+    assert fingerprint_predictions(original) != fingerprint_predictions(
+        original, split="test"
+    )
+    with pytest.raises(ValueError, match="validation or test"):
+        fingerprint_predictions(original, split="train")
 
 
 def test_loads_artifact_and_requires_checkpoint_binding(tmp_path: Path) -> None:
@@ -174,6 +179,11 @@ def test_loads_artifact_and_requires_checkpoint_binding(tmp_path: Path) -> None:
     assert frozen.name == "synthetic_per_class_f1"
     assert frozen.thresholds.values == (0.5,) * 5
     assert frozen.validation_samples == 4
+    assert frozen.dataset_name == "PTB-XL"
+    assert frozen.dataset_version == "1.0.3"
+    assert frozen.cohort_name == "synthetic"
+    assert frozen.experiment_config_sha256 == "a" * 64
+    assert frozen.experiment_report_sha256 == "a" * 64
     assert frozen.checkpoint_sha256 == "a" * 64
     with pytest.raises(ValueError, match="does not match"):
         load_frozen_thresholds(path, expected_checkpoint_sha256="d" * 64)

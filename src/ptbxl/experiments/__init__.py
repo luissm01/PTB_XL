@@ -6,6 +6,17 @@ from ptbxl.experiments.baseline import (
     load_experiment_config,
     run_baseline_experiment,
 )
+from ptbxl.experiments.frozen import (
+    FrozenBaseline,
+    FrozenBaselineHashes,
+    load_frozen_baseline,
+    validate_loaded_checkpoint,
+)
+from ptbxl.experiments.final_test import (
+    FinalTestConfig,
+    load_final_test_config,
+    run_final_test_evaluation,
+)
 from ptbxl.experiments.thresholds import (
     ThresholdExperimentConfig,
     load_threshold_experiment_config,
@@ -14,10 +25,17 @@ from ptbxl.experiments.thresholds import (
 
 __all__ = [
     "ExperimentConfig",
+    "FinalTestConfig",
+    "FrozenBaseline",
+    "FrozenBaselineHashes",
     "ThresholdExperimentConfig",
     "get_clean_git_commit",
     "load_experiment_config",
+    "load_final_test_config",
+    "load_frozen_baseline",
     "load_threshold_experiment_config",
     "run_baseline_experiment",
+    "run_final_test_evaluation",
     "run_validation_threshold_selection",
+    "validate_loaded_checkpoint",
 ]

@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader, Dataset
 from ptbxl.data import TARGET_SUPERCLASSES
 from ptbxl.evaluation import (
     PredictionSet,
+    collect_final_test_predictions,
     collect_validation_predictions,
     compute_ranking_metrics,
     evaluate_validation,
@@ -84,6 +85,31 @@ def test_collects_ordered_validation_predictions_without_gradients() -> None:
     assert not predictions.probabilities.flags.writeable
     assert not model.training
     assert all(parameter.grad is None for parameter in model.parameters())
+
+
+def test_collects_only_explicit_final_test_predictions() -> None:
+    loader = DataLoader(
+        SyntheticEvaluationDataset(split="test"), batch_size=3, shuffle=False
+    )
+
+    predictions = collect_final_test_predictions(
+        _identity_model(), loader, torch.device("cpu")
+    )
+
+    assert predictions.ecg_ids == (101, 102, 103, 104, 105, 106)
+    np.testing.assert_array_equal(predictions.targets, TARGETS.numpy())
+
+
+@pytest.mark.parametrize("split", ["train", "validation"])
+def test_rejects_non_test_loader_before_model_execution(split: str) -> None:
+    class FailIfCalled(nn.Module):
+        def forward(self, signal: torch.Tensor) -> torch.Tensor:
+            raise AssertionError("model must not run")
+
+    loader = DataLoader(SyntheticEvaluationDataset(split), batch_size=2)
+
+    with pytest.raises(ValueError, match="requires a test Dataset"):
+        collect_final_test_predictions(FailIfCalled(), loader, torch.device("cpu"))
 
 
 def test_complete_validation_evaluation_is_perfect_and_ordered() -> None:

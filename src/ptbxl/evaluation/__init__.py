@@ -1,13 +1,21 @@
 """Split-safe multilabel model evaluation."""
 
 from ptbxl.evaluation.multilabel import (
+    FinalTestEvaluation,
     LabelRankingMetrics,
     MultilabelRankingMetrics,
     PredictionSet,
     ValidationEvaluation,
     collect_validation_predictions,
+    collect_final_test_predictions,
     compute_ranking_metrics,
     evaluate_validation,
+    evaluate_final_test,
+)
+from ptbxl.evaluation.prediction_artifact import (
+    LoadedPredictionArtifact,
+    load_prediction_artifact,
+    save_prediction_artifact,
 )
 from ptbxl.evaluation.thresholds import (
     DECISION_RULE,
@@ -34,16 +42,22 @@ __all__ = [
     "THRESHOLD_METHOD",
     "TIE_BREAK_RULE",
     "FrozenThresholds",
+    "FinalTestEvaluation",
     "LabelOperatingMetrics",
     "MultilabelOperatingMetrics",
+    "LoadedPredictionArtifact",
     "OperatingMetricSummary",
     "ThresholdSelection",
     "ThresholdSet",
     "collect_validation_predictions",
+    "collect_final_test_predictions",
     "compute_operating_metrics",
     "compute_ranking_metrics",
     "evaluate_validation",
+    "evaluate_final_test",
     "fingerprint_predictions",
     "load_frozen_thresholds",
+    "load_prediction_artifact",
+    "save_prediction_artifact",
     "select_validation_thresholds",
 ]

@@ -16,7 +16,7 @@ from ptbxl.data.labels import TARGET_SUPERCLASSES
 
 @dataclass(frozen=True)
 class PredictionSet:
-    """Ordered validation identities, targets and defensive probabilities."""
+    """Ordered identities, targets and defensive probability copies."""
 
     ecg_ids: tuple[int, ...]
     targets: np.ndarray
@@ -101,20 +101,49 @@ class ValidationEvaluation:
     metrics: MultilabelRankingMetrics
 
 
+@dataclass(frozen=True)
+class FinalTestEvaluation:
+    """Complete threshold-independent result from one final-test pass."""
+
+    predictions: PredictionSet
+    metrics: MultilabelRankingMetrics
+
+
 def collect_validation_predictions(
     model: nn.Module,
     batches: Iterable[Mapping[str, Any]],
     device: torch.device,
 ) -> PredictionSet:
     """Collect ordered probabilities from an explicitly validation-only loader."""
+    return _collect_split_predictions(
+        model, batches, device, required_split="validation"
+    )
+
+
+def collect_final_test_predictions(
+    model: nn.Module,
+    batches: Iterable[Mapping[str, Any]],
+    device: torch.device,
+) -> PredictionSet:
+    """Collect ordered probabilities from an explicitly test-only loader."""
+    return _collect_split_predictions(model, batches, device, required_split="test")
+
+
+def _collect_split_predictions(
+    model: nn.Module,
+    batches: Iterable[Mapping[str, Any]],
+    device: torch.device,
+    *,
+    required_split: str,
+) -> PredictionSet:
     if not isinstance(model, nn.Module):
         raise TypeError("model must be a torch.nn.Module")
     if not isinstance(device, torch.device):
         raise TypeError("device must be a torch.device")
     actual_split = getattr(getattr(batches, "dataset", None), "split", None)
-    if actual_split != "validation":
+    if actual_split != required_split:
         raise ValueError(
-            "Prediction collection requires a validation Dataset; "
+            f"Prediction collection requires a {required_split} Dataset; "
             f"loader declares {actual_split!r}"
         )
 
@@ -222,6 +251,16 @@ def evaluate_validation(
     """Collect and score one explicitly validation-only model pass."""
     predictions = collect_validation_predictions(model, batches, device)
     return ValidationEvaluation(predictions, compute_ranking_metrics(predictions))
+
+
+def evaluate_final_test(
+    model: nn.Module,
+    batches: Iterable[Mapping[str, Any]],
+    device: torch.device,
+) -> FinalTestEvaluation:
+    """Collect and score one explicitly test-only model pass."""
+    predictions = collect_final_test_predictions(model, batches, device)
+    return FinalTestEvaluation(predictions, compute_ranking_metrics(predictions))
 
 
 def _prepare_prediction_batch(
