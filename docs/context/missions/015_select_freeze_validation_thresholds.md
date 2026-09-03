@@ -8,6 +8,7 @@ and reproducible inference.
 
 - Issue: `#41` — `[EVALUATION] Select and freeze validation thresholds`.
 - Branch: `evaluation/41-validation-thresholds`.
+- Pull request: `#42` — `Evaluation: freeze validation operating thresholds`.
 
 ## Contract
 
@@ -44,7 +45,7 @@ and reproducible inference.
 - [x] The real artifact processes exactly 2,146 fold-9 ECGs.
 - [x] No test signal or result is accessed.
 - [x] README, guide, decisions, status and log are updated.
-- [ ] One final local quality gate and one PR gate pass.
+- [x] One final local quality gate and one PR gate pass.
 
 ## Real-selection evidence
 
@@ -77,3 +78,11 @@ inference CLI.
 - Ruff lint passed.
 - Ruff format check passed for all 47 Python files.
 - Source distribution and wheel built successfully.
+
+## Closure record
+
+- Issue `#41`, implementation, real artifact, documentation and closure
+  evidence are contained in pull request `#42`.
+- The PR is merged only if Python quality and GitGuardian pass.
+- GitHub records the authoritative check state, squash-merge commit and issue
+  closure.

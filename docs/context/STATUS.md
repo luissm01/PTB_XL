@@ -4,25 +4,25 @@ Last updated: 2026-09-03
 
 ## Current mission
 
-Mission 015 — select and freeze per-class operating thresholds using validation
-only.
+No active mission. Mission 015 completed validation-only threshold selection
+and freezing.
 
 ## Current step
 
-Issue `#41` and branch `evaluation/41-validation-thresholds` are active. The
-policy is fixed in D026: maximize F1 independently per class on fold 9, choose
-the highest threshold on ties, and bind the frozen artifact to its complete
-provenance. The real selection from clean commit `d69e057` produced five frozen
-thresholds and validation macro/micro F1 of `0.737768` / `0.767029`. Fold 10
-remains sealed. The local gate passes with 176 tests, Ruff lint, Ruff format and
-package build.
+Mission 015 is complete in issue `#41` and pull request `#42`. D026 fixes the
+policy: maximize F1 independently per class on fold 9, choose the highest
+threshold on ties, and bind the artifact to complete provenance. The real
+selection from clean commit `d69e057` produced validation macro/micro F1 of
+`0.737768` / `0.767029`. Fold 10 remained sealed. The local gate passed with 176
+tests, Ruff lint, Ruff format and package build. GitHub is authoritative for PR
+checks and the squash-merge identity.
 
 ## Next actions
 
-1. Commit the real artifact and closure documentation.
-2. Open the single mission PR and use its checks as the merge gate.
-3. Merge, verify the issue/branch handoff and continue with the explicit
-   final-test mission.
+1. Start an explicit, one-time final-test evaluation mission.
+2. Verify frozen preprocessing, checkpoint and threshold hashes before opening
+   any fold-10 signal.
+3. Record ranking and frozen-threshold metrics without tuning from the result.
 
 ## Operating mode for upcoming work
 
@@ -30,6 +30,22 @@ Use the batched workflow in D023: broader cohesive missions, one issue/branch/PR
 including closure documentation, targeted checks during development and one
 complete local validation before review. Do not trade away leakage prevention,
 reproducibility or final-test isolation for speed.
+
+## Mission 015 evidence
+
+- Threshold selection and evaluation accept the existing validation prediction
+  contract and never retrain the model.
+- NORM/MI/STTC/CD/HYP thresholds are `0.327765`, `0.511551`, `0.380263`,
+  `0.387861`, `0.145285`.
+- The artifact records per-class confusion counts and precision, sensitivity,
+  specificity and F1 plus macro/micro summaries.
+- Its strict loader verifies schema, internal metric consistency and checkpoint
+  SHA-256 binding.
+- No fold-10 Dataset, signal, prediction or metric was created.
+
+## Previous completed mission
+
+Mission 014 — execute and record the first configured real baseline.
 
 ## Mission 014 evidence
 
@@ -43,7 +59,7 @@ reproducibility or final-test isolation for speed.
 - The checkpoint reload and its reported SHA-256/provenance were verified.
 - No threshold, test Dataset, test waveform or test metric was created.
 
-## Previous completed mission
+## Earlier completed mission
 
 Mission 013 — add split-safe multilabel validation evaluation:
 

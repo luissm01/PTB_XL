@@ -55,7 +55,9 @@ En los 2.146 ECG de fold 9, los thresholds son `0,327765` para NORM, `0,511551`
 para MI, `0,380263` para STTC, `0,387861` para CD y `0,145285` para HYP. El F1
 macro es `0,737768` y el micro `0,767029`. El artefacto se volvió a cargar
 exigiendo el SHA-256 exacto del checkpoint. La puerta local final pasó con 176
-tests, Ruff lint, Ruff format y build del paquete.
+tests, Ruff lint, Ruff format y build del paquete. El issue `#41` y la PR única
+`#42` contienen implementación, evidencia y cierre; GitHub conserva el estado
+autoritativo de checks y merge.
 
 ### Qué debería entender el propietario
 
