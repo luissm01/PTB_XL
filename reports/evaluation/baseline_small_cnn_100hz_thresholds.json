@@ -1,0 +1,166 @@
+{
+  "dataset": {
+    "cohort": "five_superclass_at_least_one_target",
+    "name": "PTB-XL",
+    "samples": 2146,
+    "split": "validation",
+    "targets": [
+      "NORM",
+      "MI",
+      "STTC",
+      "CD",
+      "HYP"
+    ],
+    "version": "1.0.3"
+  },
+  "limitations": [
+    "Thresholds maximize per-class F1 on internal validation only.",
+    "Validation operating metrics reuse the threshold-selection data and are optimistic.",
+    "No clinical error costs or operating requirements were available.",
+    "No final-test sample or metric was accessed.",
+    "This operating point is not evidence of clinical utility."
+  ],
+  "runtime": {
+    "cuda": "13.0",
+    "deterministic_algorithms": true,
+    "hardware": {
+      "accelerator_name": "NVIDIA GeForce RTX 3060 Ti",
+      "requested_device": "cuda",
+      "resolved_device": "cuda"
+    },
+    "numpy": "2.4.6",
+    "python": "3.11.15",
+    "scikit_learn": "1.9.0",
+    "torch": "2.13.0+cu130"
+  },
+  "schema_version": 1,
+  "selection": {
+    "decision_rule": "probability_greater_than_or_equal_to_threshold",
+    "git_commit": "d69e0571b8e9d67b1bcfb03322375fc7f40df95c",
+    "method": "per_class_max_f1",
+    "name": "baseline_small_cnn_100hz_per_class_f1",
+    "thresholds": {
+      "CD": 0.38786107301712036,
+      "HYP": 0.14528490602970123,
+      "MI": 0.511550784111023,
+      "NORM": 0.32776474952697754,
+      "STTC": 0.38026294112205505
+    },
+    "tie_break": "highest_threshold"
+  },
+  "sources": {
+    "checkpoint": {
+      "path": "artifacts/experiments/baseline_small_cnn_100hz.pt",
+      "sha256": "26d058b75dd486e0d81b75fea3cce44fabf6f7c625c57da79640caee6b5c9a11"
+    },
+    "experiment_config": {
+      "path": "configs/baseline_small_cnn_100hz.toml",
+      "sha256": "50b5b68f8497baf27101a92d550588f8817b6c47a4832267c8033d8ccea2d714"
+    },
+    "experiment_report": {
+      "path": "reports/experiments/baseline_small_cnn_100hz.json",
+      "sha256": "1c84a1e807c430d0d54eab89f9a47d6e930993091ceefc062b4b8580ad4f91b6"
+    },
+    "selection_config": {
+      "path": "configs/baseline_small_cnn_100hz_thresholds.toml",
+      "sha256": "2300e9b24fc84ac02300bb2b4dd4fd643ee41461a5cb11ec547e588675bf0558"
+    },
+    "standardizer": {
+      "path": "reports/preprocessing/ptbxl_v1.0.3_train_global_standardizer.json",
+      "sha256": "f791aeb9795c669a54a391d979f69806ccdca19f05128a9fde8f408ec36090bc"
+    },
+    "validation_predictions_sha256": "755f083db3a064a3bdf97ac33a478802c38878e4c622dc0b6bf075de7f3319a9"
+  },
+  "validation": {
+    "macro": {
+      "f1": 0.7377683834767201,
+      "precision": 0.716389304048171,
+      "sensitivity": 0.7693432304341111,
+      "specificity": 0.895087547465834
+    },
+    "micro": {
+      "f1": 0.7670287980686326,
+      "precision": 0.7381347494191836,
+      "sensitivity": 0.7982770997846375,
+      "specificity": 0.900679758308157
+    },
+    "per_class": [
+      {
+        "f1": 0.8476052249637155,
+        "false_negatives": 79,
+        "false_positives": 236,
+        "label": "NORM",
+        "negatives": 1191,
+        "positives": 955,
+        "precision": 0.7877697841726619,
+        "predicted_positives": 1112,
+        "sensitivity": 0.9172774869109948,
+        "specificity": 0.8018471872376155,
+        "threshold": 0.32776474952697754,
+        "true_negatives": 955,
+        "true_positives": 876
+      },
+      {
+        "f1": 0.7192118226600985,
+        "false_negatives": 175,
+        "false_positives": 110,
+        "label": "MI",
+        "negatives": 1606,
+        "positives": 540,
+        "precision": 0.7684210526315789,
+        "predicted_positives": 475,
+        "sensitivity": 0.6759259259259259,
+        "specificity": 0.9315068493150684,
+        "threshold": 0.511550784111023,
+        "true_negatives": 1496,
+        "true_positives": 365
+      },
+      {
+        "f1": 0.7555163283318623,
+        "false_negatives": 100,
+        "false_positives": 177,
+        "label": "STTC",
+        "negatives": 1618,
+        "positives": 528,
+        "precision": 0.7074380165289256,
+        "predicted_positives": 605,
+        "sensitivity": 0.8106060606060606,
+        "specificity": 0.8906056860321384,
+        "threshold": 0.38026294112205505,
+        "true_negatives": 1441,
+        "true_positives": 428
+      },
+      {
+        "f1": 0.7677824267782427,
+        "false_negatives": 128,
+        "false_positives": 94,
+        "label": "CD",
+        "negatives": 1651,
+        "positives": 495,
+        "precision": 0.7960954446854663,
+        "predicted_positives": 461,
+        "sensitivity": 0.7414141414141414,
+        "specificity": 0.9430648092065415,
+        "threshold": 0.38786107301712036,
+        "true_negatives": 1557,
+        "true_positives": 367
+      },
+      {
+        "f1": 0.5987261146496815,
+        "false_negatives": 80,
+        "false_positives": 172,
+        "label": "HYP",
+        "negatives": 1878,
+        "positives": 268,
+        "precision": 0.5222222222222223,
+        "predicted_positives": 360,
+        "sensitivity": 0.7014925373134329,
+        "specificity": 0.9084132055378061,
+        "threshold": 0.14528490602970123,
+        "true_negatives": 1706,
+        "true_positives": 188
+      }
+    ],
+    "samples": 2146
+  }
+}

@@ -5,6 +5,72 @@ is away. Stable constraints remain in `docs/context/DECISIONS.md`, current work
 remains in `docs/context/STATUS.md` and detailed acceptance contracts remain in
 `docs/context/missions/`.
 
+## Mission 015 — Frozen validation thresholds
+
+### Qué se hizo
+
+Se añadió una política reproducible que restaura el checkpoint del baseline,
+recoge únicamente predicciones de validation, selecciona un threshold por clase
+y guarda las decisiones junto con métricas, matrices de confusión y procedencia.
+
+### Por qué se hizo
+
+AUROC y AUPRC evalúan ranking pero no convierten probabilidades en decisiones.
+La evaluación final y la inferencia necesitan un operating point fijo antes de
+abrir fold 10.
+
+### Decisiones técnicas y alternativas
+
+Cada threshold maximiza F1 de su clase; un empate conserva el valor más alto y
+la decisión usa `probability >= threshold`. Se descartó `0,5` global porque no
+refleja las distintas distribuciones de scores. También se evitó una función de
+coste clínica inventada: sin costes conocidos, F1 proporciona un equilibrio
+explícito entre precision y sensibilidad.
+
+### Riesgos de leakage revisados
+
+La API de predicción sigue aceptando exclusivamente validation. El runner no
+crea Dataset, loader, predicción ni métrica de test y no reentrena ni cambia el
+checkpoint. Los resultados de punto operativo se etiquetan como optimistas
+porque el mismo fold selecciona y mide los cutoffs.
+
+### Archivos principales y tests
+
+- `src/ptbxl/evaluation/thresholds.py`
+- `src/ptbxl/experiments/thresholds.py`
+- `configs/baseline_small_cnn_100hz_thresholds.toml`
+- `scripts/select_validation_thresholds.py`
+- `tests/evaluation/test_thresholds.py`
+- `tests/experiments/test_threshold_selection.py`
+- `reports/evaluation/baseline_small_cnn_100hz_thresholds.json`
+
+Los tests cubren óptimo único, empates, conteos conocidos, cero predicciones,
+inputs degenerados, fingerprint, schema estricto, coherencia algebraica,
+vinculación del checkpoint, colisiones de output y un flujo WFDB sintético sin
+reentrenar.
+
+### Resultados obtenidos
+
+En los 2.146 ECG de fold 9, los thresholds son `0,327765` para NORM, `0,511551`
+para MI, `0,380263` para STTC, `0,387861` para CD y `0,145285` para HYP. El F1
+macro es `0,737768` y el micro `0,767029`. El artefacto se volvió a cargar
+exigiendo el SHA-256 exacto del checkpoint. La puerta local final pasó con 176
+tests, Ruff lint, Ruff format y build del paquete.
+
+### Qué debería entender el propietario
+
+Un threshold no es una propiedad universal del diagnóstico: depende del modelo,
+datos y objetivo. Por eso los cinco valores están vinculados a pesos y
+preprocessing concretos. El F1 de validation sirve para fijarlos, pero solo test
+podrá medir su rendimiento independiente.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Por qué no usar `0,5` para todas las clases?
+- ¿Por qué elegir un threshold por clase?
+- ¿Qué optimismo introduce medir F1 en el mismo fold que selecciona el cutoff?
+- ¿Cómo se evita mezclar thresholds y checkpoints incompatibles?
+
 ## Mission 014 — Reproducible real baseline
 
 ### Qué se hizo
