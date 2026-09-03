@@ -4,24 +4,24 @@ Last updated: 2026-09-03
 
 ## Current mission
 
-Mission 014 — execute and record the first configured, reproducible real
-train/validation baseline.
+No active mission. Mission 014 completed the first configured, reproducible
+real train/validation baseline.
 
 ## Current step
 
-Issue `#39`, branch `experiment/39-real-baseline` and pull request `#40` are
-active. The fixed
-ten-epoch run completed from clean commit `3b35e5f`: it used 17,084 train and
-2,146 validation ECGs, selected epoch 9 and recorded attributed ranking metrics.
-Fold 10 remained sealed. Documentation and the final quality gate are in
-progress before the single mission PR. The local gate now passes with 158 tests,
-Ruff lint, Ruff format and package build.
+Mission 014 implementation and evidence are complete in issue `#39` and pull
+request `#40`. The fixed ten-epoch run from clean commit `3b35e5f` used 17,084
+train and 2,146 validation ECGs, selected epoch 9 and recorded attributed
+ranking metrics. Fold 10 remained sealed. The local gate passed with 158 tests,
+Ruff lint, Ruff format and package build; the PR gate passed Python quality and
+GitGuardian. GitHub is authoritative for the final squash-merge identity.
 
 ## Next actions
 
-1. Use pull request `#40` checks as the merge gate.
-2. Record the passing PR gate in this same PR.
-3. Squash-merge, verify the issue/branch handoff and stop.
+1. Start one cohesive mission to define, test and freeze threshold policy using
+   validation only.
+2. Preserve the frozen model, preprocessing and threshold identities together.
+3. Keep fold 10 sealed until an explicit one-time final-evaluation mission.
 
 ## Operating mode for upcoming work
 
@@ -30,7 +30,19 @@ including closure documentation, targeted checks during development and one
 complete local validation before review. Do not trade away leakage prevention,
 reproducibility or final-test isolation for speed.
 
-## Last completed mission
+## Mission 014 evidence
+
+- The strict TOML config and runner bind dataset, model, optimizer, seed,
+  runtime, Git commit and output identities.
+- Deterministic execution includes PyTorch deterministic algorithms and seeded
+  DataLoader workers.
+- The best checkpoint is epoch 9 with validation loss `0.2949302586`.
+- Fold-9 macro AUROC/AUPRC are `0.9153098458` / `0.7859935473`; micro values are
+  `0.9260575328` / `0.8323655924`.
+- The checkpoint reload and its reported SHA-256/provenance were verified.
+- No threshold, test Dataset, test waveform or test metric was created.
+
+## Previous completed mission
 
 Mission 013 — add split-safe multilabel validation evaluation:
 

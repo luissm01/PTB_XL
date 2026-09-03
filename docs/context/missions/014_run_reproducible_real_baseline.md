@@ -45,7 +45,7 @@ first real baseline result.
 - [x] The real checkpoint is selected only by validation loss.
 - [x] No test signal is opened and no test result is recorded.
 - [x] README, guide, decisions, status and log are updated.
-- [ ] One final local quality gate and one PR gate pass.
+- [x] One final local quality gate and one PR gate pass.
 
 ## Real-run evidence
 
@@ -67,3 +67,12 @@ first real baseline result.
 Hyperparameter comparison, class weighting/sampling, threshold fitting,
 final-test evaluation, plots, interpretability, error analysis, deployment and
 inference.
+
+## Closure record
+
+- Local gate: 158 tests passed, Ruff lint and format passed, package build
+  passed.
+- Pull request `#40`: Python quality and GitGuardian passed.
+- Issue `#39`, implementation, real report, documentation and closure evidence
+  are contained in the same pull request.
+- GitHub records the authoritative squash-merge commit and issue closure.

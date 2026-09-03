@@ -56,7 +56,8 @@ el modelo obtuvo AUROC macro `0,915310`, AUPRC macro `0,785994`, AUROC micro
 `0,8039` en MI, `0,7620` en STTC, `0,8281` en CD y `0,6223` en HYP. El checkpoint
 ignorado se volvió a cargar en CPU y coincidieron época, historial, loss,
 procedencia y SHA-256. La puerta local final pasó con 158 tests, Ruff lint, Ruff
-format y build del paquete.
+format y build del paquete. El issue `#39` y la PR única `#40` contienen la
+implementación, evidencia y cierre; Python quality y GitGuardian pasaron.
 
 ### Qué debería entender el propietario
 
