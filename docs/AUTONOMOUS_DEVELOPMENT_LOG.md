@@ -5,6 +5,63 @@ is away. Stable constraints remain in `docs/context/DECISIONS.md`, current work
 remains in `docs/context/STATUS.md` and detailed acceptance contracts remain in
 `docs/context/missions/`.
 
+## Mission 013 — Split-safe multilabel validation evaluation
+
+### Qué se hizo
+
+Se añadió una frontera completa que recoge `ecg_id`, targets y probabilidades en
+orden desde validation y calcula AUROC/AUPRC por clase, macro y micro. Los
+resultados son estructuras congeladas y los arrays son copias de solo lectura.
+
+### Por qué se hizo
+
+La loss permite optimizar y seleccionar checkpoints, pero no describe bien la
+capacidad de ranking de cada etiqueta. Estas métricas permiten comparar el
+baseline sin elegir todavía un threshold ni abrir el test final.
+
+### Decisiones técnicas y alternativas
+
+Se incorporó scikit-learn 1.9.0 para no mantener algoritmos estadísticos propios.
+AUPRC significa average precision no interpolada. Se rechazó calcular una media
+ignorando clases degeneradas: cualquier clase sin positivos o negativos hace
+fallar el resultado para no publicar un macro engañoso.
+
+### Riesgos de leakage revisados
+
+La API comprueba `dataset.split == "validation"` antes de ejecutar el modelo y
+rechaza train/test. No calcula thresholds, no cambia la selección por loss y solo
+se utilizaron batches sintéticos.
+
+### Archivos principales y tests
+
+- `src/ptbxl/evaluation/multilabel.py`
+- `tests/evaluation/test_multilabel.py`
+- `docs/context/missions/013_add_multilabel_validation_evaluation.md`
+
+Dieciséis casos prueban identidad/orden, sigmoid, ausencia de gradientes,
+métricas perfectas, empates, definición de average precision, splits inválidos,
+formas, valores, duplicados y clases degeneradas.
+
+### Resultados obtenidos
+
+La frontera sintética está implementada; no representa rendimiento real del
+modelo. Pasaron los 16 casos de evaluación y la suite completa de 152 tests,
+Ruff y el build del paquete. El issue `#37` y la única PR `#38` reúnen código,
+tests, documentación y cierre; GitHub conserva el estado final de CI y merge.
+
+### Qué debería entender el propietario
+
+AUROC y AUPRC miden ordenación sin fijar un punto de decisión. Macro da el mismo
+peso a cada superclase; micro da el mismo peso a cada par ECG-etiqueta. AUPRC
+tiene como referencia la prevalencia y aquí usa average precision.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Por qué AUROC puede ser insuficiente con clases desbalanceadas?
+- ¿Qué diferencia existe entre macro y micro en multilabel?
+- ¿Por qué una clase con un único target hace inválida AUROC?
+- ¿Por qué no se calculan todavía F1, sensibilidad o especificidad?
+
 ## Mission 012 — Validation-selected fit and safe checkpoints
 
 ### Qué se hizo

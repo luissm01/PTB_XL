@@ -280,3 +280,40 @@ isolate.
 Why: model selection and recovery must be reproducible without allowing fold 10
 into the development loop or accepting arbitrary pickle objects from a
 checkpoint.
+
+## D023 — Delivery is batched without weakening methodological gates
+
+- Group tightly related components into cohesive end-to-end missions instead of
+  creating a mission for every small implementation boundary.
+- Use one issue, branch and pull request per mission, including documentation and
+  closure evidence in that same pull request.
+- Use targeted checks during implementation, then run the full suite, Ruff and
+  package build once when the mission is stable and ready for review.
+- Use passing pull-request CI as the merge gate; avoid duplicate closure PRs and
+  repeated waits for equivalent post-merge validation.
+- Update operational context continuously, but update the long-form guide and
+  autonomous log only at meaningful milestones.
+- Preserve all leakage, reproducibility, provenance and final-test protections.
+
+Why: the first twelve missions proved the engineering foundations but incurred
+too much repeated GitHub and documentation ceremony. Batching related work
+reduces delivery overhead while retaining the controls that affect scientific
+validity.
+
+## D024 — Validation ranking metrics use strict, tested definitions
+
+- Collect predictions only from a Dataset explicitly declaring `validation` and
+  preserve unique ECG identities in loader order.
+- Convert the five logits to sigmoid probabilities once and compute metrics with
+  scikit-learn rather than maintaining custom ranking algorithms.
+- Report AUROC and AUPRC per class, unweighted macro and flattened micro.
+- Define AUPRC as non-interpolated average precision; do not use trapezoidal
+  precision-recall integration under the same name.
+- Reject a validation result if any class lacks a positive or a negative target,
+  because AUROC would be undefined and macro summaries would be misleading.
+- Keep threshold-dependent metrics and threshold selection in a later,
+  validation-governed stage.
+
+Why: a strict metric boundary makes comparisons unambiguous, exposes invalid
+evaluation cohorts early and reuses a mature statistical implementation while
+keeping the final test fold outside development.

@@ -35,6 +35,25 @@ Before changing code:
 After a material decision or completed stage, update the relevant context file
 without duplicating the same information across documents.
 
+## Delivery cadence
+
+- Prefer cohesive end-to-end missions that combine closely related components;
+  do not create a separate mission for every small function or document update.
+- Use one issue, one branch and one pull request per mission. Include closure
+  evidence and context updates in the implementation PR; do not open a second
+  closure-only PR.
+- Run targeted tests while developing. Once the implementation is stable, run
+  the full test suite, lint, format check and build once before the PR.
+- Treat passing PR checks as the merge gate. Do not repeatedly wait for or rerun
+  equivalent post-merge checks unless the merged tree changed or GitHub reports
+  a failure.
+- Update `STATUS.md` during handoff, `DECISIONS.md` only for stable choices, and
+  the project guide/log at meaningful milestones rather than after every small
+  component.
+- Keep methodological controls strict even when delivery is batched: official
+  folds, patient isolation, train-only fitting and final-test isolation are not
+  shortcuts.
+
 # Commands
 
 - Install: `uv sync`
