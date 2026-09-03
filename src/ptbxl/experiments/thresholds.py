@@ -1,6 +1,5 @@
 """Configured selection of a frozen validation operating point."""
 
-import json
 import math
 import platform
 import re
@@ -28,14 +27,14 @@ from ptbxl.evaluation import (
     evaluate_validation,
     select_validation_thresholds,
 )
-from ptbxl.experiments.baseline import (
-    ExperimentConfig,
-    load_experiment_config,
+from ptbxl.experiments.baseline import ExperimentConfig
+from ptbxl.experiments.frozen import (
+    load_frozen_baseline,
+    validate_loaded_checkpoint,
 )
 from ptbxl.models import SmallECGCNN
 from ptbxl.preprocessing import load_global_standardizer
 from ptbxl.training import (
-    CheckpointProvenance,
     configure_deterministic_execution,
     load_training_checkpoint,
     resolve_device,
@@ -165,16 +164,20 @@ def run_validation_threshold_selection(
     if load_threshold_experiment_config(config_path) != config:
         raise ValueError("config does not match the attributed config_path")
 
-    baseline_config = load_experiment_config(config.experiment_config_path)
-    baseline_report = _load_json_object(
-        config.experiment_report_path, "baseline experiment report"
+    frozen = load_frozen_baseline(
+        config.experiment_config_path,
+        config.experiment_report_path,
+        config.checkpoint_path,
     )
-    input_hashes = _validate_baseline_inputs(
-        config,
-        config_path,
-        baseline_config,
-        baseline_report,
-    )
+    baseline_config = frozen.config
+    baseline_report = frozen.report
+    input_hashes = {
+        "selection_config": compute_sha256(config_path),
+        "experiment_config": frozen.hashes.experiment_config,
+        "experiment_report": frozen.hashes.experiment_report,
+        "checkpoint": frozen.hashes.checkpoint,
+        "standardizer": frozen.hashes.standardizer,
+    }
 
     cohort = pd.read_csv(baseline_config.cohort_path)
     metadata = pd.read_csv(
@@ -216,19 +219,14 @@ def run_validation_threshold_selection(
         lr=float(baseline_config.learning_rate),
         weight_decay=float(baseline_config.weight_decay),
     )
-    checkpoint_provenance = _checkpoint_provenance(
-        baseline_report,
-        baseline_config,
-        expected_standardizer_sha256=input_hashes["standardizer"],
-    )
     loaded = load_training_checkpoint(
         config.checkpoint_path,
         model,
         optimizer,
         device=device,
-        expected_provenance=checkpoint_provenance,
+        expected_provenance=frozen.provenance,
     )
-    _validate_selected_checkpoint(loaded.epoch, loaded.validation_loss, baseline_report)
+    validate_loaded_checkpoint(loaded, frozen)
     evaluation = evaluate_validation(model, validation_loader, device)
     _validate_reproduced_ranking(evaluation.metrics, baseline_report)
     selection = select_validation_thresholds(evaluation.predictions)
@@ -330,96 +328,6 @@ def _build_threshold_artifact(
     }
 
 
-def _validate_baseline_inputs(
-    config: ThresholdExperimentConfig,
-    config_path: Path,
-    baseline_config: ExperimentConfig,
-    report: dict[str, Any],
-) -> dict[str, str]:
-    if config.checkpoint_path != baseline_config.checkpoint_path:
-        raise ValueError("Threshold checkpoint path does not match baseline config")
-    hashes = {
-        "selection_config": compute_sha256(config_path),
-        "experiment_config": compute_sha256(config.experiment_config_path),
-        "experiment_report": compute_sha256(config.experiment_report_path),
-        "checkpoint": compute_sha256(config.checkpoint_path),
-        "standardizer": compute_sha256(baseline_config.standardizer_path),
-    }
-    try:
-        report_config = report["configuration"]
-        report_checkpoint = report["artifacts"]["checkpoint"]
-        report_standardizer = report["sources"]["standardizer"]
-        splits = report["dataset"]["splits_used"]
-    except (KeyError, TypeError) as error:
-        raise ValueError("Baseline report is missing required provenance") from error
-    if not all(
-        isinstance(value, dict)
-        for value in (report_config, report_checkpoint, report_standardizer, splits)
-    ):
-        raise ValueError("Baseline report provenance must use JSON objects")
-    expected = {
-        "baseline config": (report_config.get("sha256"), hashes["experiment_config"]),
-        "checkpoint": (report_checkpoint.get("sha256"), hashes["checkpoint"]),
-        "standardizer": (report_standardizer.get("sha256"), hashes["standardizer"]),
-    }
-    mismatched = [name for name, values in expected.items() if values[0] != values[1]]
-    if mismatched:
-        raise ValueError(f"Baseline source SHA-256 mismatch: {mismatched}")
-    if report_checkpoint.get("path") != config.checkpoint_path.as_posix():
-        raise ValueError("Baseline report checkpoint path does not match")
-    if report_config.get("path") != config.experiment_config_path.as_posix():
-        raise ValueError("Baseline report config path does not match")
-    if report_standardizer.get("path") != baseline_config.standardizer_path.as_posix():
-        raise ValueError("Baseline report standardizer path does not match")
-    if splits != {
-        "train": baseline_config.expected_train_records,
-        "validation": baseline_config.expected_validation_records,
-    }:
-        raise ValueError("Baseline report split counts do not match configuration")
-    return hashes
-
-
-def _checkpoint_provenance(
-    report: dict[str, Any],
-    baseline_config: ExperimentConfig,
-    *,
-    expected_standardizer_sha256: str,
-) -> CheckpointProvenance:
-    try:
-        raw = report["artifacts"]["checkpoint"]["provenance"]
-        if not isinstance(raw, dict):
-            raise TypeError
-        provenance = CheckpointProvenance(**raw)
-        report_git_commit = report["run"]["git_commit"]
-    except (KeyError, TypeError, ValueError) as error:
-        raise ValueError("Baseline checkpoint provenance is invalid") from error
-    expected = CheckpointProvenance(
-        dataset_version=f"PTB-XL-{baseline_config.dataset_version}",
-        cohort_name=baseline_config.cohort_name,
-        preprocessing_sha256=expected_standardizer_sha256,
-        model_name="small_ecg_cnn",
-        seed=baseline_config.seed,
-        git_commit=provenance.git_commit,
-    )
-    if provenance != expected or report_git_commit != provenance.git_commit:
-        raise ValueError("Baseline checkpoint provenance does not match configuration")
-    return provenance
-
-
-def _validate_selected_checkpoint(
-    epoch: int,
-    validation_loss: float,
-    report: dict[str, Any],
-) -> None:
-    try:
-        expected_epoch = report["training"]["best_epoch"]
-        expected_loss = report["training"]["best_validation_loss"]
-    except (KeyError, TypeError) as error:
-        raise ValueError("Baseline report checkpoint selection is invalid") from error
-    if epoch != expected_epoch or validation_loss != expected_loss:
-        raise ValueError("Loaded checkpoint does not match baseline selection")
-
-
 def _validate_reproduced_ranking(metrics: Any, report: dict[str, Any]) -> None:
     try:
         expected = report["validation"]
@@ -444,16 +352,6 @@ def _validate_reproduced_ranking(metrics: Any, report: dict[str, Any]) -> None:
             mismatched.append(name)
     if mismatched:
         raise ValueError(f"Reproduced validation metrics do not match: {mismatched}")
-
-
-def _load_json_object(path: Path, name: str) -> dict[str, Any]:
-    try:
-        value = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
-        raise ValueError(f"Could not load {name}") from error
-    if not isinstance(value, dict):
-        raise TypeError(f"{name} must be a JSON object")
-    return value
 
 
 def _require_table(

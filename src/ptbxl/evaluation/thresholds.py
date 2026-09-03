@@ -122,8 +122,13 @@ class FrozenThresholds:
 
     name: str
     thresholds: ThresholdSet
+    dataset_name: str
+    dataset_version: str
+    cohort_name: str
     checkpoint_sha256: str
     preprocessing_sha256: str
+    experiment_config_sha256: str
+    experiment_report_sha256: str
     validation_predictions_sha256: str
     validation_samples: int
 
@@ -195,12 +200,18 @@ def compute_operating_metrics(
     )
 
 
-def fingerprint_predictions(predictions: PredictionSet) -> str:
-    """Hash ordered IDs, binary targets and float64 probabilities canonically."""
+def fingerprint_predictions(
+    predictions: PredictionSet,
+    *,
+    split: str = "validation",
+) -> str:
+    """Hash ordered IDs, binary targets and probabilities for one split."""
     if not isinstance(predictions, PredictionSet):
         raise TypeError("predictions must be a PredictionSet")
+    if split not in {"validation", "test"}:
+        raise ValueError("Prediction fingerprint split must be validation or test")
     digest = hashlib.sha256()
-    digest.update(b"ptbxl-validation-predictions-v1\0")
+    digest.update(f"ptbxl-{split}-predictions-v1\0".encode())
     digest.update(struct.pack("<QQ", *predictions.targets.shape))
     digest.update(np.asarray(predictions.ecg_ids, dtype="<i8").tobytes(order="C"))
     digest.update(np.asarray(predictions.targets, dtype="i1").tobytes(order="C"))
@@ -290,12 +301,9 @@ def load_frozen_thresholds(
         decision_rule=selection["decision_rule"],
         tie_break=selection["tie_break"],
     )
-    for source_name in (
-        "selection_config",
-        "experiment_config",
-        "experiment_report",
-    ):
-        _source_sha256(sources, source_name)
+    _source_sha256(sources, "selection_config")
+    experiment_config_sha256 = _source_sha256(sources, "experiment_config")
+    experiment_report_sha256 = _source_sha256(sources, "experiment_report")
     checkpoint_sha256 = _source_sha256(sources, "checkpoint")
     preprocessing_sha256 = _source_sha256(sources, "standardizer")
     predictions_sha256 = sources["validation_predictions_sha256"]
@@ -334,8 +342,13 @@ def load_frozen_thresholds(
     return FrozenThresholds(
         name=selection["name"],
         thresholds=thresholds,
+        dataset_name=dataset["name"],
+        dataset_version=dataset["version"],
+        cohort_name=dataset["cohort"],
         checkpoint_sha256=checkpoint_sha256,
         preprocessing_sha256=preprocessing_sha256,
+        experiment_config_sha256=experiment_config_sha256,
+        experiment_report_sha256=experiment_report_sha256,
         validation_predictions_sha256=predictions_sha256,
         validation_samples=samples,
     )

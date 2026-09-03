@@ -1,0 +1,230 @@
+{
+  "dataset": {
+    "cohort": "five_superclass_at_least_one_target",
+    "fold": 10,
+    "name": "PTB-XL",
+    "samples": 2158,
+    "split": "test",
+    "targets": [
+      "NORM",
+      "MI",
+      "STTC",
+      "CD",
+      "HYP"
+    ],
+    "version": "1.0.3"
+  },
+  "event": {
+    "git_commit": "056cdc4c27029f53cda5c3a6090fea864a9e1cf5",
+    "mode": "one_time_final_test",
+    "name": "baseline_small_cnn_100hz_final_test",
+    "repeat_evaluation_forbidden": true,
+    "test_driven_model_changes_forbidden": true
+  },
+  "limitations": [
+    "This is one internal PTB-XL test fold, not external validation.",
+    "No uncertainty interval or repeated-seed estimate is available.",
+    "The frozen operating point has no clinically defined error costs.",
+    "This final result is not evidence of clinical utility."
+  ],
+  "operating_point": {
+    "decision_rule": "probability_greater_than_or_equal_to_threshold",
+    "macro": {
+      "f1": 0.7253766434458576,
+      "precision": 0.7173560408814067,
+      "sensitivity": 0.7462298549629354,
+      "specificity": 0.8967218046662367
+    },
+    "method": "per_class_max_f1",
+    "micro": {
+      "f1": 0.7568415548195921,
+      "precision": 0.7371816638370119,
+      "sensitivity": 0.7775787965616046,
+      "specificity": 0.9032258064516129
+    },
+    "per_class": [
+      {
+        "f1": 0.842605801236329,
+        "false_negatives": 77,
+        "false_positives": 254,
+        "label": "NORM",
+        "negatives": 1195,
+        "positives": 963,
+        "precision": 0.7771929824561403,
+        "predicted_positives": 1140,
+        "sensitivity": 0.9200415368639667,
+        "specificity": 0.7874476987447698,
+        "threshold": 0.32776474952697754,
+        "true_negatives": 941,
+        "true_positives": 886
+      },
+      {
+        "f1": 0.6910167818361304,
+        "false_negatives": 200,
+        "false_positives": 113,
+        "label": "MI",
+        "negatives": 1608,
+        "positives": 550,
+        "precision": 0.755939524838013,
+        "predicted_positives": 463,
+        "sensitivity": 0.6363636363636364,
+        "specificity": 0.929726368159204,
+        "threshold": 0.511550784111023,
+        "true_negatives": 1495,
+        "true_positives": 350
+      },
+      {
+        "f1": 0.7552703941338221,
+        "false_negatives": 109,
+        "false_positives": 158,
+        "label": "STTC",
+        "negatives": 1637,
+        "positives": 521,
+        "precision": 0.7228070175438597,
+        "predicted_positives": 570,
+        "sensitivity": 0.7907869481765835,
+        "specificity": 0.9034819792302994,
+        "threshold": 0.38026294112205505,
+        "true_negatives": 1479,
+        "true_positives": 412
+      },
+      {
+        "f1": 0.7447973713033954,
+        "false_negatives": 156,
+        "false_positives": 77,
+        "label": "CD",
+        "negatives": 1662,
+        "positives": 496,
+        "precision": 0.815347721822542,
+        "predicted_positives": 417,
+        "sensitivity": 0.6854838709677419,
+        "specificity": 0.95367027677497,
+        "threshold": 0.38786107301712036,
+        "true_negatives": 1585,
+        "true_positives": 340
+      },
+      {
+        "f1": 0.593192868719611,
+        "false_negatives": 79,
+        "false_positives": 172,
+        "label": "HYP",
+        "negatives": 1896,
+        "positives": 262,
+        "precision": 0.5154929577464789,
+        "predicted_positives": 355,
+        "sensitivity": 0.6984732824427481,
+        "specificity": 0.9092827004219409,
+        "threshold": 0.14528490602970123,
+        "true_negatives": 1724,
+        "true_positives": 183
+      }
+    ],
+    "samples": 2158,
+    "thresholds": {
+      "CD": 0.38786107301712036,
+      "HYP": 0.14528490602970123,
+      "MI": 0.511550784111023,
+      "NORM": 0.32776474952697754,
+      "STTC": 0.38026294112205505
+    },
+    "tie_break": "highest_threshold"
+  },
+  "outputs": {
+    "prediction_artifact": {
+      "fingerprint": "578c8289e0c863b18603c71e2321c7e355e13686c0eb19547b51fe718c09a5d2",
+      "format": "npz_numeric_arrays_no_pickle",
+      "path": "artifacts/evaluation/baseline_small_cnn_100hz_final_test_predictions.npz",
+      "sha256": "07840774d81768cd7c97ea0a1ebe2b8498dda9f6f99361aaebb7a44e4415245f",
+      "version_control": "ignored"
+    }
+  },
+  "ranking": {
+    "macro_auprc": 0.7858496653733658,
+    "macro_auroc": 0.9088946764576574,
+    "micro_auprc": 0.8277150848143108,
+    "micro_auroc": 0.922858087372846,
+    "per_class": [
+      {
+        "auprc": 0.8998617377332048,
+        "auroc": 0.9279500514865939,
+        "label": "NORM",
+        "negatives": 1195,
+        "positives": 963,
+        "prevalence": 0.4462465245597776
+      },
+      {
+        "auprc": 0.7835956167724958,
+        "auroc": 0.9048643147896879,
+        "label": "MI",
+        "negatives": 1608,
+        "positives": 550,
+        "prevalence": 0.2548656163113994
+      },
+      {
+        "auprc": 0.8007758769327928,
+        "auroc": 0.9254734270006109,
+        "label": "STTC",
+        "negatives": 1637,
+        "positives": 521,
+        "prevalence": 0.24142724745134383
+      },
+      {
+        "auprc": 0.8201051197303745,
+        "auroc": 0.9060462035635262,
+        "label": "CD",
+        "negatives": 1662,
+        "positives": 496,
+        "prevalence": 0.22984244670991658
+      },
+      {
+        "auprc": 0.624909975697961,
+        "auroc": 0.8801393854478693,
+        "label": "HYP",
+        "negatives": 1896,
+        "positives": 262,
+        "prevalence": 0.12140871177015755
+      }
+    ],
+    "samples": 2158
+  },
+  "runtime": {
+    "cuda": "13.0",
+    "deterministic_algorithms": true,
+    "hardware": {
+      "accelerator_name": "NVIDIA GeForce RTX 3060 Ti",
+      "requested_device": "cuda",
+      "resolved_device": "cuda"
+    },
+    "numpy": "2.4.6",
+    "python": "3.11.15",
+    "scikit_learn": "1.9.0",
+    "torch": "2.13.0+cu130"
+  },
+  "schema_version": 1,
+  "sources": {
+    "checkpoint": {
+      "path": "artifacts/experiments/baseline_small_cnn_100hz.pt",
+      "sha256": "26d058b75dd486e0d81b75fea3cce44fabf6f7c625c57da79640caee6b5c9a11"
+    },
+    "experiment_config": {
+      "path": "configs/baseline_small_cnn_100hz.toml",
+      "sha256": "50b5b68f8497baf27101a92d550588f8817b6c47a4832267c8033d8ccea2d714"
+    },
+    "experiment_report": {
+      "path": "reports/experiments/baseline_small_cnn_100hz.json",
+      "sha256": "1c84a1e807c430d0d54eab89f9a47d6e930993091ceefc062b4b8580ad4f91b6"
+    },
+    "final_test_config": {
+      "path": "configs/final_test_small_cnn_100hz.toml",
+      "sha256": "5a63cba8974d1b46d3f05e87c02afd3ae57a3f41cc843620ef5f1317bd93dd0d"
+    },
+    "standardizer": {
+      "path": "reports/preprocessing/ptbxl_v1.0.3_train_global_standardizer.json",
+      "sha256": "f791aeb9795c669a54a391d979f69806ccdca19f05128a9fde8f408ec36090bc"
+    },
+    "threshold_artifact": {
+      "path": "reports/evaluation/baseline_small_cnn_100hz_thresholds.json",
+      "sha256": "f613843e9805f6087964f9ef0a963691bc5f61954ad68d1471efb067bf83b1ce"
+    }
+  }
+}

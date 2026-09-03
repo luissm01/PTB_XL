@@ -4,25 +4,30 @@ Last updated: 2026-09-03
 
 ## Current mission
 
-No active mission. Mission 015 completed validation-only threshold selection
-and freezing.
+Mission 016 — close the completed one-time fold-10 evaluation.
 
 ## Current step
 
-Mission 015 is complete in issue `#41` and pull request `#42`. D026 fixes the
-policy: maximize F1 independently per class on fold 9, choose the highest
-threshold on ties, and bind the artifact to complete provenance. The real
-selection from clean commit `d69e057` produced validation macro/micro F1 of
-`0.737768` / `0.767029`. Fold 10 remained sealed. The local gate passed with 176
-tests, Ruff lint, Ruff format and package build. GitHub is authoritative for PR
-checks and the squash-merge identity.
+Issue `#43`, branch `evaluation/43-final-test` and pull request `#44` are active.
+Commit `056cdc4` executed the frozen pipeline once on all 2,158 fold-10 ECGs.
+The report and local prediction artifact were reloaded read-only; fold 10 is
+now closed.
 
 ## Next actions
 
-1. Start an explicit, one-time final-test evaluation mission.
-2. Verify frozen preprocessing, checkpoint and threshold hashes before opening
-   any fold-10 signal.
-3. Record ranking and frozen-threshold metrics without tuning from the result.
+1. Use pull request `#44` checks as the merge gate.
+2. Merge, close issue `#43` and prune the branch.
+3. Pause before starting a new mission.
+
+## Mission 016 evidence
+
+- Final ranking macro/micro AUROC: `0.9088946765` / `0.9228580874`.
+- Final ranking macro/micro AUPRC: `0.7858496654` / `0.8277150848`.
+- Frozen-threshold macro/micro F1: `0.7253766434` / `0.7568415548`.
+- Prediction fingerprint: `578c8289e0c863b18603c71e2321c7e355e13686c0eb19547b51fe718c09a5d2`.
+- Prediction artifact SHA-256: `07840774d81768cd7c97ea0a1ebe2b8498dda9f6f99361aaebb7a44e4415245f`.
+- Aggregate report SHA-256: `ac5fa3510b8f5776068f279a878da5fb5c26b459381599f37bcb9e99b9d63cfb`.
+- No training, fitting, threshold selection or repeated test inference occurred.
 
 ## Operating mode for upcoming work
 
