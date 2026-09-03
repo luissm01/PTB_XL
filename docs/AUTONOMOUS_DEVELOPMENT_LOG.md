@@ -5,6 +5,73 @@ is away. Stable constraints remain in `docs/context/DECISIONS.md`, current work
 remains in `docs/context/STATUS.md` and detailed acceptance contracts remain in
 `docs/context/missions/`.
 
+## Mission 014 — Reproducible real baseline
+
+### Qué se hizo
+
+Se conectaron datos, standardizer, CNN, entrenamiento, checkpoint y métricas en
+un experimento configurado por TOML. La ejecución real entrenó con los 17.084
+ECG de folds 1–8 y evaluó el checkpoint restaurado con los 2.146 ECG de fold 9.
+
+### Por qué se hizo
+
+Los componentes aislados ya estaban probados, pero faltaba demostrar que el
+sistema completo podía producir un resultado real atribuible y repetible. Este
+baseline neutral crea la referencia desde la que comparar mejoras posteriores.
+
+### Decisiones técnicas y alternativas
+
+Se fijaron diez épocas, seed 2026, batch 128, Adam con learning rate 0,001 y
+`BCEWithLogitsLoss` sin pesos. La CNN conserva sus 38.597 parámetros originales.
+Se eligió un TOML y un JSON determinista en vez de introducir MLflow para una
+sola ejecución. El runner exige un commit limpio, algoritmos deterministas y
+workers sembrados.
+
+### Riesgos de leakage revisados
+
+El comando construye únicamente Dataset y DataLoader de train y validation. El
+standardizer sigue siendo el ajustado solo con train. No se calcularon
+thresholds, no se cambió retrospectivamente la configuración y no se abrió
+ninguna señal ni métrica de fold 10.
+
+### Archivos principales y tests
+
+- `configs/baseline_small_cnn_100hz.toml`
+- `src/ptbxl/experiments/baseline.py`
+- `scripts/run_baseline_experiment.py`
+- `tests/experiments/test_baseline.py`
+- `reports/experiments/baseline_small_cnn_100hz.json`
+- `docs/context/missions/014_run_reproducible_real_baseline.md`
+
+Los tests sintéticos cubren configuración estricta, procedencia Git, ejecución
+end-to-end, checkpoint cargable, reporte y conteos. También se verificó el modo
+determinista de PyTorch y se reutilizaron los contratos previos de entrenamiento
+y evaluación.
+
+### Resultados obtenidos
+
+La época 9 fue el primer mínimo de loss de validation (`0,294930`). En fold 9,
+el modelo obtuvo AUROC macro `0,915310`, AUPRC macro `0,785994`, AUROC micro
+`0,926058` y AUPRC micro `0,832366`. Por clase, AUPRC fue `0,9137` en NORM,
+`0,8039` en MI, `0,7620` en STTC, `0,8281` en CD y `0,6223` en HYP. El checkpoint
+ignorado se volvió a cargar en CPU y coincidieron época, historial, loss,
+procedencia y SHA-256. La puerta local final pasó con 158 tests, Ruff lint, Ruff
+format y build del paquete.
+
+### Qué debería entender el propietario
+
+Ya existe una primera medida real del modelo, pero pertenece a validation. Sirve
+para desarrollar y comparar; no debe presentarse como evaluación final ni como
+evidencia clínica. HYP es la señal más débil por AUPRC y también la menos
+frecuente, algo que convendrá analizar sin tocar nunca el test para decidir.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Por qué exigir un árbol Git limpio antes de un experimento?
+- ¿Qué aporta registrar hashes de configuración, fuentes y checkpoint?
+- ¿Por qué un buen AUROC de validation no autoriza una afirmación clínica?
+- ¿Por qué fold 10 sigue sellado después del primer entrenamiento real?
+
 ## Mission 013 — Split-safe multilabel validation evaluation
 
 ### Qué se hizo

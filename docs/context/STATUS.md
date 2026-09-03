@@ -9,16 +9,18 @@ train/validation baseline.
 
 ## Current step
 
-Issue `#39` and branch `experiment/39-real-baseline` are active. TOML loading,
-deterministic execution, end-to-end orchestration and structured reporting pass
-the targeted synthetic checks. A clean implementation commit is required before
-the attributed real run.
+Issue `#39` and branch `experiment/39-real-baseline` are active. The fixed
+ten-epoch run completed from clean commit `3b35e5f`: it used 17,084 train and
+2,146 validation ECGs, selected epoch 9 and recorded attributed ranking metrics.
+Fold 10 remained sealed. Documentation and the final quality gate are in
+progress before the single mission PR. The local gate now passes with 158 tests,
+Ruff lint, Ruff format and package build.
 
 ## Next actions
 
-1. Commit the runner, configuration and synthetic tests.
-2. Execute the fixed ten-epoch baseline on the local GPU using train/validation.
-3. Record observed results, run one final local gate and merge one PR.
+1. Commit the real report and closure documentation.
+2. Open the single mission PR and use its passing checks as the merge gate.
+3. Merge, verify the issue/branch handoff and stop.
 
 ## Operating mode for upcoming work
 
