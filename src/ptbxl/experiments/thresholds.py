@@ -105,6 +105,13 @@ class ThresholdExperimentConfig:
             raise ValueError("checkpoint_path must end in .pt")
         if self.artifact_path.suffix != ".json":
             raise ValueError("artifact_path must end in .json")
+        input_paths = {
+            self.experiment_config_path,
+            self.experiment_report_path,
+            self.checkpoint_path,
+        }
+        if self.artifact_path in input_paths:
+            raise ValueError("artifact_path must not overwrite an input")
 
 
 def load_threshold_experiment_config(
@@ -315,6 +322,7 @@ def _build_threshold_artifact(
         },
         "limitations": [
             "Thresholds maximize per-class F1 on internal validation only.",
+            "Validation operating metrics reuse the threshold-selection data and are optimistic.",
             "No clinical error costs or operating requirements were available.",
             "No final-test sample or metric was accessed.",
             "This operating point is not evidence of clinical utility.",
@@ -344,6 +352,11 @@ def _validate_baseline_inputs(
         splits = report["dataset"]["splits_used"]
     except (KeyError, TypeError) as error:
         raise ValueError("Baseline report is missing required provenance") from error
+    if not all(
+        isinstance(value, dict)
+        for value in (report_config, report_checkpoint, report_standardizer, splits)
+    ):
+        raise ValueError("Baseline report provenance must use JSON objects")
     expected = {
         "baseline config": (report_config.get("sha256"), hashes["experiment_config"]),
         "checkpoint": (report_checkpoint.get("sha256"), hashes["checkpoint"]),

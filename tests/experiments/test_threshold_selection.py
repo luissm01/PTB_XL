@@ -76,6 +76,30 @@ def test_rejects_unknown_threshold_configuration_field(
         load_threshold_experiment_config(config_path)
 
 
+def test_rejects_threshold_output_that_overwrites_an_input(
+    synthetic_threshold_experiment: tuple[ThresholdExperimentConfig, Path],
+) -> None:
+    _, config_path = synthetic_threshold_experiment
+    content = config_path.read_text(encoding="utf-8")
+    report_path = next(
+        line.split('"')[1]
+        for line in content.splitlines()
+        if line.startswith("experiment_report_path")
+    )
+    output_path = next(
+        line.split('"')[1]
+        for line in content.splitlines()
+        if line.startswith("artifact_path")
+    )
+    config_path.write_text(
+        content.replace(output_path, report_path),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="must not overwrite"):
+        load_threshold_experiment_config(config_path)
+
+
 def test_selects_synthetic_thresholds_without_modifying_checkpoint(
     synthetic_threshold_experiment: tuple[ThresholdExperimentConfig, Path],
 ) -> None:
@@ -103,6 +127,7 @@ def test_selects_synthetic_thresholds_without_modifying_checkpoint(
         config_path
     )
     assert artifact["sources"]["checkpoint"]["sha256"] == checkpoint_sha256
+    assert any("optimistic" in item for item in artifact["limitations"])
     frozen = load_frozen_thresholds(
         config.artifact_path,
         expected_checkpoint_sha256=checkpoint_sha256,
