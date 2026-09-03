@@ -4,20 +4,21 @@ Last updated: 2026-09-03
 
 ## Current mission
 
-Mission 016 — close the completed one-time fold-10 evaluation.
+No mission is active. Mission 016 is complete; pause before Mission 017.
 
 ## Current step
 
-Issue `#43`, branch `evaluation/43-final-test` and pull request `#44` are active.
-Commit `056cdc4` executed the frozen pipeline once on all 2,158 fold-10 ECGs.
-The report and local prediction artifact were reloaded read-only; fold 10 is
-now closed.
+Pull request `#44` passed Python quality and GitGuardian and was squash-merged
+as `c6005b2`; issue `#43` is closed and both mission branches are pruned. Commit
+`056cdc4` executed the frozen pipeline once on all 2,158 fold-10 ECGs. The
+report and local prediction artifact were reloaded read-only; fold 10 is closed.
 
 ## Next actions
 
-1. Use pull request `#44` checks as the merge gate.
-2. Merge, close issue `#43` and prune the branch.
-3. Pause before starting a new mission.
+1. Pause as requested before starting a new mission.
+2. On explicit continuation, define one cohesive Mission 017 toward reproducible
+   inference without using fold 10 for selection.
+3. Keep any later test error analysis descriptive and separate from tuning.
 
 ## Mission 016 evidence
 

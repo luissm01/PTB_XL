@@ -52,8 +52,7 @@ development set.
 - [x] The real event processes exactly 2,158 fold-10 ECGs once.
 - [x] The report records complete input/output hashes and final metrics.
 - [x] Documentation labels all post-test work descriptive and forbids tuning.
-- [x] The final local quality gate passed; PR `#44` is the authoritative merge
-  gate.
+- [x] The final local quality gate and PR `#44` merge gate passed.
 
 ## Out of scope
 
@@ -90,6 +89,5 @@ inference CLI.
 
 - Issue `#43`, implementation, final report, documentation and closure evidence
   are contained in pull request `#44`.
-- The PR is merged only if Python quality and GitGuardian pass.
-- GitHub records the authoritative check state, squash-merge identity and issue
-  closure.
+- Python quality and GitGuardian passed; the PR was squash-merged as `c6005b2`.
+- Issue `#43` is closed and local/remote mission branches are pruned.
