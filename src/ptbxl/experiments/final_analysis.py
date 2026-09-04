@@ -266,7 +266,12 @@ def run_final_analysis(
     verified_probabilities = np.asarray(
         [item.probability for item in verified_prediction.predictions]
     )
+    verified_decisions = tuple(
+        int(item.predicted) for item in verified_prediction.predictions
+    )
     saved_probabilities = saved.predictions.probabilities[selected.row_index]
+    if verified_decisions != selected.decisions:
+        raise ValueError("Selected-record CPU decisions do not match sealed decisions")
     if not np.allclose(
         verified_probabilities,
         saved_probabilities,

@@ -8,7 +8,7 @@ maximum_problematic_combinations = 5
 attribution_label = "HYP"
 attribution_kind = "false_negative"
 attribution_window_samples = 50
-prediction_tolerance = 0.00001
+prediction_tolerance = 0.0005
 
 [inputs]
 inference_config_path = "configs/inference_small_cnn_100hz.toml"

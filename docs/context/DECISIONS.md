@@ -415,7 +415,10 @@ inference rather than another evaluation path.
   model-selection evidence.
 - Use absolute input-gradient-times-input attribution on one deterministically
   selected HYP false negative, after checking its CPU score against the saved
-  prediction. This is a local sensitivity explanation, not clinical validation.
+  GPU prediction within `5e-4` and requiring identical frozen-threshold
+  decisions. This bounded tolerance acknowledges cross-device floating-point
+  differences; it is not permission for decision drift. Attribution remains a
+  local sensitivity explanation, not clinical validation.
 - Version compact static figures and their hashes, while leaving row-level
   predictions, checkpoints and raw ECGs ignored.
 - Declare Matplotlib directly because the final repository now renders figures;
