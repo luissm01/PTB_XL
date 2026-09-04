@@ -1,0 +1,104 @@
+{
+  "inference": {
+    "git_commit": "be0d297e5adb260611ecb718ebfc60417c1e3da5",
+    "mode": "single_record",
+    "name": "baseline_small_cnn_100hz"
+  },
+  "input": {
+    "lead_names": [
+      "I",
+      "II",
+      "III",
+      "AVR",
+      "AVL",
+      "AVF",
+      "V1",
+      "V2",
+      "V3",
+      "V4",
+      "V5",
+      "V6"
+    ],
+    "record_id": "ptbxl-train-ecg-1",
+    "record_path": "data/raw/ptb-xl/1.0.3/records100/00000/00001_lr",
+    "samples": 1000,
+    "sampling_frequency_hz": 100.0,
+    "signal_sha256": "9c0e90bb6b6b7f1d929aa60957a80a11c14be76d10cb5c9a7b9237be4b2c5467"
+  },
+  "limitations": [
+    "This experimental output is not a clinical diagnosis.",
+    "Sigmoid scores have not been calibrated as clinical probabilities.",
+    "Compatibility checks do not establish acquisition-domain equivalence.",
+    "The model has only internal PTB-XL evaluation, not external validation."
+  ],
+  "predictions": [
+    {
+      "label": "NORM",
+      "predicted": true,
+      "probability": 0.9147696495056152,
+      "threshold": 0.32776474952697754
+    },
+    {
+      "label": "MI",
+      "predicted": false,
+      "probability": 0.0254258681088686,
+      "threshold": 0.511550784111023
+    },
+    {
+      "label": "STTC",
+      "predicted": false,
+      "probability": 0.06605116277933121,
+      "threshold": 0.38026294112205505
+    },
+    {
+      "label": "CD",
+      "predicted": false,
+      "probability": 0.018326640129089355,
+      "threshold": 0.38786107301712036
+    },
+    {
+      "label": "HYP",
+      "predicted": false,
+      "probability": 0.0012135924771428108,
+      "threshold": 0.14528490602970123
+    }
+  ],
+  "runtime": {
+    "cuda": "13.0",
+    "deterministic_algorithms": true,
+    "hardware": {
+      "requested_device": "cpu",
+      "resolved_device": "cpu"
+    },
+    "numpy": "2.4.6",
+    "python": "3.11.15",
+    "torch": "2.13.0+cu130"
+  },
+  "schema_version": 1,
+  "sources": {
+    "checkpoint": {
+      "path": "artifacts/experiments/baseline_small_cnn_100hz.pt",
+      "sha256": "26d058b75dd486e0d81b75fea3cce44fabf6f7c625c57da79640caee6b5c9a11"
+    },
+    "experiment_config": {
+      "path": "configs/baseline_small_cnn_100hz.toml",
+      "sha256": "50b5b68f8497baf27101a92d550588f8817b6c47a4832267c8033d8ccea2d714"
+    },
+    "experiment_report": {
+      "path": "reports/experiments/baseline_small_cnn_100hz.json",
+      "sha256": "1c84a1e807c430d0d54eab89f9a47d6e930993091ceefc062b4b8580ad4f91b6"
+    },
+    "inference_config": {
+      "path": "configs/inference_small_cnn_100hz.toml",
+      "sha256": "132076cce10e032a91e4a5efcf4116d99ff2a39b60ac466e6411f5dfa8949458"
+    },
+    "standardizer": {
+      "path": "reports/preprocessing/ptbxl_v1.0.3_train_global_standardizer.json",
+      "sha256": "f791aeb9795c669a54a391d979f69806ccdca19f05128a9fde8f408ec36090bc"
+    },
+    "threshold_artifact": {
+      "path": "reports/evaluation/baseline_small_cnn_100hz_thresholds.json",
+      "sha256": "f613843e9805f6087964f9ef0a963691bc5f61954ad68d1471efb067bf83b1ce"
+    }
+  }
+}

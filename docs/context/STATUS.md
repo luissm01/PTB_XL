@@ -4,20 +4,31 @@ Last updated: 2026-09-04
 
 ## Current mission
 
-Mission 017 — add reproducible single-record ECG inference.
+Mission 017 — close reproducible single-record ECG inference.
 
 ## Current step
 
-Issue `#45` and branch `inference/45-reproducible-inference` are active. The
-contract will load one compatible WFDB record through the exact frozen
-preprocessing, checkpoint and thresholds without requiring labels or a split.
-Fold 10 remains closed and will not be read.
+Issue `#45` and branch `inference/45-reproducible-inference` are active. Commit
+`be0d297` implements the complete frozen-bundle pipeline and passed 198 tests,
+Ruff, format and build. A real CPU smoke on train `ecg_id=1` succeeded and its
+strict report was reloaded. Fold 10 remained closed.
 
 ## Next actions
 
-1. Implement strict frozen-bundle loading and single-record prediction.
-2. Add deterministic JSON output, CLI and synthetic end-to-end tests.
-3. Run one train-record smoke inference, document and close the mission.
+1. Commit the smoke report and final documentation.
+2. Open the mission's single PR and use its checks as merge gate.
+3. Merge, close issue `#45`, prune the branch and assess remaining portfolio
+   work without reopening fold 10.
+
+## Mission 017 evidence
+
+- Standalone WFDB inference needs no metadata, cohort, labels or split.
+- Exact hashes bind config, baseline report, checkpoint, standardizer and
+  thresholds before signal inference.
+- CPU smoke record `ptbxl-train-ecg-1` predicted only `NORM` positive.
+- Signal fingerprint: `9c0e90bb6b6b7f1d929aa60957a80a11c14be76d10cb5c9a7b9237be4b2c5467`.
+- Report SHA-256: `59e546296a10b4edc46459d2c5f83a5562a10b9a4a8d07fb7bf7a990fc5b4919`.
+- No train/validation/test target or fold was used by the inference API.
 
 ## Mission 016 evidence
 

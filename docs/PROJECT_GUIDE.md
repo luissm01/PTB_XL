@@ -5,9 +5,10 @@ qué se tomaron las decisiones actuales y cómo deberían construirse las etapas
 que faltan. Está pensada para poder leerla sin experiencia previa en ECG o deep
 learning y, al mismo tiempo, servir como material de preparación técnica.
 
-> **Estado de esta edición:** las misiones 001–016 están implementadas y
+> **Estado de esta edición:** las misiones 001–017 están implementadas y
 > verificadas. El baseline se entrenó con folds 1–8; fold 9 seleccionó el
-> checkpoint y los thresholds, y fold 10 se evaluó una sola vez y quedó cerrado.
+> checkpoint y los thresholds, fold 10 se evaluó una sola vez y quedó cerrado,
+> y el bundle congelado admite inferencia reproducible sobre un WFDB compatible.
 > Este proyecto es experimental y no está destinado a uso clínico.
 
 ## Cómo leer el estado de cada sección
@@ -622,8 +623,8 @@ es la referencia de la implementación fijada en scikit-learn 1.9.0.
 
 ## Parte 7 — Arquitectura de software
 
-**Estado: pipeline reproducible completo hasta la evaluación final interna;
-inferencia sobre señales nuevas pendiente.**
+**Estado: pipeline reproducible completo desde datos raw hasta evaluación final
+interna e inferencia sobre señales nuevas compatibles.**
 
 ### 7.1 Flujo actual
 
@@ -668,6 +669,9 @@ PTB-XL v1.0.3 + manifiestos SHA-256
                   |
                   v
  fold 10 una vez -> reporte agregado + predicciones locales cerradas
+
+WFDB compatible nuevo -> validar señal -> standardizer congelado
+                      -> checkpoint -> sigmoid + thresholds -> JSON
 ```
 
 Cada frontera valida su entrada antes de producir la siguiente. Así un fallo de
@@ -695,6 +699,7 @@ identidad o leakage aparece cerca de su causa, no durante el entrenamiento.
 | [`experiments/frozen.py`](../src/ptbxl/experiments/frozen.py) | comprobar conjuntamente configuración, reporte, checkpoint y preprocessing congelados |
 | [`experiments/thresholds.py`](../src/ptbxl/experiments/thresholds.py) | restaurar el baseline y congelar el operating point usando solo validation |
 | [`experiments/final_test.py`](../src/ptbxl/experiments/final_test.py) | ejecutar el test una vez con hashes exactos, sin entrenamiento ni selección |
+| [`inference.py`](../src/ptbxl/inference.py) | cargar el bundle congelado y convertir un WFDB compatible en scores, decisiones y reporte atribuible |
 
 Los scripts bajo [`scripts/`](../scripts/) son puntos de entrada reproducibles
 que coordinan estas funciones. La lógica reutilizable permanece bajo `src/` y
@@ -714,17 +719,32 @@ importantes con datos sintéticos pequeños.
 
 ### 7.4 Fronteras que quedan por construir
 
-Las siguientes fronteras mínimas quedan por añadir:
+La siguiente frontera de portfolio queda por añadir:
 
-1. análisis descriptivo de errores e interpretación, sin ajustar el pipeline;
-2. carga reproducible del artefacto e inferencia sobre señales nuevas.
+1. análisis descriptivo de errores e interpretación, sin ajustar el pipeline.
+
+### 7.5 Inferencia reproducible
+
+La inferencia recibe un basename WFDB independiente: no necesita que el ECG
+aparezca en `ptbxl_database.csv`, tenga targets ni pertenezca a un split. Primero
+valida 100 Hz, 1.000 muestras, valores finitos y el orden de las 12 derivaciones
+del standardizer. Después transforma con los dos escalares aprendidos en train,
+restaura solo el estado del modelo, calcula sigmoid y compara cada score con su
+threshold congelado.
+
+La configuración exige los hashes exactos de los cinco artefactos del bundle.
+Esto distingue reproducir una predicción de simplemente ejecutar una clase de
+modelo parecida. El JSON final no se sobrescribe, identifica la señal por una
+huella canónica de valores calibrados y cabecera, y deja claro que el score no
+es una probabilidad clínica calibrada.
 
 ---
 
 ## Parte 8 — MLOps y reproducibilidad
 
 **Estado: entorno, pruebas, CI, ejecución determinista y artefactos del baseline,
-thresholds y test final implementados; tracking avanzado no necesario aún.**
+thresholds, test final e inferencia implementados; tracking avanzado no
+necesario aún.**
 
 ### 8.1 Entorno reproducible
 
@@ -832,6 +852,12 @@ Dataset de test. Rechaza outputs existentes, no entrena y conserva las
 predicciones por fila en un NPZ local ignorado sin pickle. El JSON versionado
 registra su hash y una huella canónica independiente del contenedor.
 
+La inferencia añade otro TOML versionado con esas mismas identidades exactas y
+fija CPU por defecto para reducir variabilidad entre equipos. Su CLI exige un
+commit limpio, rechaza sobrescrituras y genera JSON determinista. Para predecir
+no recalcula ni requiere las tablas de cohorte/metadatos de entrenamiento: la
+integridad del bundle queda demostrada por sus artefactos congelados.
+
 Un sistema de tracking se justificará cuando existan suficientes experimentos
 para que archivos simples dejen de ser claros. Introducirlo antes añadiría una
 abstracción sin un problema real que resolver.
@@ -862,7 +888,8 @@ final en el test interno, que ya está cerrado.**
 | Baseline real | 17.084 ECG de train, 2.146 de validation y mejor checkpoint en época 9 |
 | Thresholds | cinco cutoffs por F1, métricas de punto operativo y artefacto vinculado por hashes |
 | Test final | 2.158 ECG de fold 10 evaluados una vez con pipeline completamente congelado |
-| Calidad de software | 187 tests, Ruff y build superados antes del evento final |
+| Inferencia | un WFDB independiente produce cinco scores/decisiones y un reporte con procedencia completa |
+| Calidad de software | 198 tests, Ruff y build superados al implementar inferencia |
 
 La mayor parte de la tabla demuestra ingeniería e integridad. Las filas del
 baseline y test contienen rendimiento predictivo interno, no evidencia clínica.
@@ -932,13 +959,21 @@ elegir cambios. El [reporte final](../reports/evaluation/baseline_small_cnn_100h
 conserva métricas, conteos, entorno y hashes; las predicciones por ECG quedan
 locales e ignoradas.
 
-### 9.5 Resultados que todavía no existen
+### 9.5 Smoke de inferencia
+
+El smoke de inferencia sobre `ecg_id=1` de train produjo `NORM` positivo y MI,
+STTC, CD y HYP negativos. Este ejemplo prueba el recorrido técnico completo; no
+es una evaluación adicional ni evidencia clínica. Su
+[reporte](../reports/inference/baseline_small_cnn_100hz_train_example.json)
+conserva los scores exactos, el fingerprint de señal y la identidad del bundle.
+
+### 9.6 Resultados que todavía no existen
 
 - comparación controlada de arquitecturas o estrategias de desbalance;
 - variabilidad entre seeds o intervalos de incertidumbre;
-- análisis de errores e interpretación;
+- análisis descriptivo de errores e interpretación.
 
-### 9.6 Limitaciones actuales
+### 9.7 Limitaciones actuales
 
 - Es un único entrenamiento con una seed y una arquitectura pequeña.
 - Solo existe una evaluación final interna, sin repetición entre seeds ni
@@ -1062,11 +1097,10 @@ convertirse después en otra ronda de tuning.
 
 ### 10.16 ¿Qué harías a continuación y por qué?
 
-Haría análisis descriptivo de errores e interpretación sin modificar el
-pipeline, y construiría una entrada de inferencia que cargue exactamente
-preprocessing, checkpoint y thresholds congelados. Cualquier nuevo modelo sería
-otro experimento y necesitaría un nuevo protocolo de evaluación, no reutilizar
-este test para seleccionar.
+Haría análisis descriptivo de errores e interpretación sobre las predicciones
+ya guardadas, sin modificar el pipeline. Cualquier nuevo modelo sería otro
+experimento y necesitaría un nuevo protocolo de evaluación, no reutilizar este
+test para seleccionar.
 
 ### 10.17 ¿Qué limitación temporal tiene la primera CNN?
 
@@ -1083,6 +1117,14 @@ alto en caso de empate. F1 aporta un equilibrio neutral entre precision y
 sensibilidad cuando no existen costes clínicos definidos. Usar thresholds por
 clase reconoce que prevalencia y distribución de scores difieren. Los valores,
 la regla `>=`, los conteos y los hashes quedaron congelados antes de abrir test.
+
+### 10.19 ¿Qué hace reproducible una predicción nueva?
+
+No basta con conservar los pesos. La predicción vincula código limpio,
+arquitectura, standardizer, checkpoint y thresholds por hashes; valida forma,
+frecuencia y orden de leads; registra una huella del ECG y las versiones de
+runtime. Así puede explicarse exactamente qué datos y transformaciones
+produjeron cada decisión, dentro de los límites de reproducibilidad numérica.
 
 ---
 
@@ -1106,6 +1148,7 @@ Evidencia versionada del proyecto:
 - [primer baseline real](../reports/experiments/baseline_small_cnn_100hz.json)
 - [thresholds congelados](../reports/evaluation/baseline_small_cnn_100hz_thresholds.json)
 - [evaluación final única](../reports/evaluation/baseline_small_cnn_100hz_final_test.json)
+- [smoke de inferencia reproducible](../reports/inference/baseline_small_cnn_100hz_train_example.json)
 
 ## Cómo mantener esta guía
 

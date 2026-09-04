@@ -16,12 +16,14 @@ implemented, together with validation-selected multi-epoch fitting, safe
 checkpoints and split-safe multilabel ranking metrics. The first configured
 baseline trained on folds 1–8, selected its checkpoint and per-class F1
 thresholds using fold 9, and completed its one-time final evaluation on fold
-10. That final fold is now closed to further model or threshold decisions.
+10. That final fold is now closed to further model or threshold decisions. A
+reproducible CLI can now apply the exact frozen bundle to a compatible standalone
+WFDB ECG without dataset labels or split metadata.
 
 ## Project documentation
 
 - [Living project guide](docs/PROJECT_GUIDE.md): an accessible explanation of
-  ECG foundations, data, leakage, preprocessing, planned modeling, evaluation,
+  ECG foundations, data, leakage, preprocessing, modeling, evaluation,
   architecture, reproducibility, current evidence and interview questions.
 - [Current status](docs/context/STATUS.md): the active handoff and next action.
 - [Stable decisions](docs/context/DECISIONS.md): constraints that remain valid
@@ -336,5 +338,30 @@ The command in `scripts/evaluate_final_test.py` is retained for auditability,
 but its outputs already exist and its one-time guard forbids another execution.
 These results may support descriptive error analysis only; they must not be
 used to retune or replace the frozen pipeline.
+
+## Predict a compatible ECG
+
+With the ignored baseline checkpoint available locally, pass a WFDB basename
+without `.hea` or `.dat` and choose a new JSON output path:
+
+```bash
+uv run --locked python scripts/predict_ecg.py \
+  path/to/record_basename \
+  --record-id example-001 \
+  --output-path reports/inference/example-001.json
+```
+
+The record must contain exactly 1,000 samples at 100 Hz and the 12 canonical
+leads in order. The command verifies the exact configuration, report,
+checkpoint, train-fitted standardizer and validation-selected thresholds before
+loading the ECG. It then applies frozen preprocessing, one model forward pass,
+sigmoid and the five frozen decision thresholds.
+
+The non-overwriting output records input fingerprint, five ordered scores and
+decisions, all artifact hashes and runtime versions. It needs neither PTB-XL
+metadata nor labels. A verified train-record smoke output is available in the
+[`inference example`](reports/inference/baseline_small_cnn_100hz_train_example.json).
+Scores are experimental, are not clinically calibrated probabilities and do
+not constitute diagnoses.
 
 This project is experimental and is not intended for clinical use.
