@@ -433,22 +433,18 @@ def _validate_attribution_record(value: Any) -> None:
     _validate_sha256(value["signal_sha256"], "attribution.signal_sha256")
     for field in ("targets", "decisions"):
         mapping = value[field]
-        if not isinstance(mapping, Mapping) or list(mapping) != list(
-            TARGET_SUPERCLASSES
-        ):
+        if not isinstance(mapping, Mapping) or set(mapping) != set(TARGET_SUPERCLASSES):
             raise ValueError(f"Final-analysis attribution {field} are invalid")
         if any(item not in {0, 1} for item in mapping.values()):
             raise ValueError(f"Final-analysis attribution {field} must be binary")
     probabilities = []
     for field in ("saved_probabilities", "verified_cpu_probabilities"):
         mapping = value[field]
-        if not isinstance(mapping, Mapping) or list(mapping) != list(
-            TARGET_SUPERCLASSES
-        ):
+        if not isinstance(mapping, Mapping) or set(mapping) != set(TARGET_SUPERCLASSES):
             raise ValueError(f"Final-analysis attribution {field} are invalid")
         for probability in mapping.values():
             _require_rate(probability, float(probability), field)
-        probabilities.append(list(map(float, mapping.values())))
+        probabilities.append([float(mapping[label]) for label in TARGET_SUPERCLASSES])
     maximum_difference = max(
         abs(saved - verified) for saved, verified in zip(*probabilities, strict=True)
     )
