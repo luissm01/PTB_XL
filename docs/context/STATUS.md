@@ -4,21 +4,22 @@ Last updated: 2026-09-04
 
 ## Current mission
 
-Mission 017 — close reproducible single-record ECG inference.
+Mission 018 — complete post-hoc analysis and final portfolio handoff.
 
 ## Current step
 
-Mission delivery is tracked by pull request `#46`; GitHub is authoritative for
-its merge and issue state. Commit `be0d297` implements the complete
-frozen-bundle pipeline and passed 198 tests, Ruff, format and build. A real CPU
-smoke on train `ecg_id=1` succeeded and its strict report was reloaded. Fold 10
-remained closed.
+Issue `#47` and branch `analysis/47-final-error-interpretability` are active.
+Mission 017 merged through PR `#46` at `82b97a1`; reproducible inference is
+complete. The final mission will describe the already saved test predictions,
+add proportional attribution and figures, then audit the full Definition of
+Done without changing the frozen model.
 
 ## Next actions
 
-1. Use pull request `#46` checks as the mission merge gate.
-2. If green, squash-merge it, close issue `#45` and prune the branch.
-3. Assess remaining portfolio work without reopening fold 10.
+1. Implement strict saved-prediction error analysis and tested attribution.
+2. Produce one real post-hoc report and four portfolio figures without
+   repeating fold-10 evaluation.
+3. Complete the documentation, final audit and mission PR.
 
 ## Mission 017 evidence
 
