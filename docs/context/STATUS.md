@@ -8,17 +8,17 @@ Mission 017 — close reproducible single-record ECG inference.
 
 ## Current step
 
-Issue `#45` and branch `inference/45-reproducible-inference` are active. Commit
-`be0d297` implements the complete frozen-bundle pipeline and passed 198 tests,
-Ruff, format and build. A real CPU smoke on train `ecg_id=1` succeeded and its
-strict report was reloaded. Fold 10 remained closed.
+Mission delivery is tracked by pull request `#46`; GitHub is authoritative for
+its merge and issue state. Commit `be0d297` implements the complete
+frozen-bundle pipeline and passed 198 tests, Ruff, format and build. A real CPU
+smoke on train `ecg_id=1` succeeded and its strict report was reloaded. Fold 10
+remained closed.
 
 ## Next actions
 
-1. Commit the smoke report and final documentation.
-2. Open the mission's single PR and use its checks as merge gate.
-3. Merge, close issue `#45`, prune the branch and assess remaining portfolio
-   work without reopening fold 10.
+1. Use pull request `#46` checks as the mission merge gate.
+2. If green, squash-merge it, close issue `#45` and prune the branch.
+3. Assess remaining portfolio work without reopening fold 10.
 
 ## Mission 017 evidence
 

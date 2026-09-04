@@ -7,6 +7,7 @@ binary decisions through a simple, attributable command.
 
 - Issue: `#45` — `[INFERENCE] Add reproducible single-record ECG inference`.
 - Branch: `inference/45-reproducible-inference`.
+- Pull request: `#46` — the authoritative merge gate and issue closure.
 - Attributed smoke commit: `be0d297e5adb260611ecb718ebfc60417c1e3da5`.
 
 ## Contract
