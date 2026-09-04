@@ -211,14 +211,51 @@ def load_training_checkpoint(
     device: torch.device,
     expected_provenance: CheckpointProvenance | None = None,
 ) -> LoadedCheckpoint:
-    """Validate and restore a checkpoint using PyTorch weights-only loading."""
+    """Validate and restore model plus optimizer from a safe checkpoint."""
+    return _load_checkpoint(
+        path,
+        model,
+        optimizer,
+        device=device,
+        expected_provenance=expected_provenance,
+    )
+
+
+def load_model_checkpoint(
+    path: str | Path,
+    model: nn.Module,
+    *,
+    device: torch.device,
+    expected_provenance: CheckpointProvenance | None = None,
+) -> LoadedCheckpoint:
+    """Validate a safe checkpoint and restore only its selected model state."""
+    return _load_checkpoint(
+        path,
+        model,
+        None,
+        device=device,
+        expected_provenance=expected_provenance,
+    )
+
+
+def _load_checkpoint(
+    path: str | Path,
+    model: nn.Module,
+    optimizer: Optimizer | None,
+    *,
+    device: torch.device,
+    expected_provenance: CheckpointProvenance | None,
+) -> LoadedCheckpoint:
     try:
         payload = torch.load(Path(path), map_location=device, weights_only=True)
     except FileNotFoundError:
         raise
     except Exception as error:
         raise ValueError("Checkpoint could not be loaded safely") from error
-    if not isinstance(payload, dict) or payload.get("schema_version") != 1:
+    if (
+        not isinstance(payload, dict)
+        or payload.get("schema_version") != CHECKPOINT_SCHEMA_VERSION
+    ):
         raise ValueError("Checkpoint schema_version is invalid")
     required = {
         "epoch",
@@ -230,6 +267,8 @@ def load_training_checkpoint(
     }
     if missing := sorted(required - payload.keys()):
         raise ValueError(f"Checkpoint is missing fields: {missing}")
+    if unexpected := sorted(payload.keys() - {"schema_version", *required}):
+        raise ValueError(f"Checkpoint has unexpected fields: {unexpected}")
     provenance = _deserialize_provenance(payload["provenance"])
     if expected_provenance is not None and provenance != expected_provenance:
         raise ValueError("Checkpoint provenance does not match expected provenance")
@@ -240,11 +279,11 @@ def load_training_checkpoint(
     try:
         model.to(device)
         model.load_state_dict(payload["model_state_dict"])
-        optimizer.load_state_dict(payload["optimizer_state_dict"])
+        if optimizer is not None:
+            optimizer.load_state_dict(payload["optimizer_state_dict"])
     except Exception as error:
-        raise ValueError(
-            "Checkpoint state is incompatible with model or optimizer"
-        ) from error
+        target = "model or optimizer" if optimizer is not None else "model"
+        raise ValueError(f"Checkpoint state is incompatible with {target}") from error
     return LoadedCheckpoint(epoch, float(validation_loss), history, provenance)
 
 

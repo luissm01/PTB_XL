@@ -7,6 +7,7 @@ from typing import Any
 
 from ptbxl.data import TARGET_SUPERCLASSES
 from ptbxl.data.reporting import compute_sha256
+from ptbxl.evaluation.thresholds import FrozenThresholds
 from ptbxl.experiments.baseline import ExperimentConfig, load_experiment_config
 from ptbxl.training import CheckpointProvenance, LoadedCheckpoint
 
@@ -18,8 +19,8 @@ class FrozenBaselineHashes:
     experiment_config: str
     experiment_report: str
     checkpoint: str
-    cohort: str
-    metadata: str
+    cohort: str | None
+    metadata: str | None
     standardizer: str
 
 
@@ -37,8 +38,12 @@ def load_frozen_baseline(
     experiment_config_path: str | Path,
     experiment_report_path: str | Path,
     checkpoint_path: str | Path,
+    *,
+    verify_dataset_sources: bool = True,
 ) -> FrozenBaseline:
-    """Load and cross-check every frozen baseline input before inference."""
+    """Cross-check a frozen baseline, optionally including training tables."""
+    if not isinstance(verify_dataset_sources, bool):
+        raise TypeError("verify_dataset_sources must be boolean")
     config_path = Path(experiment_config_path)
     report_path = Path(experiment_report_path)
     requested_checkpoint = Path(checkpoint_path)
@@ -50,8 +55,10 @@ def load_frozen_baseline(
         experiment_config=compute_sha256(config_path),
         experiment_report=compute_sha256(report_path),
         checkpoint=compute_sha256(requested_checkpoint),
-        cohort=compute_sha256(config.cohort_path),
-        metadata=compute_sha256(config.metadata_path),
+        cohort=compute_sha256(config.cohort_path) if verify_dataset_sources else None,
+        metadata=(
+            compute_sha256(config.metadata_path) if verify_dataset_sources else None
+        ),
         standardizer=compute_sha256(config.standardizer_path),
     )
     try:
@@ -77,8 +84,6 @@ def load_frozen_baseline(
         expected_hashes = {
             "baseline config": (report_config["sha256"], hashes.experiment_config),
             "checkpoint": (report_checkpoint["sha256"], hashes.checkpoint),
-            "cohort": (report_sources["cohort"]["sha256"], hashes.cohort),
-            "metadata": (report_sources["metadata"]["sha256"], hashes.metadata),
             "standardizer": (
                 report_sources["standardizer"]["sha256"],
                 hashes.standardizer,
@@ -99,6 +104,13 @@ def load_frozen_baseline(
         }
     except (KeyError, TypeError) as error:
         raise ValueError("Baseline report source provenance is invalid") from error
+    if verify_dataset_sources:
+        expected_hashes.update(
+            {
+                "cohort": (report_sources["cohort"]["sha256"], hashes.cohort),
+                "metadata": (report_sources["metadata"]["sha256"], hashes.metadata),
+            }
+        )
     mismatched_hashes = [
         name
         for name, (recorded, actual) in expected_hashes.items()
@@ -151,6 +163,65 @@ def validate_loaded_checkpoint(
         raise ValueError("Loaded checkpoint provenance does not match frozen baseline")
     if loaded.epoch != expected_epoch or loaded.validation_loss != expected_loss:
         raise ValueError("Loaded checkpoint does not match baseline selection")
+
+
+def validate_frozen_baseline_hashes(
+    frozen: FrozenBaseline,
+    *,
+    experiment_config_sha256: str,
+    experiment_report_sha256: str,
+    checkpoint_sha256: str,
+    standardizer_sha256: str,
+) -> None:
+    """Require a frozen baseline to equal four externally declared hashes."""
+    if not isinstance(frozen, FrozenBaseline):
+        raise TypeError("frozen must be a FrozenBaseline")
+    expected = {
+        "experiment config": (
+            frozen.hashes.experiment_config,
+            experiment_config_sha256,
+        ),
+        "experiment report": (
+            frozen.hashes.experiment_report,
+            experiment_report_sha256,
+        ),
+        "checkpoint": (frozen.hashes.checkpoint, checkpoint_sha256),
+        "standardizer": (frozen.hashes.standardizer, standardizer_sha256),
+    }
+    mismatched = [name for name, values in expected.items() if values[0] != values[1]]
+    if mismatched:
+        raise ValueError(f"Frozen baseline SHA-256 mismatch: {mismatched}")
+
+
+def validate_frozen_threshold_binding(
+    frozen: FrozenBaseline,
+    thresholds: FrozenThresholds,
+) -> None:
+    """Require thresholds to originate from the same frozen baseline bundle."""
+    if not isinstance(frozen, FrozenBaseline):
+        raise TypeError("frozen must be a FrozenBaseline")
+    if not isinstance(thresholds, FrozenThresholds):
+        raise TypeError("thresholds must be FrozenThresholds")
+    expected = {
+        "dataset name": (thresholds.dataset_name, "PTB-XL"),
+        "dataset version": (thresholds.dataset_version, frozen.config.dataset_version),
+        "cohort": (thresholds.cohort_name, frozen.config.cohort_name),
+        "experiment config": (
+            thresholds.experiment_config_sha256,
+            frozen.hashes.experiment_config,
+        ),
+        "experiment report": (
+            thresholds.experiment_report_sha256,
+            frozen.hashes.experiment_report,
+        ),
+        "standardizer": (
+            thresholds.preprocessing_sha256,
+            frozen.hashes.standardizer,
+        ),
+    }
+    mismatched = [name for name, values in expected.items() if values[0] != values[1]]
+    if mismatched:
+        raise ValueError(f"Threshold artifact binding mismatch: {mismatched}")
 
 
 def _checkpoint_provenance(

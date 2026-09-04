@@ -1,24 +1,23 @@
 # Project status
 
-Last updated: 2026-09-03
+Last updated: 2026-09-04
 
 ## Current mission
 
-No mission is active. Mission 016 is complete; pause before Mission 017.
+Mission 017 — add reproducible single-record ECG inference.
 
 ## Current step
 
-Pull request `#44` passed Python quality and GitGuardian and was squash-merged
-as `c6005b2`; issue `#43` is closed and both mission branches are pruned. Commit
-`056cdc4` executed the frozen pipeline once on all 2,158 fold-10 ECGs. The
-report and local prediction artifact were reloaded read-only; fold 10 is closed.
+Issue `#45` and branch `inference/45-reproducible-inference` are active. The
+contract will load one compatible WFDB record through the exact frozen
+preprocessing, checkpoint and thresholds without requiring labels or a split.
+Fold 10 remains closed and will not be read.
 
 ## Next actions
 
-1. Pause as requested before starting a new mission.
-2. On explicit continuation, define one cohesive Mission 017 toward reproducible
-   inference without using fold 10 for selection.
-3. Keep any later test error analysis descriptive and separate from tuning.
+1. Implement strict frozen-bundle loading and single-record prediction.
+2. Add deterministic JSON output, CLI and synthetic end-to-end tests.
+3. Run one train-record smoke inference, document and close the mission.
 
 ## Mission 016 evidence
 

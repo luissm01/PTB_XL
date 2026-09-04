@@ -10,6 +10,8 @@ from ptbxl.experiments.frozen import (
     FrozenBaseline,
     FrozenBaselineHashes,
     load_frozen_baseline,
+    validate_frozen_baseline_hashes,
+    validate_frozen_threshold_binding,
     validate_loaded_checkpoint,
 )
 from ptbxl.experiments.final_test import (
@@ -37,5 +39,7 @@ __all__ = [
     "run_baseline_experiment",
     "run_final_test_evaluation",
     "run_validation_threshold_selection",
+    "validate_frozen_baseline_hashes",
+    "validate_frozen_threshold_binding",
     "validate_loaded_checkpoint",
 ]

@@ -8,6 +8,7 @@ from ptbxl.training.fit import (
     FitResult,
     LoadedCheckpoint,
     fit,
+    load_model_checkpoint,
     load_training_checkpoint,
     save_training_checkpoint,
 )
@@ -27,6 +28,7 @@ __all__ = [
     "configure_deterministic_execution",
     "evaluate_loss",
     "fit",
+    "load_model_checkpoint",
     "load_training_checkpoint",
     "resolve_device",
     "seed_random_generators",

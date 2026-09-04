@@ -40,21 +40,37 @@ def load_signal_for_row(
 
     ecg_id = _coerce_ecg_id(row["ecg_id"])
     record_path = _resolve_record_path(row["filename_lr"], dataset_root, ecg_id)
+    return _load_wfdb_record(record_path, identity=f"ecg_id {ecg_id}")
+
+
+def load_wfdb_record(record_path: str | Path) -> ECGSignal:
+    """Load a standalone WFDB basename without dataset identity metadata."""
+    if isinstance(record_path, str) and not record_path.strip():
+        raise ValueError("WFDB record path must be non-empty")
+    try:
+        path = Path(record_path)
+    except TypeError as error:
+        raise TypeError("WFDB record path must be a string or pathlib.Path") from error
+    if path.suffix:
+        raise ValueError("WFDB record path must be a basename without an extension")
+    path = path.resolve()
+    return _load_wfdb_record(path, identity="standalone input")
+
+
+def _load_wfdb_record(record_path: Path, *, identity: str) -> ECGSignal:
     header_path = Path(f"{record_path}.hea")
     if not header_path.is_file():
-        raise FileNotFoundError(
-            f"WFDB header not found for ecg_id {ecg_id}: {header_path}"
-        )
+        raise FileNotFoundError(f"WFDB header not found for {identity}: {header_path}")
 
     try:
         signal, fields = wfdb.rdsamp(str(record_path))
     except FileNotFoundError as exc:
         raise FileNotFoundError(
-            f"WFDB record file missing for ecg_id {ecg_id}: {record_path}"
+            f"WFDB record file missing for {identity}: {record_path}"
         ) from exc
     except Exception as exc:
         raise SignalLoadError(
-            f"Could not read WFDB record for ecg_id {ecg_id}: {record_path}"
+            f"Could not read WFDB record for {identity}: {record_path}"
         ) from exc
 
     try:
@@ -62,7 +78,7 @@ def load_signal_for_row(
         lead_names = tuple(str(name) for name in fields["sig_name"])
     except (KeyError, TypeError, ValueError) as exc:
         raise SignalLoadError(
-            f"WFDB header fields are invalid for ecg_id {ecg_id}: {record_path}"
+            f"WFDB header fields are invalid for {identity}: {record_path}"
         ) from exc
 
     return ECGSignal(
