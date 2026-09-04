@@ -34,6 +34,8 @@ from ptbxl.evaluation import (
 from ptbxl.experiments.frozen import (
     FrozenBaseline,
     load_frozen_baseline,
+    validate_frozen_baseline_hashes,
+    validate_frozen_threshold_binding,
     validate_loaded_checkpoint,
 )
 from ptbxl.models import SmallECGCNN
@@ -225,7 +227,13 @@ def run_final_test_evaluation(
         config.experiment_report_path,
         config.checkpoint_path,
     )
-    _validate_declared_baseline_hashes(config, frozen)
+    validate_frozen_baseline_hashes(
+        frozen,
+        experiment_config_sha256=config.experiment_config_sha256,
+        experiment_report_sha256=config.experiment_report_sha256,
+        checkpoint_sha256=config.checkpoint_sha256,
+        standardizer_sha256=config.standardizer_sha256,
+    )
     threshold_artifact_sha256 = compute_sha256(config.threshold_artifact_path)
     if threshold_artifact_sha256 != config.threshold_artifact_sha256:
         raise ValueError("Threshold artifact SHA-256 does not match final-test config")
@@ -233,7 +241,7 @@ def run_final_test_evaluation(
         config.threshold_artifact_path,
         expected_checkpoint_sha256=frozen.hashes.checkpoint,
     )
-    _validate_threshold_binding(frozen, frozen_thresholds)
+    validate_frozen_threshold_binding(frozen, frozen_thresholds)
 
     baseline_config = frozen.config
     cohort = pd.read_csv(baseline_config.cohort_path)
@@ -432,53 +440,6 @@ def _build_final_test_report(
             "This final result is not evidence of clinical utility.",
         ],
     }
-
-
-def _validate_threshold_binding(
-    frozen: FrozenBaseline,
-    thresholds: FrozenThresholds,
-) -> None:
-    expected = {
-        "dataset name": (thresholds.dataset_name, "PTB-XL"),
-        "dataset version": (thresholds.dataset_version, frozen.config.dataset_version),
-        "cohort": (thresholds.cohort_name, frozen.config.cohort_name),
-        "experiment config": (
-            thresholds.experiment_config_sha256,
-            frozen.hashes.experiment_config,
-        ),
-        "experiment report": (
-            thresholds.experiment_report_sha256,
-            frozen.hashes.experiment_report,
-        ),
-        "standardizer": (
-            thresholds.preprocessing_sha256,
-            frozen.hashes.standardizer,
-        ),
-    }
-    mismatched = [name for name, values in expected.items() if values[0] != values[1]]
-    if mismatched:
-        raise ValueError(f"Threshold artifact binding mismatch: {mismatched}")
-
-
-def _validate_declared_baseline_hashes(
-    config: FinalTestConfig,
-    frozen: FrozenBaseline,
-) -> None:
-    expected = {
-        "experiment config": (
-            frozen.hashes.experiment_config,
-            config.experiment_config_sha256,
-        ),
-        "experiment report": (
-            frozen.hashes.experiment_report,
-            config.experiment_report_sha256,
-        ),
-        "checkpoint": (frozen.hashes.checkpoint, config.checkpoint_sha256),
-        "standardizer": (frozen.hashes.standardizer, config.standardizer_sha256),
-    }
-    mismatched = [name for name, values in expected.items() if values[0] != values[1]]
-    if mismatched:
-        raise ValueError(f"Frozen baseline SHA-256 mismatch: {mismatched}")
 
 
 def _require_outputs_absent(config: FinalTestConfig) -> None:

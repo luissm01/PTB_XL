@@ -381,3 +381,24 @@ utility function.
 Why: test estimates how the already selected system generalizes. Repeated use
 or result-driven changes would make it another validation set and invalidate
 the meaning of the final estimate.
+
+## D028 — Inference accepts a compatible WFDB record and a frozen bundle
+
+- Accept one WFDB record basename independently of PTB-XL metadata, cohort,
+  labels or split membership.
+- Require the technical training contract: 100 Hz, 1,000 samples, 12 finite
+  numeric leads in the standardizer's canonical order.
+- Load the baseline configuration/report, train-fitted standardizer, selected
+  checkpoint and validation-selected thresholds only when their exact declared
+  SHA-256 identities and cross-artifact provenance agree.
+- Apply the frozen standardizer, one model forward pass, sigmoid and the fixed
+  per-class `probability >= threshold` rule without fitting or selection.
+- Emit deterministic JSON containing ordered probabilities, decisions, input
+  fingerprint, artifact hashes, runtime and limitations; refuse overwrite.
+- Keep the interface as a local CLI. Do not add a web API, container or new
+  dependency until a concrete deployment need exists.
+
+Why: a small file-to-prediction boundary demonstrates that the trained system
+can actually be reused while preventing silent drift in signal format or model
+artifacts. Independence from labels and dataset tables makes it genuine
+inference rather than another evaluation path.

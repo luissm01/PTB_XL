@@ -5,6 +5,53 @@ is away. Stable constraints remain in `docs/context/DECISIONS.md`, current work
 remains in `docs/context/STATUS.md` and detailed acceptance contracts remain in
 `docs/context/missions/`.
 
+## Mission 017 — Reproducible single-record inference
+
+### Qué se hizo
+
+Se construyó una CLI que recibe un basename WFDB compatible y produce los cinco
+scores y decisiones del baseline congelado. Verifica los hashes y procedencia
+de configuración, reporte, checkpoint, standardizer y thresholds; valida la
+señal; restaura solo el modelo; y escribe un JSON estricto sin sobrescribir.
+
+### Por qué se hizo
+
+Un entrenamiento reproducible no demuestra por sí solo que el artefacto pueda
+reutilizarse. Esta frontera conecta un ECG nuevo con exactamente el mismo
+preprocessing, pesos y operating point evaluados, sin convertir inferencia en
+otra ruta de evaluación ni exigir labels o tablas de PTB-XL.
+
+### Decisiones técnicas y riesgos
+
+La entrada conserva el formato WFDB de entrenamiento y exige 100 Hz, 1.000
+muestras, valores finitos y orden canónico de leads. Se eligió una CLI local y
+CPU por defecto frente a API web, Docker o infraestructura adicional. La huella
+canónica identifica valores calibrados y cabecera; el reporte registra además
+todos los hashes y versiones. Los scores sigmoid no se presentan como
+probabilidades clínicas calibradas.
+
+### Resultados obtenidos
+
+Las 198 pruebas, Ruff y build pasaron. El smoke desde el commit limpio
+`be0d297` procesó `ecg_id=1` de train sin consultar targets y decidió solo NORM
+positivo. El reporte se recargó estrictamente contra el checkpoint esperado y
+su SHA-256 fue `59e546296a10b4edc46459d2c5f83a5562a10b9a4a8d07fb7bf7a990fc5b4919`.
+Fold 10 no se leyó ni se volvió a evaluar.
+
+### Qué debería entender el propietario
+
+Para reproducir una decisión hacen falta más elementos que los pesos: formato
+de entrada, preprocessing, arquitectura, thresholds, código y runtime. La CLI
+registra esas identidades y falla ante drift, pero no resuelve validación
+externa, calibración clínica, monitorización ni serving.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Por qué inferencia no debería depender de labels ni de un split?
+- ¿Por qué se restaura solo el modelo y no el optimizador?
+- ¿Qué aporta el fingerprint de señal frente a guardar solo una ruta?
+- ¿Qué garantías faltan antes de usar este sistema clínicamente?
+
 ## Mission 016 — One-time sealed final evaluation
 
 ### Qué se hizo

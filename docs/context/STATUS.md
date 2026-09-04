@@ -1,24 +1,34 @@
 # Project status
 
-Last updated: 2026-09-03
+Last updated: 2026-09-04
 
 ## Current mission
 
-No mission is active. Mission 016 is complete; pause before Mission 017.
+Mission 017 — close reproducible single-record ECG inference.
 
 ## Current step
 
-Pull request `#44` passed Python quality and GitGuardian and was squash-merged
-as `c6005b2`; issue `#43` is closed and both mission branches are pruned. Commit
-`056cdc4` executed the frozen pipeline once on all 2,158 fold-10 ECGs. The
-report and local prediction artifact were reloaded read-only; fold 10 is closed.
+Mission delivery is tracked by pull request `#46`; GitHub is authoritative for
+its merge and issue state. Commit `be0d297` implements the complete
+frozen-bundle pipeline and passed 198 tests, Ruff, format and build. A real CPU
+smoke on train `ecg_id=1` succeeded and its strict report was reloaded. Fold 10
+remained closed.
 
 ## Next actions
 
-1. Pause as requested before starting a new mission.
-2. On explicit continuation, define one cohesive Mission 017 toward reproducible
-   inference without using fold 10 for selection.
-3. Keep any later test error analysis descriptive and separate from tuning.
+1. Use pull request `#46` checks as the mission merge gate.
+2. If green, squash-merge it, close issue `#45` and prune the branch.
+3. Assess remaining portfolio work without reopening fold 10.
+
+## Mission 017 evidence
+
+- Standalone WFDB inference needs no metadata, cohort, labels or split.
+- Exact hashes bind config, baseline report, checkpoint, standardizer and
+  thresholds before signal inference.
+- CPU smoke record `ptbxl-train-ecg-1` predicted only `NORM` positive.
+- Signal fingerprint: `9c0e90bb6b6b7f1d929aa60957a80a11c14be76d10cb5c9a7b9237be4b2c5467`.
+- Report SHA-256: `59e546296a10b4edc46459d2c5f83a5562a10b9a4a8d07fb7bf7a990fc5b4919`.
+- No train/validation/test target or fold was used by the inference API.
 
 ## Mission 016 evidence
 

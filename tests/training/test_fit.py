@@ -11,6 +11,7 @@ from ptbxl.training import (
     EpochResult,
     FitConfig,
     fit,
+    load_model_checkpoint,
     load_training_checkpoint,
 )
 
@@ -86,6 +87,42 @@ def test_complete_fit_saves_full_history_and_round_trips_logits(
 
     assert loaded.epoch == result.best_epoch
     assert loaded.history == result.history
+    torch.testing.assert_close(restored_logits, expected_logits, rtol=0, atol=0)
+
+
+def test_model_only_checkpoint_load_restores_without_an_optimizer(
+    tmp_path: Path,
+) -> None:
+    torch.manual_seed(2026)
+    model = nn.Linear(2, 1)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.2)
+    checkpoint = tmp_path / "best.pt"
+    fit(
+        model,
+        _loader("train"),
+        _loader("validation"),
+        optimizer,
+        nn.BCEWithLogitsLoss(),
+        torch.device("cpu"),
+        FitConfig(epochs=1),
+        checkpoint,
+        _provenance(),
+    )
+    with torch.no_grad():
+        expected_logits = model(torch.tensor([[0.25, -0.5]]))
+        for parameter in model.parameters():
+            parameter.add_(10)
+
+    loaded = load_model_checkpoint(
+        checkpoint,
+        model,
+        device=torch.device("cpu"),
+        expected_provenance=_provenance(),
+    )
+
+    with torch.no_grad():
+        restored_logits = model(torch.tensor([[0.25, -0.5]]))
+    assert loaded.epoch == 1
     torch.testing.assert_close(restored_logits, expected_logits, rtol=0, atol=0)
 
 

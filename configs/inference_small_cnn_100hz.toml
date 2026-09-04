@@ -1,0 +1,17 @@
+schema_version = 1
+
+[inference]
+name = "baseline_small_cnn_100hz"
+mode = "single_record"
+device = "cpu"
+
+[inputs]
+experiment_config_path = "configs/baseline_small_cnn_100hz.toml"
+experiment_config_sha256 = "50b5b68f8497baf27101a92d550588f8817b6c47a4832267c8033d8ccea2d714"
+experiment_report_path = "reports/experiments/baseline_small_cnn_100hz.json"
+experiment_report_sha256 = "1c84a1e807c430d0d54eab89f9a47d6e930993091ceefc062b4b8580ad4f91b6"
+checkpoint_path = "artifacts/experiments/baseline_small_cnn_100hz.pt"
+checkpoint_sha256 = "26d058b75dd486e0d81b75fea3cce44fabf6f7c625c57da79640caee6b5c9a11"
+standardizer_sha256 = "f791aeb9795c669a54a391d979f69806ccdca19f05128a9fde8f408ec36090bc"
+threshold_artifact_path = "reports/evaluation/baseline_small_cnn_100hz_thresholds.json"
+threshold_artifact_sha256 = "f613843e9805f6087964f9ef0a963691bc5f61954ad68d1471efb067bf83b1ce"

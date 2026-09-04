@@ -28,6 +28,7 @@ from ptbxl.data.signals import (
     associate_signal_paths,
     audit_lr_signals,
     load_signal_for_row,
+    load_wfdb_record,
     validate_signal,
 )
 
@@ -53,6 +54,7 @@ __all__ = [
     "load_metadata",
     "load_sample",
     "load_signal_for_row",
+    "load_wfdb_record",
     "load_scp_statements",
     "parse_scp_codes",
     "prepare_metadata",

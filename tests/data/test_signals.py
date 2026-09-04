@@ -12,6 +12,7 @@ from ptbxl.data.signals import (
     SignalLoadError,
     audit_lr_signals,
     load_signal_for_row,
+    load_wfdb_record,
     validate_signal,
 )
 
@@ -81,6 +82,39 @@ def test_loads_valid_wfdb_signal_and_preserves_header_facts(tmp_path: Path) -> N
     assert record.sampling_frequency == 100.0
     assert record.lead_names == LEAD_NAMES
     assert validate_signal(record) is record
+
+
+def test_loads_standalone_wfdb_basename_without_dataset_identity(
+    tmp_path: Path,
+) -> None:
+    source = _write_record(tmp_path, 1)
+    source_path = tmp_path / source
+    standalone_path = tmp_path / "incoming" / "patient_ecg"
+    standalone_path.parent.mkdir()
+    Path(f"{standalone_path}.hea").write_bytes(Path(f"{source_path}.hea").read_bytes())
+    Path(f"{standalone_path}.dat").write_bytes(Path(f"{source_path}.dat").read_bytes())
+    header = Path(f"{standalone_path}.hea")
+    header.write_text(
+        header.read_text(encoding="utf-8").replace(
+            source_path.name, standalone_path.name
+        ),
+        encoding="utf-8",
+    )
+
+    record = load_wfdb_record(standalone_path)
+
+    assert record.signal.shape == (1_000, 12)
+    assert record.sampling_frequency == 100.0
+    assert record.lead_names == LEAD_NAMES
+
+
+def test_standalone_wfdb_loader_rejects_extension_and_missing_header(
+    tmp_path: Path,
+) -> None:
+    with pytest.raises(ValueError, match="without an extension"):
+        load_wfdb_record(tmp_path / "record.hea")
+    with pytest.raises(FileNotFoundError, match="standalone input"):
+        load_wfdb_record(tmp_path / "missing")
 
 
 def test_passes_exact_filename_lr_basename_to_wfdb(
