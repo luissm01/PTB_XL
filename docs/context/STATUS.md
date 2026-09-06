@@ -15,17 +15,18 @@ Mission 018 — deliver post-hoc analysis and final portfolio handoff.
 ## Current step
 
 The implementation and final Definition of Done audit are complete on issue
-`#47` and branch `analysis/47-final-error-interpretability`. The real post-hoc
-event succeeded from clean commit `7856d2e`: sealed predictions were reconciled,
-one HYP error was explained and four figures plus a strict report were generated.
-The frozen model and thresholds did not change. GitHub is authoritative for the
-remaining PR merge gate.
+`#47`, branch `analysis/47-final-error-interpretability` and pull request `#48`.
+The real post-hoc event succeeded from clean commit `7856d2e`: sealed predictions
+were reconciled, one HYP error was explained and four figures plus a strict report
+were generated. The frozen model and thresholds did not change. GitHub is
+authoritative for the remaining PR merge gate.
 
 ## Next actions
 
-1. Open the single mission PR and record its identity in this handoff.
-2. Use its GitHub Actions and GitGuardian checks as the final merge gate.
-3. Squash-merge, close issue `#47` and prune the temporary branch.
+1. Use pull request `#48` GitHub Actions and GitGuardian checks as the final
+   merge gate.
+2. Squash-merge it; issue `#47` then closes automatically and the temporary
+   branch can be pruned.
 
 ## Final audit evidence
 

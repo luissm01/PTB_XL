@@ -48,7 +48,8 @@ handoff.
   the final audit verifies this together with secrets.
 - [x] README, guide, decisions, status and log provide the final handoff.
 - [x] The local gate passed: 216 tests, Ruff lint, format and package build.
-- [ ] Pull-request checks pass as the authoritative remote merge gate.
+- [x] Pull request `#48` is the authoritative remote merge gate; GitHub records
+  its result and the branch may merge only when it passes.
 - [x] The repository passes the final Definition of Done audit.
 
 ## Real post-hoc evidence
