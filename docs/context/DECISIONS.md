@@ -402,3 +402,29 @@ Why: a small file-to-prediction boundary demonstrates that the trained system
 can actually be reused while preventing silent drift in signal format or model
 artifacts. Independence from labels and dataset tables makes it genuine
 inference rather than another evaluation path.
+
+## D029 — Final analysis is descriptive, artifact-bound and proportional
+
+- Analyze the saved immutable fold-10 prediction artifact; never repeat the
+  complete test inference event or alter the frozen pipeline.
+- Verify prediction hash/fingerprint, final report, threshold artifact and model
+  bundle identities before producing new evidence, then reconcile error counts
+  with the immutable final report.
+- Describe false positives, false negatives, exact-match/Hamming error and true
+  multilabel combinations with explicit support; do not promote observations to
+  model-selection evidence.
+- Use absolute input-gradient-times-input attribution on one deterministically
+  selected HYP false negative, after checking its CPU score against the saved
+  GPU prediction within `5e-4` and requiring identical frozen-threshold
+  decisions. This bounded tolerance acknowledges cross-device floating-point
+  differences; it is not permission for decision drift. Attribution remains a
+  local sensitivity explanation, not clinical validation.
+- Version compact static figures and their hashes, while leaving row-level
+  predictions, checkpoints and raw ECGs ignored.
+- Declare Matplotlib directly because the final repository now renders figures;
+  it was already a WFDB transitive dependency, and no dashboard is warranted.
+
+Why: a portfolio should make real performance and failure modes inspectable,
+but post-hoc test analysis must not become another optimization loop. One simple
+gradient method and a few static plots provide useful transparency without
+building an interpretability platform.

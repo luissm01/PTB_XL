@@ -1,0 +1,25 @@
+schema_version = 1
+
+[analysis]
+name = "baseline_small_cnn_100hz_final_analysis"
+mode = "posthoc_descriptive_analysis"
+minimum_combination_support = 20
+maximum_problematic_combinations = 5
+attribution_label = "HYP"
+attribution_kind = "false_negative"
+attribution_window_samples = 50
+prediction_tolerance = 0.0005
+
+[inputs]
+inference_config_path = "configs/inference_small_cnn_100hz.toml"
+inference_config_sha256 = "132076cce10e032a91e4a5efcf4116d99ff2a39b60ac466e6411f5dfa8949458"
+final_test_report_path = "reports/evaluation/baseline_small_cnn_100hz_final_test.json"
+final_test_report_sha256 = "ac5fa3510b8f5776068f279a878da5fb5c26b459381599f37bcb9e99b9d63cfb"
+prediction_artifact_path = "artifacts/evaluation/baseline_small_cnn_100hz_final_test_predictions.npz"
+prediction_artifact_sha256 = "07840774d81768cd7c97ea0a1ebe2b8498dda9f6f99361aaebb7a44e4415245f"
+metadata_path = "data/raw/ptbxl_database.csv"
+metadata_sha256 = "7600de9c1b27d181d850b3c6038a35d7c3ddb6bb33b702e3a20252a6859d216b"
+
+[outputs]
+report_path = "reports/analysis/baseline_small_cnn_100hz_final_analysis.json"
+figure_directory = "reports/figures"

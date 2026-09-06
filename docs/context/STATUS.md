@@ -1,24 +1,62 @@
 # Project status
 
-Last updated: 2026-09-04
+Last updated: 2026-09-06
+
+## PROJECT COMPLETE
+
+The full requested PTB-XL ML lifecycle is implemented, evidenced and locally
+verified. Further modeling, deployment or clinical validation would be a new
+project extension, not unfinished baseline scope.
 
 ## Current mission
 
-Mission 017 — close reproducible single-record ECG inference.
+Mission 018 — deliver post-hoc analysis and final portfolio handoff.
 
 ## Current step
 
-Mission delivery is tracked by pull request `#46`; GitHub is authoritative for
-its merge and issue state. Commit `be0d297` implements the complete
-frozen-bundle pipeline and passed 198 tests, Ruff, format and build. A real CPU
-smoke on train `ecg_id=1` succeeded and its strict report was reloaded. Fold 10
-remained closed.
+The implementation and final Definition of Done audit are complete on issue
+`#47`, branch `analysis/47-final-error-interpretability` and pull request `#48`.
+The real post-hoc event succeeded from clean commit `7856d2e`: sealed predictions
+were reconciled, one HYP error was explained and four figures plus a strict report
+were generated. The frozen model and thresholds did not change. GitHub is
+authoritative for the remaining PR merge gate.
 
 ## Next actions
 
-1. Use pull request `#46` checks as the mission merge gate.
-2. If green, squash-merge it, close issue `#45` and prune the branch.
-3. Assess remaining portfolio work without reopening fold 10.
+1. Use pull request `#48` GitHub Actions and GitGuardian checks as the final
+   merge gate.
+2. Squash-merge it; issue `#47` then closes automatically and the temporary
+   branch can be pruned.
+
+## Final audit evidence
+
+- `uv sync --locked` resolved and checked the frozen environment.
+- 216/216 tests passed; CI tests remain synthetic and require no PTB-XL download.
+- Ruff lint passed and all 65 Python files satisfy the format check.
+- Source distribution and wheel built successfully.
+- Every local Markdown link resolves and the strict final-analysis report
+  reloads with all four figure hashes.
+- Candidate tracking contains no `data/raw/`, `data/processed/`, `artifacts/` or
+  `dist/` file. The only candidate over 500 KiB is the reviewed 1.1 MB saliency
+  PNG; all four figures total approximately 1.42 MB.
+- A credential-pattern scan found no candidate file; GitGuardian remains the
+  remote secret gate.
+- Fold 10 was not re-evaluated. The post-hoc stage used sealed predictions and
+  opened only ECG 1.556 to verify and explain its existing output.
+
+## Mission 018 evidence
+
+- 1.245/2.158 ECG have an exact label-set match; Hamming loss is `0.129286`.
+- Per-class FP/FN counts exactly equal the immutable final-test report.
+- The lowest supported exact-match combinations are recorded with their
+  support; no observation changed the baseline.
+- ECG 1.556 is the deterministic HYP false-negative example. Its CPU decisions
+  equal the sealed GPU decisions; V5, V1 and V4 have the largest local
+  attribution shares.
+- Four reviewed figures total approximately 1.42 MB and are bound by hashes in
+  `reports/analysis/baseline_small_cnn_100hz_final_analysis.json`.
+- Full fold-10 inference was not repeated; only one saved prediction was
+  verified and explained.
 
 ## Mission 017 evidence
 

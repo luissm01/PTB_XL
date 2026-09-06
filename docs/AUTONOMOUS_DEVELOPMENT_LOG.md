@@ -5,6 +5,166 @@ is away. Stable constraints remain in `docs/context/DECISIONS.md`, current work
 remains in `docs/context/STATUS.md` and detailed acceptance contracts remain in
 `docs/context/missions/`.
 
+## Final handoff
+
+### Qué se construyó
+
+El repositorio implementa el recorrido completo de un sistema de clasificación
+multilabel de ECG: identidad y validación de PTB-XL v1.0.3, cinco labels
+oficiales, cohorte auditable, asociación señal-target, preprocessing ajustado
+solo en train, Dataset/DataLoader, CNN 1D, entrenamiento reproducible, selección
+por validation, thresholds congelados, evaluación final única, análisis de
+errores/atribución e inferencia de un WFDB independiente.
+
+### Arquitectura final
+
+Las capas de datos y preprocessing usan Pandas/NumPy y no dependen de PyTorch.
+La frontera PyTorch únicamente transpone a `(12, 1000)`, crea batches y entrega
+targets `(5,)`. La CNN produce cinco logits; entrenamiento, ranking,
+thresholding, test final, análisis e inferencia son responsabilidades separadas.
+TOML declara ejecuciones y JSON/NPZ conserva procedencia. Los scripts son finos;
+la lógica reusable vive en `src/ptbxl/`.
+
+### Modelo y resultados
+
+El modelo final es una CNN 1D de 38.597 parámetros con tres bloques
+Conv-BatchNorm-ReLU-MaxPool, global average pooling, dropout y cinco logits. Se
+entrenó una vez con seed 2026 y BCE sin weighting; la época 9 fue el primer
+mínimo de loss de validation. En los 2.158 ECG de fold 10 obtuvo AUROC
+macro/micro `0,908895/0,922858`, AUPRC `0,785850/0,827715` y F1 congelado
+`0,725377/0,756842`. El análisis posterior encontró exact match `57,69 %` y
+Hamming loss `12,93 %`; HYP fue la clase más débil por AUPRC y F1.
+
+### Cómo reproducirlo
+
+1. Instalar Python y dependencias con `uv sync --locked`.
+2. Colocar los ficheros oficiales bajo `data/raw/` y verificar sus manifiestos.
+3. Ejecutar en orden los scripts de metadatos, labels, cohorte, señales y
+   standardizer descritos en README.
+4. Ejecutar el baseline desde un commit limpio para crear el checkpoint local.
+5. Seleccionar thresholds exclusivamente en validation.
+6. En una reproducción nueva, ejecutar una sola vez el test final; en este
+   repositorio sus salidas ya existen y el guard evita repetirlo.
+7. Generar el análisis desde el NPZ sellado o predecir un WFDB compatible con
+   las CLI documentadas. Cada etapa comprueba hashes y rehúsa sobrescribir.
+
+### Qué estudiar primero
+
+1. `README.md` para el resultado, arquitectura y comandos.
+2. `docs/PROJECT_GUIDE.md` para ECG, leakage, modelo, métricas y razonamiento.
+3. `docs/context/DECISIONS.md` para las restricciones estables.
+4. Los TOML de `configs/` junto a los JSON de `reports/` para la trazabilidad.
+5. `src/ptbxl/data/`, `training/`, `experiments/` e `inference.py` para seguir
+   una señal de extremo a extremo.
+
+### Decisiones que el propietario debería defender
+
+- por qué la tarea es multilabel y usa cinco logits con BCE;
+- por qué los folds oficiales y el aislamiento por paciente son obligatorios;
+- por qué el standardizer se ajusta solo con folds 1–8;
+- por qué checkpoint y thresholds se seleccionan con fold 9;
+- por qué fold 10 se abrió una vez y su análisis posterior no autoriza tuning;
+- por qué AUROC, AUPRC y métricas a threshold responden preguntas distintas;
+- por qué JSON/TOML bastan para un único baseline y no se añadió MLflow/DVC;
+- qué garantiza la inferencia por hashes y qué no garantiza clínicamente;
+- qué significa realmente la atribución input-gradiente.
+
+### Extensiones futuras razonables
+
+Validación externa, calibración con costes clínicos, intervalos entre seeds o
+una comparación predeclarada de modelo/desbalance podrían aportar evidencia.
+Serving, monitorización y soporte de nuevos formatos solo se justifican con un
+caso de uso. Cualquier extensión experimental debe crear un protocolo y un test
+nuevos: el fold 10 observado no puede convertirse en selector.
+
+### Limitaciones conocidas
+
+Solo existe una seed, una arquitectura pequeña y evaluación interna. No hay
+intervalos de incertidumbre, calibración clínica ni validación entre centros.
+La entrada exige diez segundos a 100 Hz y 12 leads completos. Las etiquetas del
+dataset no son verdad clínica perfecta. La saliency es ruidosa y local. El
+sistema es experimental, no es un producto sanitario y no debe usarse para
+decisiones clínicas.
+
+## Mission 018 — Post-hoc analysis and portfolio completion
+
+### Qué se hizo
+
+Se añadió un análisis no sobrescribible del NPZ final sellado, con errores por
+clase, exact match, Hamming loss y combinaciones multilabel. Se explicó un falso
+negativo HYP mediante `|entrada × gradiente|`, se generaron cuatro figuras y se
+completaron README, guía y handoff.
+
+### Por qué se hizo
+
+El pipeline ya predecía y se evaluaba correctamente, pero un portfolio completo
+debe permitir entender dónde falla y qué observa el modelo. La etapa convierte
+las predicciones guardadas en evidencia inspeccionable sin abrir otra ronda de
+selección sobre test.
+
+### Decisiones técnicas
+
+El análisis verifica hashes y fingerprint, recalcula decisiones con los mismos
+thresholds y reconcilia los conteos con el reporte final. Las combinaciones
+problemáticas requieren soporte mínimo 20. El ejemplo es el falso negativo HYP
+con score mínimo y desempate por `ecg_id`. La predicción CPU debe mantener las
+cinco decisiones y acercarse a la GPU sellada en `5e-4` antes de atribuir.
+
+### Alternativas consideradas
+
+Integrated Gradients ofrecería una aproximación más suave, pero añadiría coste
+y complejidad sin validación clínica. Un dashboard o MLflow no resuelven una
+necesidad actual; cuatro PNG y un JSON estricto son más portables. Repetir toda
+la inferencia de test habría sido innecesario y metodológicamente confuso.
+
+### Riesgos de leakage revisados
+
+No hubo fit, entrenamiento, calibración, selección de checkpoint o cambio de
+threshold. Las métricas usan únicamente predicciones ya producidas en el evento
+final. Se abrió solo el ECG 1.556 para explicar su salida guardada. Toda
+observación queda marcada como post-hoc y no puede modificar el baseline.
+
+### Archivos principales
+
+- `src/ptbxl/evaluation/error_analysis.py`;
+- `src/ptbxl/interpretability.py`;
+- `src/ptbxl/experiments/final_analysis.py` y su validador de reporte;
+- `src/ptbxl/visualization.py`;
+- `configs/final_analysis_small_cnn_100hz.toml`;
+- `reports/analysis/` y `reports/figures/`;
+- `scripts/analyze_final_model.py`.
+
+### Tests añadidos
+
+Los tests cubren conteos y ranking de combinaciones, selección determinista del
+ejemplo, atribución y ventanas por lead, restauración del modo del modelo,
+configuración estricta, rechazo de hashes/outputs y round-trip del reporte y
+sus cuatro figuras.
+
+### Resultados obtenidos
+
+Se observaron 1.245/2.158 label sets exactos y 1.395/10.790 decisiones erróneas.
+Las cinco combinaciones con exact match más bajo y soporte suficiente quedaron
+registradas. El ECG 1.556 (`MI+HYP` real, `NORM` predicho) conservó las decisiones
+entre GPU y CPU; V5, V1 y V4 tuvieron las mayores fracciones de atribución HYP.
+El gate integral final pasó 216 tests, Ruff, format y build; enlaces, artefactos
+versionables, hashes y patrones de credenciales también se auditaron.
+
+### Qué debería entender el propietario
+
+Error analysis no equivale a selección de modelo. Exact match es exigente para
+multilabel y debe leerse junto a Hamming loss. Una saliency muestra sensibilidad
+matemática local, no razonamiento clínico. Los hashes hacen auditable que estas
+conclusiones pertenecen al mismo modelo final.
+
+### Preguntas de entrevista relacionadas
+
+- ¿Cómo analizaste errores sin convertir test en otro validation?
+- ¿Por qué exact match y Hamming loss cuentan historias diferentes?
+- ¿Cómo elegiste el ejemplo interpretado y por qué importa el desempate?
+- ¿Qué limitaciones tiene `input × gradient`?
+- ¿Por qué verificaste la decisión CPU contra la predicción GPU sellada?
+
 ## Mission 017 — Reproducible single-record inference
 
 ### Qué se hizo
