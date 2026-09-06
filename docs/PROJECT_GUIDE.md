@@ -1,14 +1,15 @@
 # Guía del proyecto PTB-XL ML System
 
-Esta guía explica qué problema resuelve el proyecto, qué se ha construido, por
-qué se tomaron las decisiones actuales y cómo deberían construirse las etapas
-que faltan. Está pensada para poder leerla sin experiencia previa en ECG o deep
-learning y, al mismo tiempo, servir como material de preparación técnica.
+Esta guía explica qué problema resuelve el proyecto, qué se ha construido y por
+qué se tomaron sus decisiones. Está pensada para poder leerla sin experiencia
+previa en ECG o deep learning y, al mismo tiempo, servir como material de
+preparación técnica.
 
-> **Estado de esta edición:** las misiones 001–017 están implementadas y
+> **Estado de esta edición:** las misiones 001–018 están implementadas y
 > verificadas. El baseline se entrenó con folds 1–8; fold 9 seleccionó el
 > checkpoint y los thresholds, fold 10 se evaluó una sola vez y quedó cerrado,
-> y el bundle congelado admite inferencia reproducible sobre un WFDB compatible.
+> su análisis posterior quedó separado de cualquier selección, y el bundle
+> congelado admite inferencia reproducible sobre un WFDB compatible.
 > Este proyecto es experimental y no está destinado a uso clínico.
 
 ## Cómo leer el estado de cada sección
@@ -624,7 +625,7 @@ es la referencia de la implementación fijada en scikit-learn 1.9.0.
 ## Parte 7 — Arquitectura de software
 
 **Estado: pipeline reproducible completo desde datos raw hasta evaluación final
-interna e inferencia sobre señales nuevas compatibles.**
+interna, análisis posterior e inferencia sobre señales nuevas compatibles.**
 
 ### 7.1 Flujo actual
 
@@ -669,6 +670,9 @@ PTB-XL v1.0.3 + manifiestos SHA-256
                   |
                   v
  fold 10 una vez -> reporte agregado + predicciones locales cerradas
+                  |
+                  v
+ predicciones guardadas -> errores + atribución de un ejemplo + figuras
 
 WFDB compatible nuevo -> validar señal -> standardizer congelado
                       -> checkpoint -> sigmoid + thresholds -> JSON
@@ -695,10 +699,14 @@ identidad o leakage aparece cerca de su causa, no durante el entrenamiento.
 | [`evaluation/multilabel.py`](../src/ptbxl/evaluation/multilabel.py) | recoger predicciones de un split permitido y calcular AUROC/AUPRC por clase, macro y micro |
 | [`evaluation/thresholds.py`](../src/ptbxl/evaluation/thresholds.py) | seleccionar thresholds por F1 y calcular métricas de punto operativo reutilizables |
 | [`evaluation/prediction_artifact.py`](../src/ptbxl/evaluation/prediction_artifact.py) | guardar y recargar predicciones numéricas locales sin pickle |
+| [`evaluation/error_analysis.py`](../src/ptbxl/evaluation/error_analysis.py) | describir errores y combinaciones multilabel sin alterar el operating point |
 | [`experiments/baseline.py`](../src/ptbxl/experiments/baseline.py) | validar la configuración y orquestar el experimento real con procedencia y reporte determinista |
 | [`experiments/frozen.py`](../src/ptbxl/experiments/frozen.py) | comprobar conjuntamente configuración, reporte, checkpoint y preprocessing congelados |
 | [`experiments/thresholds.py`](../src/ptbxl/experiments/thresholds.py) | restaurar el baseline y congelar el operating point usando solo validation |
 | [`experiments/final_test.py`](../src/ptbxl/experiments/final_test.py) | ejecutar el test una vez con hashes exactos, sin entrenamiento ni selección |
+| [`experiments/final_analysis.py`](../src/ptbxl/experiments/final_analysis.py) | validar las predicciones selladas y coordinar el análisis post-hoc no sobrescribible |
+| [`interpretability.py`](../src/ptbxl/interpretability.py) | calcular y resumir atribución local input-gradiente por derivación y tiempo |
+| [`visualization.py`](../src/ptbxl/visualization.py) | producir las cuatro figuras estáticas del portfolio |
 | [`inference.py`](../src/ptbxl/inference.py) | cargar el bundle congelado y convertir un WFDB compatible en scores, decisiones y reporte atribuible |
 
 Los scripts bajo [`scripts/`](../scripts/) son puntos de entrada reproducibles
@@ -717,11 +725,18 @@ los notebooks, cuando existan, serán solo para exploración.
 Esta separación reduce duplicación y permite probar las transformaciones
 importantes con datos sintéticos pequeños.
 
-### 7.4 Fronteras que quedan por construir
+### 7.4 Fronteras completadas y extensiones
 
-La siguiente frontera de portfolio queda por añadir:
+El recorrido exigido está completo. Nuevos modelos, validación externa,
+calibración clínica o serving serían extensiones con un objetivo científico o
+de producto nuevo; no son huecos ocultos del pipeline actual. Si se añadieran,
+necesitarían un protocolo de evaluación nuevo y no podrían seleccionar usando
+los resultados ya observados de fold 10.
 
-1. análisis descriptivo de errores e interpretación, sin ajustar el pipeline.
+El análisis post-hoc consume el NPZ de predicciones creado en el único evento
+final. Recalcula decisiones con los thresholds congelados y exige que todos los
+conteos coincidan con el reporte inmutable. Solo abre una señal de test para
+verificar y explicar su predicción ya guardada; nunca repite la pasada completa.
 
 ### 7.5 Inferencia reproducible
 
@@ -738,13 +753,24 @@ modelo parecida. El JSON final no se sobrescribe, identifica la señal por una
 huella canónica de valores calibrados y cabecera, y deja claro que el score no
 es una probabilidad clínica calibrada.
 
+### 7.6 Interpretabilidad proporcional
+
+Para el ejemplo elegido se calcula `|entrada estandarizada × gradiente del
+logit respecto a la entrada|`. Esta magnitud responde a una pregunta local:
+“¿a qué valores era sensible este logit alrededor de este ECG?”. Se agrega por
+derivación y se localiza la ventana de 0,5 segundos con mayor masa en cada una.
+
+No demuestra qué región “causó” una enfermedad, no sustituye la revisión de un
+cardiólogo y puede ser ruidosa. Por eso se conserva un único ejemplo explicable
+con un método pequeño, en lugar de presentar saliency como validación clínica.
+
 ---
 
 ## Parte 8 — MLOps y reproducibilidad
 
 **Estado: entorno, pruebas, CI, ejecución determinista y artefactos del baseline,
-thresholds, test final e inferencia implementados; tracking avanzado no
-necesario aún.**
+thresholds, test final, análisis e inferencia implementados; tracking avanzado
+no necesario.**
 
 ### 8.1 Entorno reproducible
 
@@ -756,6 +782,8 @@ necesario aún.**
   detecta la GPU NVIDIA local para futuros entrenamientos.
 - scikit-learn 1.9.0 proporciona AUROC y average precision probadas en lugar de
   mantener implementaciones estadísticas propias.
+- Matplotlib 3.11.1 genera únicamente las figuras estáticas finales. Ya llegaba
+  con WFDB, pero se declara directamente ahora que el proyecto lo importa.
 - La arquitectura CNN vive en una dataclass congelada; canales, kernels y
   dropout pueden registrarse sin depender de valores ocultos en un script.
 - Los datos raw y productos grandes permanecen ignorados.
@@ -858,6 +886,12 @@ commit limpio, rechaza sobrescrituras y genera JSON determinista. Para predecir
 no recalcula ni requiere las tablas de cohorte/metadatos de entrenamiento: la
 integridad del bundle queda demostrada por sus artefactos congelados.
 
+El análisis final tiene un TOML adicional que fija los hashes del reporte y las
+predicciones selladas, el soporte mínimo de combinaciones y el ejemplo de
+atribución. Rehúsa sobrescribir, reconcilia los errores con el resultado final y
+vincula por SHA-256 sus cuatro PNG. Las predicciones por fila continúan ignoradas;
+el reporte agregado y las figuras pequeñas son evidencia versionable.
+
 Un sistema de tracking se justificará cuando existan suficientes experimentos
 para que archivos simples dejen de ser claros. Introducirlo antes añadiría una
 abstracción sin un problema real que resolver.
@@ -866,8 +900,8 @@ abstracción sin un problema real que resolver.
 
 ## Parte 9 — Resultados y limitaciones
 
-**Estado: existe un resultado reproducible de validation y una única evaluación
-final en el test interno, que ya está cerrado.**
+**Estado: existen un resultado reproducible de validation, una única evaluación
+final cerrada y un análisis post-hoc trazable que no modifica el modelo.**
 
 ### 9.1 Evidencia conseguida hasta ahora
 
@@ -888,8 +922,10 @@ final en el test interno, que ya está cerrado.**
 | Baseline real | 17.084 ECG de train, 2.146 de validation y mejor checkpoint en época 9 |
 | Thresholds | cinco cutoffs por F1, métricas de punto operativo y artefacto vinculado por hashes |
 | Test final | 2.158 ECG de fold 10 evaluados una vez con pipeline completamente congelado |
+| Análisis final | errores reconciliados, combinaciones multilabel y atribución local sobre predicciones selladas |
 | Inferencia | un WFDB independiente produce cinco scores/decisiones y un reporte con procedencia completa |
-| Calidad de software | 198 tests, Ruff y build superados al implementar inferencia |
+| Figuras | historial, ROC/PR, errores operativos y ejemplo de 12 derivaciones generados desde artefactos reales |
+| Calidad de software | 216 tests, Ruff, format, build y auditoría final superados localmente |
 
 La mayor parte de la tabla demuestra ingeniería e integridad. Las filas del
 baseline y test contienen rendimiento predictivo interno, no evidencia clínica.
@@ -917,6 +953,8 @@ para futuros análisis, no autorización para ajustar el baseline después de ve
 estos resultados. El informe completo y atribuible está en
 [`baseline_small_cnn_100hz.json`](../reports/experiments/baseline_small_cnn_100hz.json).
 En esa etapa fold 10 todavía no se había abierto.
+
+![Historial de entrenamiento](../reports/figures/training_history.png)
 
 ### 9.3 Operating point seleccionado en validation
 
@@ -959,7 +997,53 @@ elegir cambios. El [reporte final](../reports/evaluation/baseline_small_cnn_100h
 conserva métricas, conteos, entorno y hashes; las predicciones por ECG quedan
 locales e ignoradas.
 
-### 9.5 Smoke de inferencia
+![Curvas ROC y precision-recall finales](../reports/figures/final_roc_pr_curves.png)
+
+### 9.5 Análisis descriptivo de errores
+
+El análisis reutiliza las 2.158 filas de predicción guardadas en el evento
+final, verificadas por hash y fingerprint. No vuelve a ejecutar el modelo sobre
+todo test. Con los mismos thresholds, 1.245 ECG (`57,69 %`) tienen coincidencia
+exacta entre el conjunto real y el predicho. Hay 1.395 decisiones de etiqueta
+incorrectas entre 10.790 decisiones posibles, es decir, Hamming loss `0,1293`.
+
+| Clase | Falsos positivos | Falsos negativos |
+| --- | ---: | ---: |
+| `NORM` | 254 | 77 |
+| `MI` | 113 | 200 |
+| `STTC` | 158 | 109 |
+| `CD` | 77 | 156 |
+| `HYP` | 172 | 79 |
+
+Los patrones no son simétricos: el modelo sobredetecta `NORM` y `HYP` con más
+frecuencia de la que los omite, mientras que en `MI` y `CD` domina el falso
+negativo. Esto describe el operating point congelado; no demuestra qué coste
+sería aceptable en clínica.
+
+Entre combinaciones reales con al menos 20 registros, `MI+STTC+CD` solo obtiene
+una coincidencia exacta de 1/21 (`4,76 %`), `CD+HYP` 3/27 (`11,11 %`) y
+`STTC+CD` 5/38 (`13,16 %`). Una combinación más compleja impone más condiciones
+para el exact match, por lo que estos porcentajes deben leerse junto con su
+soporte y los errores por etiqueta, no como un ranking clínico.
+
+![Errores y combinaciones](../reports/figures/final_operating_errors.png)
+
+### 9.6 Ejemplo de atribución
+
+Se eligió determinísticamente el falso negativo de `HYP` con score más bajo,
+desempatando por `ecg_id`: el ECG 1.556 tenía targets `MI+HYP` y el modelo
+predijo `NORM`. Su score HYP sellado fue `0,001583`, muy por debajo del threshold
+`0,145285`. La verificación CPU mantuvo las cinco decisiones y difirió como
+máximo `0,000123` de los scores GPU guardados.
+
+En la atribución `|entrada × gradiente|`, V5 aporta `16,09 %` de la masa total,
+V1 `11,68 %` y V4 `11,49 %`. Esos números indican sensibilidad local del logit
+HYP en este modelo y este registro. No validan que las derivaciones o regiones
+sean biomarcadores, ni explican por qué la etiqueta clínica es correcta.
+
+![Atribución del falso negativo HYP](../reports/figures/hyp_false_negative_saliency.png)
+
+### 9.7 Smoke de inferencia
 
 El smoke de inferencia sobre `ecg_id=1` de train produjo `NORM` positivo y MI,
 STTC, CD y HYP negativos. Este ejemplo prueba el recorrido técnico completo; no
@@ -967,13 +1051,17 @@ es una evaluación adicional ni evidencia clínica. Su
 [reporte](../reports/inference/baseline_small_cnn_100hz_train_example.json)
 conserva los scores exactos, el fingerprint de señal y la identidad del bundle.
 
-### 9.6 Resultados que todavía no existen
+### 9.8 Evidencia opcional que no existe
 
 - comparación controlada de arquitecturas o estrategias de desbalance;
 - variabilidad entre seeds o intervalos de incertidumbre;
-- análisis descriptivo de errores e interpretación.
+- validación externa y calibración clínica.
 
-### 9.7 Limitaciones actuales
+No se necesitan para demostrar el pipeline completo actual y no deben añadirse
+solo para hacer el repositorio más grande. Serían experimentos futuros con un
+nuevo protocolo.
+
+### 9.9 Limitaciones actuales
 
 - Es un único entrenamiento con una seed y una arquitectura pequeña.
 - Solo existe una evaluación final interna, sin repetición entre seeds ni
@@ -1097,10 +1185,10 @@ convertirse después en otra ronda de tuning.
 
 ### 10.16 ¿Qué harías a continuación y por qué?
 
-Haría análisis descriptivo de errores e interpretación sobre las predicciones
-ya guardadas, sin modificar el pipeline. Cualquier nuevo modelo sería otro
-experimento y necesitaría un nuevo protocolo de evaluación, no reutilizar este
-test para seleccionar.
+Antes de una aplicación real priorizaría validación externa, calibración y una
+definición clínica de costes. Para investigación podría comparar una mejora
+predeclarada o repetir seeds. Cualquiera sería un experimento nuevo con su propio
+protocolo; no reutilizaría este test observado para seleccionar.
 
 ### 10.17 ¿Qué limitación temporal tiene la primera CNN?
 
@@ -1126,6 +1214,22 @@ frecuencia y orden de leads; registra una huella del ECG y las versiones de
 runtime. Así puede explicarse exactamente qué datos y transformaciones
 produjeron cada decisión, dentro de los límites de reproducibilidad numérica.
 
+### 10.20 ¿Qué significa y qué no significa la saliency usada?
+
+`|entrada × gradiente|` aproxima cuánto cambiaría localmente el logit al variar
+cada valor y pondera esa sensibilidad por la entrada observada. Permite comparar
+regiones temporales y derivaciones dentro de un ejemplo, pero puede ser ruidosa,
+no demuestra causalidad ni constituye una interpretación clínica. Por eso el
+reporte conserva método, clase, señal, scores y limitaciones.
+
+### 10.21 ¿Por qué reportar exact match y Hamming loss juntos?
+
+Exact match exige acertar las cinco etiquetas de un ECG y penaliza por igual uno
+o varios errores en ese registro. Hamming loss cuenta cada decisión de etiqueta
+incorrecta y muestra la densidad total de errores. En multilabel se complementan:
+`57,69 %` de sets exactos puede coexistir con solo `12,93 %` de decisiones
+individuales erróneas.
+
 ---
 
 ## Referencias y evidencia local
@@ -1148,6 +1252,8 @@ Evidencia versionada del proyecto:
 - [primer baseline real](../reports/experiments/baseline_small_cnn_100hz.json)
 - [thresholds congelados](../reports/evaluation/baseline_small_cnn_100hz_thresholds.json)
 - [evaluación final única](../reports/evaluation/baseline_small_cnn_100hz_final_test.json)
+- [análisis post-hoc final](../reports/analysis/baseline_small_cnn_100hz_final_analysis.json)
+- [figuras finales](../reports/figures/)
 - [smoke de inferencia reproducible](../reports/inference/baseline_small_cnn_100hz_train_example.json)
 
 ## Cómo mantener esta guía

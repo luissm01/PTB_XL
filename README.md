@@ -5,20 +5,61 @@ Production-oriented machine learning project for multilabel classification of
 
 ## Status
 
-Official PTB-XL v1.0.3 metadata, labels, cohort definition and 100 Hz signal
-integrity loading are implemented. A framework-independent sample boundary now
-composes identities, targets, official splits and signals. Train-only global
-standardization is implemented and frozen in a reproducible artifact. A thin
-PyTorch Dataset/DataLoader boundary produces channel-first batches without
-duplicating data logic. A small 1D-CNN baseline maps those batches to five raw
-logits. Reproducible single-epoch train and loss-evaluation functions are also
-implemented, together with validation-selected multi-epoch fitting, safe
-checkpoints and split-safe multilabel ranking metrics. The first configured
-baseline trained on folds 1–8, selected its checkpoint and per-class F1
-thresholds using fold 9, and completed its one-time final evaluation on fold
-10. That final fold is now closed to further model or threshold decisions. A
-reproducible CLI can now apply the exact frozen bundle to a compatible standalone
-WFDB ECG without dataset labels or split metadata.
+The complete baseline lifecycle is implemented: versioned data identity,
+patient-safe official splits, reproducible labels and cohort, validated signals,
+train-only preprocessing, PyTorch training, validation selection, one sealed
+final test, post-hoc error analysis and attribution, and standalone WFDB
+inference. Fold 10 is closed to further model or threshold decisions.
+
+## What this project demonstrates
+
+- Five-label ECG classification for `NORM`, `MI`, `STTC`, `CD` and `HYP`.
+- Official folds 1–8 for train, fold 9 for validation and fold 10 for one final
+  evaluation, with patient overlap rejected in code.
+- A 38,597-parameter 1D-CNN trained with deterministic settings and
+  `BCEWithLogitsLoss`.
+- Exact provenance for data manifests, preprocessing, configuration,
+  checkpoint, thresholds, predictions and reports.
+- Strict failure paths and synthetic CI tests that need neither PTB-XL nor a
+  real training run.
+- A small CLI that applies the exact frozen bundle to a compatible WFDB record.
+
+## System flow
+
+```text
+PTB-XL v1.0.3
+  → metadata + patient/fold validation
+  → official diagnostic superclasses
+  → auditable five-superclass cohort
+  → lazy 100 Hz WFDB loading
+  → train-only global standardization
+  → PyTorch Dataset/DataLoader
+  → small 1D-CNN + BCEWithLogitsLoss
+  → validation-selected checkpoint and thresholds
+  → one sealed fold-10 evaluation
+  → post-hoc errors + attribution
+  → frozen-bundle inference CLI
+```
+
+## Final internal result
+
+The frozen model was evaluated once on 2,158 ECGs from fold 10:
+
+| Class | AUROC | AUPRC | F1 | FP | FN |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| NORM | 0.9280 | 0.8999 | 0.8426 | 254 | 77 |
+| MI | 0.9049 | 0.7836 | 0.6910 | 113 | 200 |
+| STTC | 0.9255 | 0.8008 | 0.7553 | 158 | 109 |
+| CD | 0.9060 | 0.8201 | 0.7448 | 77 | 156 |
+| HYP | 0.8801 | 0.6249 | 0.5932 | 172 | 79 |
+| **Macro** | **0.9089** | **0.7858** | **0.7254** | — | — |
+
+Micro AUROC/AUPRC/F1 are `0.9229` / `0.8277` / `0.7568`. At the
+validation-frozen thresholds, 1,245 records (`57.69%`) have an exact label-set
+match and Hamming loss is `0.1293`. These are internal PTB-XL results, not
+clinical performance claims.
+
+![Final ROC and precision-recall curves](reports/figures/final_roc_pr_curves.png)
 
 ## Project documentation
 
@@ -303,6 +344,8 @@ loss history, per-class metrics and provenance are recorded in the
 These are internal validation results, not final-test results or evidence of
 clinical usefulness.
 
+![Train and validation loss](reports/figures/training_history.png)
+
 ## Select and freeze validation thresholds
 
 With the baseline checkpoint available locally, run from the clean repository
@@ -339,6 +382,39 @@ but its outputs already exist and its one-time guard forbids another execution.
 These results may support descriptive error analysis only; they must not be
 used to retune or replace the frozen pipeline.
 
+## Analyze final errors and attribution
+
+The final analysis consumes the already saved, ignored prediction NPZ; it does
+not repeat full test inference. From a clean commit with all local frozen
+artifacts available and no existing analysis outputs:
+
+```bash
+uv run --locked python scripts/analyze_final_model.py
+```
+
+The command verifies source hashes and the prediction fingerprint, recomputes
+decisions from the frozen thresholds, and reconciles every confusion count with
+the immutable final report. It records false positives/negatives, exact-match
+and Hamming error, and every observed target combination. Among combinations
+with at least 20 ECGs, `MI+STTC+CD` has the lowest exact-match rate (`1/21`),
+followed by `CD+HYP` (`3/27`). These post-hoc observations were not used to
+change the model.
+
+![Final operating errors and label combinations](reports/figures/final_operating_errors.png)
+
+For a proportional interpretation example, the command deterministically
+selects the strongest HYP false negative (`ecg_id=1556`), verifies its CPU
+decision against the sealed GPU prediction, and computes
+`abs(input × input-gradient)` for the HYP logit. V5, V1 and V4 carry the largest
+aggregate attribution shares in this one record. Red regions in the figure show
+local model sensitivity—not clinical importance, causality or validated
+diagnostic localization.
+
+![HYP false-negative attribution across 12 leads](reports/figures/hyp_false_negative_saliency.png)
+
+The complete facts, figure hashes and limitations are stored in the
+[`final analysis report`](reports/analysis/baseline_small_cnn_100hz_final_analysis.json).
+
 ## Predict a compatible ECG
 
 With the ignored baseline checkpoint available locally, pass a WFDB basename
@@ -363,5 +439,30 @@ metadata nor labels. A verified train-record smoke output is available in the
 [`inference example`](reports/inference/baseline_small_cnn_100hz_train_example.json).
 Scores are experimental, are not clinically calibrated probabilities and do
 not constitute diagnoses.
+
+## Repository layout
+
+```text
+configs/        versioned experiment, threshold, final-test, analysis and inference contracts
+data/           lightweight source manifests; raw and processed data stay ignored
+docs/           project guide, decisions, mission records and autonomous handoff
+reports/        small deterministic evidence reports and portfolio figures
+scripts/        thin reproducible command-line entry points
+src/ptbxl/      reusable data, preprocessing, model, training, evaluation and inference logic
+tests/          synthetic unit and integration tests; CI never downloads PTB-XL
+artifacts/      ignored checkpoints and row-level prediction arrays
+```
+
+## Limitations
+
+- Results come from one seed, one small CNN and one internal PTB-XL test fold;
+  there are no confidence intervals or external validation.
+- Thresholds maximize per-class F1 on validation and do not encode clinical
+  costs. Sigmoid outputs are not clinically calibrated probabilities.
+- The 100 Hz, ten-second, fixed-lead input contract does not cover other devices,
+  sampling rates, durations or missing leads.
+- Gradient attribution can be noisy and describes model sensitivity only.
+- This repository is an engineering and research portfolio project, not a
+  medical device and not evidence of clinical utility.
 
 This project is experimental and is not intended for clinical use.

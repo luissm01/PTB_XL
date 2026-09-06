@@ -1,0 +1,539 @@
+{
+  "analysis": {
+    "full_test_inference_repeated": false,
+    "git_commit": "7856d2e9e023ad37b2130d6a875e484b41eb2b09",
+    "mode": "posthoc_descriptive_analysis",
+    "model_changes_forbidden": true,
+    "name": "baseline_small_cnn_100hz_final_analysis",
+    "posthoc_only": true
+  },
+  "attribution": {
+    "interpretation": "Larger values identify input regions to which this output logit was locally sensitive; they do not establish clinical relevance, causality or diagnostic localization.",
+    "label": "HYP",
+    "logit": -6.4454803466796875,
+    "method": "absolute_input_times_input_gradient",
+    "per_lead": [
+      {
+        "attribution_fraction": 0.04280328432974177,
+        "lead": "I",
+        "peak_end_seconds": 1.02,
+        "peak_fraction_within_lead": 0.0992426953960199,
+        "peak_start_seconds": 0.52
+      },
+      {
+        "attribution_fraction": 0.0676459475044708,
+        "lead": "II",
+        "peak_end_seconds": 3.95,
+        "peak_fraction_within_lead": 0.06634125203139206,
+        "peak_start_seconds": 3.45
+      },
+      {
+        "attribution_fraction": 0.06630579273681646,
+        "lead": "III",
+        "peak_end_seconds": 4.96,
+        "peak_fraction_within_lead": 0.0674165706246479,
+        "peak_start_seconds": 4.46
+      },
+      {
+        "attribution_fraction": 0.05704099651511602,
+        "lead": "AVR",
+        "peak_end_seconds": 3.97,
+        "peak_fraction_within_lead": 0.07974523537858537,
+        "peak_start_seconds": 3.47
+      },
+      {
+        "attribution_fraction": 0.04379326782957611,
+        "lead": "AVL",
+        "peak_end_seconds": 9.52,
+        "peak_fraction_within_lead": 0.08483953659009312,
+        "peak_start_seconds": 9.02
+      },
+      {
+        "attribution_fraction": 0.05520486756791936,
+        "lead": "AVF",
+        "peak_end_seconds": 5.06,
+        "peak_fraction_within_lead": 0.07305765978102982,
+        "peak_start_seconds": 4.56
+      },
+      {
+        "attribution_fraction": 0.11676742701202641,
+        "lead": "V1",
+        "peak_end_seconds": 4.47,
+        "peak_fraction_within_lead": 0.08106025977618725,
+        "peak_start_seconds": 3.97
+      },
+      {
+        "attribution_fraction": 0.08158593298105356,
+        "lead": "V2",
+        "peak_end_seconds": 3.98,
+        "peak_fraction_within_lead": 0.0780095066276624,
+        "peak_start_seconds": 3.48
+      },
+      {
+        "attribution_fraction": 0.11014977302307422,
+        "lead": "V3",
+        "peak_end_seconds": 2.51,
+        "peak_fraction_within_lead": 0.07697898450873293,
+        "peak_start_seconds": 2.01
+      },
+      {
+        "attribution_fraction": 0.11490219547756333,
+        "lead": "V4",
+        "peak_end_seconds": 4.95,
+        "peak_fraction_within_lead": 0.0820232433198084,
+        "peak_start_seconds": 4.45
+      },
+      {
+        "attribution_fraction": 0.16089698121977425,
+        "lead": "V5",
+        "peak_end_seconds": 6.92,
+        "peak_fraction_within_lead": 0.08309806897894405,
+        "peak_start_seconds": 6.42
+      },
+      {
+        "attribution_fraction": 0.08290353380286769,
+        "lead": "V6",
+        "peak_end_seconds": 4.46,
+        "peak_fraction_within_lead": 0.12675914636745905,
+        "peak_start_seconds": 3.96
+      }
+    ],
+    "record": {
+      "decisions": {
+        "CD": 0,
+        "HYP": 0,
+        "MI": 0,
+        "NORM": 1,
+        "STTC": 0
+      },
+      "ecg_id": 1556,
+      "maximum_probability_difference": 0.0001226365566253662,
+      "saved_probabilities": {
+        "CD": 0.020596373826265335,
+        "HYP": 0.0015833753859624267,
+        "MI": 0.48277536034584045,
+        "NORM": 0.40733179450035095,
+        "STTC": 0.01562986522912979
+      },
+      "signal_sha256": "b00b00fb8f15d8e903cc49d856d9d9286633909144437c1994bc9b6d955e3ab8",
+      "targets": {
+        "CD": 0,
+        "HYP": 1,
+        "MI": 1,
+        "NORM": 0,
+        "STTC": 0
+      },
+      "verified_cpu_probabilities": {
+        "CD": 0.020619148388504982,
+        "HYP": 0.0015851650387048721,
+        "MI": 0.4826797842979431,
+        "NORM": 0.4074544310569763,
+        "STTC": 0.015617318451404572
+      }
+    },
+    "selection": {
+      "kind": "false_negative",
+      "rule": "most_confident_then_smallest_ecg_id"
+    },
+    "top_leads": [
+      "V5",
+      "V1",
+      "V4"
+    ],
+    "window_samples": 50
+  },
+  "dataset": {
+    "fold": 10,
+    "name": "PTB-XL",
+    "samples": 2158,
+    "split": "test",
+    "targets": [
+      "NORM",
+      "MI",
+      "STTC",
+      "CD",
+      "HYP"
+    ],
+    "version": "1.0.3"
+  },
+  "error_analysis": {
+    "combinations": [
+      {
+        "exact_match_rate": 0.8695175438596491,
+        "exact_matches": 793,
+        "label_errors": 172,
+        "labels": [
+          "NORM"
+        ],
+        "support": 912
+      },
+      {
+        "exact_match_rate": 0.3125,
+        "exact_matches": 80,
+        "label_errors": 296,
+        "labels": [
+          "MI"
+        ],
+        "support": 256
+      },
+      {
+        "exact_match_rate": 0.45867768595041325,
+        "exact_matches": 111,
+        "label_errors": 184,
+        "labels": [
+          "STTC"
+        ],
+        "support": 242
+      },
+      {
+        "exact_match_rate": 0.3641304347826087,
+        "exact_matches": 67,
+        "label_errors": 185,
+        "labels": [
+          "CD"
+        ],
+        "support": 184
+      },
+      {
+        "exact_match_rate": 0.44360902255639095,
+        "exact_matches": 59,
+        "label_errors": 129,
+        "labels": [
+          "MI",
+          "CD"
+        ],
+        "support": 133
+      },
+      {
+        "exact_match_rate": 0.6027397260273972,
+        "exact_matches": 44,
+        "label_errors": 38,
+        "labels": [
+          "STTC",
+          "HYP"
+        ],
+        "support": 73
+      },
+      {
+        "exact_match_rate": 0.2459016393442623,
+        "exact_matches": 15,
+        "label_errors": 59,
+        "labels": [
+          "MI",
+          "STTC"
+        ],
+        "support": 61
+      },
+      {
+        "exact_match_rate": 0.21428571428571427,
+        "exact_matches": 12,
+        "label_errors": 78,
+        "labels": [
+          "HYP"
+        ],
+        "support": 56
+      },
+      {
+        "exact_match_rate": 0.3333333333333333,
+        "exact_matches": 15,
+        "label_errors": 35,
+        "labels": [
+          "NORM",
+          "CD"
+        ],
+        "support": 45
+      },
+      {
+        "exact_match_rate": 0.5853658536585366,
+        "exact_matches": 24,
+        "label_errors": 19,
+        "labels": [
+          "MI",
+          "STTC",
+          "HYP"
+        ],
+        "support": 41
+      },
+      {
+        "exact_match_rate": 0.13157894736842105,
+        "exact_matches": 5,
+        "label_errors": 51,
+        "labels": [
+          "STTC",
+          "CD"
+        ],
+        "support": 38
+      },
+      {
+        "exact_match_rate": 0.1111111111111111,
+        "exact_matches": 3,
+        "label_errors": 38,
+        "labels": [
+          "CD",
+          "HYP"
+        ],
+        "support": 27
+      },
+      {
+        "exact_match_rate": 0.24,
+        "exact_matches": 6,
+        "label_errors": 31,
+        "labels": [
+          "STTC",
+          "CD",
+          "HYP"
+        ],
+        "support": 25
+      },
+      {
+        "exact_match_rate": 0.047619047619047616,
+        "exact_matches": 1,
+        "label_errors": 32,
+        "labels": [
+          "MI",
+          "STTC",
+          "CD"
+        ],
+        "support": 21
+      },
+      {
+        "exact_match_rate": 0.11764705882352941,
+        "exact_matches": 2,
+        "label_errors": 24,
+        "labels": [
+          "MI",
+          "HYP"
+        ],
+        "support": 17
+      },
+      {
+        "exact_match_rate": 0.4375,
+        "exact_matches": 7,
+        "label_errors": 10,
+        "labels": [
+          "MI",
+          "STTC",
+          "CD",
+          "HYP"
+        ],
+        "support": 16
+      },
+      {
+        "exact_match_rate": 0.2,
+        "exact_matches": 1,
+        "label_errors": 5,
+        "labels": [
+          "MI",
+          "CD",
+          "HYP"
+        ],
+        "support": 5
+      },
+      {
+        "exact_match_rate": 0.0,
+        "exact_matches": 0,
+        "label_errors": 6,
+        "labels": [
+          "NORM",
+          "STTC"
+        ],
+        "support": 4
+      },
+      {
+        "exact_match_rate": 0.0,
+        "exact_matches": 0,
+        "label_errors": 3,
+        "labels": [
+          "NORM",
+          "CD",
+          "HYP"
+        ],
+        "support": 2
+      }
+    ],
+    "decision_rule": "probability_greater_than_or_equal_to_threshold",
+    "exact_match_rate": 0.5769230769230769,
+    "exact_matches": 1245,
+    "hamming_loss": 0.12928637627432807,
+    "label_errors": 1395,
+    "minimum_combination_support": 20,
+    "per_class": [
+      {
+        "false_negatives": 77,
+        "false_positives": 254,
+        "label": "NORM",
+        "threshold": 0.32776474952697754,
+        "true_negatives": 941,
+        "true_positives": 886
+      },
+      {
+        "false_negatives": 200,
+        "false_positives": 113,
+        "label": "MI",
+        "threshold": 0.511550784111023,
+        "true_negatives": 1495,
+        "true_positives": 350
+      },
+      {
+        "false_negatives": 109,
+        "false_positives": 158,
+        "label": "STTC",
+        "threshold": 0.38026294112205505,
+        "true_negatives": 1479,
+        "true_positives": 412
+      },
+      {
+        "false_negatives": 156,
+        "false_positives": 77,
+        "label": "CD",
+        "threshold": 0.38786107301712036,
+        "true_negatives": 1585,
+        "true_positives": 340
+      },
+      {
+        "false_negatives": 79,
+        "false_positives": 172,
+        "label": "HYP",
+        "threshold": 0.14528490602970123,
+        "true_negatives": 1724,
+        "true_positives": 183
+      }
+    ],
+    "problematic_combinations": [
+      {
+        "exact_match_rate": 0.047619047619047616,
+        "exact_matches": 1,
+        "label_errors": 32,
+        "labels": [
+          "MI",
+          "STTC",
+          "CD"
+        ],
+        "support": 21
+      },
+      {
+        "exact_match_rate": 0.1111111111111111,
+        "exact_matches": 3,
+        "label_errors": 38,
+        "labels": [
+          "CD",
+          "HYP"
+        ],
+        "support": 27
+      },
+      {
+        "exact_match_rate": 0.13157894736842105,
+        "exact_matches": 5,
+        "label_errors": 51,
+        "labels": [
+          "STTC",
+          "CD"
+        ],
+        "support": 38
+      },
+      {
+        "exact_match_rate": 0.21428571428571427,
+        "exact_matches": 12,
+        "label_errors": 78,
+        "labels": [
+          "HYP"
+        ],
+        "support": 56
+      },
+      {
+        "exact_match_rate": 0.24,
+        "exact_matches": 6,
+        "label_errors": 31,
+        "labels": [
+          "STTC",
+          "CD",
+          "HYP"
+        ],
+        "support": 25
+      }
+    ],
+    "samples": 2158
+  },
+  "figures": [
+    {
+      "name": "training_history",
+      "path": "reports/figures/training_history.png",
+      "sha256": "83aa4ec44340cce997321c83493f99101a00da5ca70be9405ed6d2c68b3416ed"
+    },
+    {
+      "name": "final_roc_pr_curves",
+      "path": "reports/figures/final_roc_pr_curves.png",
+      "sha256": "6a7382eba9040b6a75a88faf7caf63601e29c8109b3d7e5a4f143bc2c1412165"
+    },
+    {
+      "name": "final_operating_errors",
+      "path": "reports/figures/final_operating_errors.png",
+      "sha256": "669ccc023648223e91562a49e8b3857c9bbe26cf874500954bd5c91a6df3a386"
+    },
+    {
+      "name": "hyp_false_negative_saliency",
+      "path": "reports/figures/hyp_false_negative_saliency.png",
+      "sha256": "3244c33e9f7e2be57b3c87a9555f153b1b2459dc63ca7b9b409184f7380b0640"
+    }
+  ],
+  "limitations": [
+    "This is post-hoc analysis of one internal PTB-XL test fold.",
+    "Test observations were not used to modify the frozen model or thresholds.",
+    "No repeated-seed uncertainty or external validation is available.",
+    "Input-gradient attribution can be noisy and is not a clinical explanation.",
+    "The selected error is illustrative and not representative of all failures."
+  ],
+  "runtime": {
+    "device": "cpu",
+    "matplotlib": "3.11.1",
+    "numpy": "2.4.6",
+    "pandas": "3.0.3",
+    "prediction_artifact_fingerprint": "578c8289e0c863b18603c71e2321c7e355e13686c0eb19547b51fe718c09a5d2",
+    "python": "3.11.15",
+    "scikit_learn": "1.9.0",
+    "torch": "2.13.0+cu130"
+  },
+  "schema_version": 1,
+  "sources": {
+    "analysis_config": {
+      "path": "configs/final_analysis_small_cnn_100hz.toml",
+      "sha256": "79889b1f384234459252d6a076326f053f083f8572fd402c1913e97dbebf5970"
+    },
+    "checkpoint": {
+      "path": "artifacts/experiments/baseline_small_cnn_100hz.pt",
+      "sha256": "26d058b75dd486e0d81b75fea3cce44fabf6f7c625c57da79640caee6b5c9a11"
+    },
+    "experiment_config": {
+      "path": "configs/baseline_small_cnn_100hz.toml",
+      "sha256": "50b5b68f8497baf27101a92d550588f8817b6c47a4832267c8033d8ccea2d714"
+    },
+    "experiment_report": {
+      "path": "reports/experiments/baseline_small_cnn_100hz.json",
+      "sha256": "1c84a1e807c430d0d54eab89f9a47d6e930993091ceefc062b4b8580ad4f91b6"
+    },
+    "final_test_report": {
+      "path": "reports/evaluation/baseline_small_cnn_100hz_final_test.json",
+      "sha256": "ac5fa3510b8f5776068f279a878da5fb5c26b459381599f37bcb9e99b9d63cfb"
+    },
+    "inference_config": {
+      "path": "configs/inference_small_cnn_100hz.toml",
+      "sha256": "132076cce10e032a91e4a5efcf4116d99ff2a39b60ac466e6411f5dfa8949458"
+    },
+    "metadata": {
+      "path": "data/raw/ptbxl_database.csv",
+      "sha256": "7600de9c1b27d181d850b3c6038a35d7c3ddb6bb33b702e3a20252a6859d216b"
+    },
+    "prediction_artifact": {
+      "path": "artifacts/evaluation/baseline_small_cnn_100hz_final_test_predictions.npz",
+      "sha256": "07840774d81768cd7c97ea0a1ebe2b8498dda9f6f99361aaebb7a44e4415245f"
+    },
+    "standardizer": {
+      "path": "reports/preprocessing/ptbxl_v1.0.3_train_global_standardizer.json",
+      "sha256": "f791aeb9795c669a54a391d979f69806ccdca19f05128a9fde8f408ec36090bc"
+    },
+    "threshold_artifact": {
+      "path": "reports/evaluation/baseline_small_cnn_100hz_thresholds.json",
+      "sha256": "f613843e9805f6087964f9ef0a963691bc5f61954ad68d1471efb067bf83b1ce"
+    }
+  }
+}

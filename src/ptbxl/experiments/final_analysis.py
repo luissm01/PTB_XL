@@ -121,15 +121,12 @@ class FinalAnalysisConfig:
         _positive_integer("attribution_window_samples", self.attribution_window_samples)
         if self.attribution_window_samples > 1_000:
             raise ValueError("attribution_window_samples cannot exceed 1,000")
-        if self.attribution_label not in TARGET_SUPERCLASSES:
-            raise ValueError(f"attribution_label must be one of {TARGET_SUPERCLASSES}")
-        if self.attribution_kind not in {
-            "false_positive",
-            "false_negative",
-            "true_positive",
-            "true_negative",
-        }:
-            raise ValueError("attribution_kind is invalid")
+        if self.attribution_label != "HYP":
+            raise ValueError("attribution_label must be 'HYP' for this final analysis")
+        if self.attribution_kind != "false_negative":
+            raise ValueError(
+                "attribution_kind must be 'false_negative' for this final analysis"
+            )
         if isinstance(self.prediction_tolerance, bool) or not isinstance(
             self.prediction_tolerance, (int, float)
         ):
